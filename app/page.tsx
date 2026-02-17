@@ -63,7 +63,7 @@ export default function Page() {
     if (!current || cards.length < 2) return [];
 
     const pool = cards.filter((c) => c !== current);
-    const n = Math.max(2, Math.min(5, choiceCount));
+    const n = Math.max(2, Math.min(8, choiceCount));
     const others = shuffle(pool).slice(0, n - 1);
 
     if (mode === "flash") {
@@ -177,7 +177,7 @@ export default function Page() {
 
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           <div>choices</div>
-          {[2, 3, 4, 5].map((n) => (
+          {[2, 3, 4, 5, 6, 7, 8].map((n) => (
             <button
               key={n}
               onClick={() => setChoiceCount(n)}
