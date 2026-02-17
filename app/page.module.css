@@ -1,0 +1,206 @@
+/* Main Container */
+.container {
+  padding: 24px;
+  font-family: system-ui, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  margin: 0;
+}
+
+/* Controls Area */
+.controls {
+  margin-top: 12px;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.controlGroup {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.button {
+  padding: 6px 10px;
+  border: 1px solid #222;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.buttonActive {
+  background: #eee;
+}
+
+.buttonSurvival {
+  background: #ffddd5;
+}
+
+.buttonTrick {
+  background: #d5efff;
+}
+
+.select {
+  padding: 4px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.choiceButton {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #222;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.choiceButtonActive {
+  background: #eee;
+}
+
+/* Game Area */
+.gameArea {
+  margin-top: 14px;
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* Flash Mode Layout */
+.flashGrid {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 12px;
+}
+
+.flashImageContainer {
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 360px;
+  background: #fff;
+}
+
+.flashImage {
+  max-width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+}
+
+.sentenceList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sentenceButton {
+  text-align: left;
+  padding: 12px;
+  border: 1px solid #222;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+}
+
+/* Karuta Mode Layout */
+.karutaHeader {
+  border: 1px solid #222;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.targetSentence {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.karutaGrid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.karutaCard {
+  border: 1px solid #222;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.karutaImage {
+  width: 100%;
+  height: 220px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 12px;
+  }
+
+  /* Flash Mode: Stack vertically on mobile */
+  .flashGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .flashImageContainer {
+    min-height: 250px;
+  }
+  
+  .flashImage {
+    max-height: 250px;
+  }
+
+  /* Karuta Mode: Smaller cards on mobile to fit 2 cols */
+  .karutaGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .karutaImage {
+    height: 140px;
+  }
+}
+
+@media (max-width: 480px) {
+  .choiceButton {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+  
+  .targetSentence {
+    font-size: 16px;
+  }
+}
