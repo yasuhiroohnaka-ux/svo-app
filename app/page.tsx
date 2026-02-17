@@ -39,6 +39,7 @@ export default function Page() {
   const [isSurvival, setIsSurvival] = useState<boolean>(false);
   const [remainingCards, setRemainingCards] = useState<Card[]>([]);
   const [trickMode, setTrickMode] = useState<boolean>(false);
+  const [deckSize, setDeckSize] = useState<number | "all">("all");
 
   // データ読み込み（public/data/svo_cards.json を想定）
   useEffect(() => {
@@ -316,12 +317,32 @@ export default function Page() {
 
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <div style={{ opacity: 0.7 }}>|</div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <span style={{ fontSize: 14 }}>Deck:</span>
+            <select
+              value={deckSize}
+              onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
+              style={{ padding: 4, borderRadius: 4, border: "1px solid #ccc" }}
+              disabled={isSurvival} // Disable while playing survival
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="all">All</option>
+            </select>
+          </div>
+
           <button
             onClick={() => {
               const newVal = !isSurvival;
               setIsSurvival(newVal);
               if (newVal) {
-                setRemainingCards(cards);
+                const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
+                const shuffled = shuffle(cards);
+                setRemainingCards(shuffled.slice(0, targetCount));
                 setScore(0);
                 setStreak(0);
                 setIndex(0);
