@@ -30,7 +30,7 @@ export default function Page() {
   const [index, setIndex] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
   const [streak, setStreak] = useState<number>(0);
-  const [wrongChoice, setWrongChoice] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<{ value: string; isCorrect: boolean } | null>(null);
 
   // データ読み込み（public/data/svo_cards.json を想定）
   useEffect(() => {
@@ -90,18 +90,24 @@ export default function Page() {
   function nextCard() {
     if (cards.length === 0) return;
     setIndex((i) => (i + 1) % cards.length);
-    setWrongChoice(null);
+    setFeedback(null);
   }
 
   function judgeFlash(selectedSentence: string) {
     if (!current) return;
     const ok = selectedSentence === current.sentence;
     if (ok) {
-      setScore((s) => s + 1);
-      setStreak((s) => s + 1);
-      nextCard();
+      setFeedback({ value: selectedSentence, isCorrect: true });
+      // 正解演出のあとに次へ
+      setTimeout(() => {
+        setScore((s) => s + 1);
+        setStreak((s) => s + 1);
+        nextCard();
+      }, 1000);
     } else {
       setStreak(0);
+      setFeedback({ value: selectedSentence, isCorrect: false });
+      playBuzz();
     }
   }
 
@@ -109,11 +115,17 @@ export default function Page() {
     if (!current) return;
     const ok = selectedImage === current.image;
     if (ok) {
-      setScore((s) => s + 1);
-      setStreak((s) => s + 1);
-      nextCard();
+      setFeedback({ value: selectedImage, isCorrect: true });
+      // 正解演出のあとに次へ
+      setTimeout(() => {
+        setScore((s) => s + 1);
+        setStreak((s) => s + 1);
+        nextCard();
+      }, 1000);
     } else {
       setStreak(0);
+      setFeedback({ value: selectedImage, isCorrect: false });
+      playBuzz();
     }
   }
 
@@ -266,7 +278,9 @@ export default function Page() {
                     style={{
                       textAlign: "left",
                       padding: 10,
-                      border: wrongChoice === String(s) ? "2px solid red" : "1px solid #222",
+                      border: feedback?.value === String(s)
+                        ? `2px solid ${feedback.isCorrect ? "green" : "red"}`
+                        : "1px solid #222",
                       borderRadius: 8,
                       background: "#fff",
                       cursor: "pointer",
@@ -333,7 +347,9 @@ export default function Page() {
                   key={i}
                   onClick={() => judgeKaruta(String(img))}
                   style={{
-                    border: wrongChoice === String(img) ? "2px solid red" : "1px solid #222",
+                    border: feedback?.value === String(img)
+                      ? `2px solid ${feedback.isCorrect ? "green" : "red"}`
+                      : "1px solid #222",
                     borderRadius: 8,
                     background: "#fff",
                     cursor: "pointer",
