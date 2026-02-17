@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { speak } from "@/utils/speak";
-import { playBuzz } from "@/utils/sound";
+import { playBuzz, playChime } from "@/utils/sound";
 
 type Card = {
   id?: string | number;
@@ -98,6 +98,7 @@ export default function Page() {
     const ok = selectedSentence === current.sentence;
     if (ok) {
       setFeedback({ value: selectedSentence, isCorrect: true });
+      playChime();
       // 正解演出のあとに次へ
       setTimeout(() => {
         setScore((s) => s + 1);
@@ -116,6 +117,7 @@ export default function Page() {
     const ok = selectedImage === current.image;
     if (ok) {
       setFeedback({ value: selectedImage, isCorrect: true });
+      playChime();
       // 正解演出のあとに次へ
       setTimeout(() => {
         setScore((s) => s + 1);
