@@ -83,33 +83,39 @@ export default function Page() {
 
   // 選択肢生成（flash: 文、karuta: 画像）
   const choices = useMemo(() => {
-    if (!current || activePool.length < 2) return [];
+    if (!current || activePool.length === 0) return [];
 
-    // For choices, we can pull from the entire deck to keep it challenging, 
-    // or just the active pool. 
-    // Usually survival implies you only play with what's left, 
-    // but if the pool gets small (e.g. 2 cards), choices become obvious.
-    // Let's use 'cards' (full deck) for distractors to maintain difficulty,
-    // unless the user specifically wants only remaining cards. 
-    // Implementation Plan said: "Survival: Show all remainingCards".
-    // If we strictly follow that, when 2 cards match, it's 50/50.
-    // Let's stick to using `activePool` for consistency with "clearing the deck".
+    if (isSurvival) {
+      // Survival Mode:
+      // 1. Distractors must come from `activePool` (remaining cards) only.
+      // 2. If remaining cards < choiceCount, we show all remaining cards.
 
-    // Actually, if we use activePool and it drops below choiceCount, we can't show enough choices.
-    // So we should probably pull distractors from the full `cards` list to always fill `choiceCount`.
+      const pool = activePool.filter((c) => c.id !== current.id);
+      const maxChoices = Math.min(11, choiceCount);
+      // We want (maxChoices - 1) distractors, but we can't take more than what's available.
+      const takeN = Math.min(pool.length, maxChoices - 1);
 
-    const pool = cards.filter((c) => c.id !== current.id);
-    const n = Math.max(2, Math.min(11, choiceCount));
-    const others = shuffle(pool).slice(0, n - 1);
+      const others = shuffle(pool).slice(0, takeN);
 
-    if (mode === "flash") {
-      // 正解文 + ダミー文
-      const s = shuffle([current, ...others]).map((c) => c.sentence);
-      return s;
+      if (mode === "flash") {
+        return shuffle([current, ...others]).map((c) => c.sentence);
+      } else {
+        return shuffle([current, ...others]).map((c) => c.image);
+      }
     } else {
-      // 正解画像 + ダミー画像
-      const imgs = shuffle([current, ...others]).map((c) => c.image);
-      return imgs;
+      // Normal Mode:
+      // Always refill from full `cards` deck to maintain `choiceCount`.
+      const pool = cards.filter((c) => c.id !== current.id);
+      const n = Math.max(2, Math.min(11, choiceCount));
+      const others = shuffle(pool).slice(0, n - 1);
+
+      if (mode === "flash") {
+        const s = shuffle([current, ...others]).map((c) => c.sentence);
+        return s;
+      } else {
+        const imgs = shuffle([current, ...others]).map((c) => c.image);
+        return imgs;
+      }
     }
   }, [cards, current, mode, choiceCount, activePool.length]);
 
