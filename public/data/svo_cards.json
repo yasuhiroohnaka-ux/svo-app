@@ -1,0 +1,112 @@
+﻿[
+  {
+    "cardId": 0,
+    "page": 0,
+    "pairId": "p0",
+    "subject": "banana",
+    "verb": "eat",
+    "object": "fish",
+    "sentence": "A banana eats a fish.",
+    "imageFile": "page_0.png"
+  },
+  {
+    "cardId": 1,
+    "page": 1,
+    "pairId": "p1",
+    "subject": "carrot",
+    "verb": "eat",
+    "object": "snake",
+    "sentence": "A carrot eats a snake.",
+    "imageFile": "page_1.png"
+  },
+  {
+    "cardId": 2,
+    "page": 2,
+    "pairId": "p2",
+    "subject": "girl",
+    "verb": "wash",
+    "object": "dish",
+    "sentence": "A girl washes a dish.",
+    "imageFile": "page_2.png"
+  },
+  {
+    "cardId": 3,
+    "page": 3,
+    "pairId": "p3",
+    "subject": "boy",
+    "verb": "wash",
+    "object": "car",
+    "sentence": "A boy washes a car.",
+    "imageFile": "page_3.png"
+  },
+  {
+    "cardId": 4,
+    "page": 4,
+    "pairId": "p4",
+    "subject": "boy",
+    "verb": "wash",
+    "object": "dog",
+    "sentence": "A boy washes a dog.",
+    "imageFile": "page_4.png"
+  },
+  {
+    "cardId": 5,
+    "page": 5,
+    "pairId": "p5",
+    "subject": "boy",
+    "verb": "wash",
+    "object": "fish",
+    "sentence": "A boy washes a fish.",
+    "imageFile": "page_5.png"
+  },
+  {
+    "cardId": 6,
+    "page": 6,
+    "pairId": "p6",
+    "subject": "boy",
+    "verb": "wash",
+    "object": "apple",
+    "sentence": "A boy washes an apple.",
+    "imageFile": "page_6.png"
+  },
+  {
+    "cardId": 7,
+    "page": 7,
+    "pairId": "p7",
+    "subject": "car",
+    "verb": "wash",
+    "object": "boy",
+    "sentence": "A car washes a boy.",
+    "imageFile": "page_7.png"
+  },
+  {
+    "cardId": 8,
+    "page": 8,
+    "pairId": "p8",
+    "subject": "cup",
+    "verb": "wash",
+    "object": "girl",
+    "sentence": "A cup washes a girl.",
+    "imageFile": "page_8.png"
+  },
+  {
+    "cardId": 9,
+    "page": 9,
+    "pairId": "p9",
+    "subject": "dish",
+    "verb": "wash",
+    "object": "girl",
+    "sentence": "A dish washes a girl.",
+    "imageFile": "page_9.png"
+  },
+  {
+    "cardId": 10,
+    "page": 10,
+    "pairId": "p10",
+    "subject": "dog",
+    "verb": "wash",
+    "object": "boy",
+    "sentence": "A dog washes a boy.",
+    "imageFile": "page_10.png"
+  }
+]
