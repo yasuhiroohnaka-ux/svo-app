@@ -42,7 +42,7 @@ export default function Page() {
         .map((x, i) => ({
           id: x.id ?? i,
           sentence: x.sentence ?? x.text ?? "",
-          image: x.image ?? x.img ?? x.imagePath ?? x.imageFile ?? "",
+          image: x.image ?? x.img ?? x.imagePath ?? (x.imageFile ? `/images/${x.imageFile}` : "") ?? "",
         }))
         .filter((x) => x.sentence && x.image);
 
