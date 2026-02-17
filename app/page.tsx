@@ -128,7 +128,7 @@ export default function Page() {
 
     if (isSurvival && trickMode && activePool.length <= 4) {
       // Trick mode: speak S -> V -> O with intervals
-      speakQueue([current.subject, current.verb, current.object], 2000);
+      speakQueue([current.subject, current.verb, current.object], 1000);
     } else {
       speak(current.sentence);
     }
@@ -468,7 +468,7 @@ export default function Page() {
                 <button
                   onClick={() => {
                     if (isSurvival && trickMode && activePool.length <= 4) {
-                      speakQueue([current.subject, current.verb, current.object], 2000);
+                      speakQueue([current.subject, current.verb, current.object], 1000);
                     } else {
                       speak(current.sentence);
                     }
