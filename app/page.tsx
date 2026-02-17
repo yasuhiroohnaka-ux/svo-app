@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { speak, speakQueue } from "@/utils/speak";
 import { playBuzz, playChime } from "@/utils/sound";
+import styles from "./page.module.css";
 
 type Card = {
   id: number;
@@ -118,7 +119,7 @@ export default function Page() {
         return imgs;
       }
     }
-  }, [cards, current, mode, choiceCount, activePool.length]);
+  }, [cards, current, mode, choiceCount, activePool, isSurvival]);
 
   // karuta時に自動で読み上げ
   useEffect(() => {
@@ -219,8 +220,8 @@ export default function Page() {
 
   if (!current) {
     return (
-      <main style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
-        <h1 style={{ margin: 0 }}>SVO App</h1>
+      <main className={styles.container}>
+        <h1 className={styles.header}>SVO App</h1>
         <p style={{ marginTop: 12 }}>loading...</p>
         <p style={{ opacity: 0.7, marginTop: 8 }}>
           public/data/svo_cards.json が読み込めない場合、パスやJSON形式を確認してください。
@@ -230,100 +231,64 @@ export default function Page() {
   }
 
   return (
-    <main style={{ padding: 24, fontFamily: "system-ui, sans-serif" }}>
-      <h1 style={{ margin: 0 }}>SVO App</h1>
+    <main className={styles.container}>
+      <h1 className={styles.header}>SVO App</h1>
 
       {/* 上部コントロール */}
-      <div
-        style={{
-          marginTop: 12,
-          border: "1px solid #222",
-          borderRadius: 8,
-          padding: 10,
-          display: "flex",
-          gap: 10,
-          alignItems: "center",
-          flexWrap: "wrap",
-        }}
-      >
+      <div className={styles.controls}>
         <div style={{ whiteSpace: "nowrap" }}>
           cards: {activePool.length} / score: {score} / streak: {streak}
         </div>
 
-        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+        <div className={styles.controlGroup}>
           <div>mode</div>
           <button
             onClick={() => setMode("flash")}
-            style={{
-              padding: "6px 10px",
-              border: "1px solid #222",
-              borderRadius: 6,
-              background: mode === "flash" ? "#eee" : "#fff",
-              cursor: "pointer",
-            }}
+            className={`${styles.button} ${mode === "flash" ? styles.buttonActive : ""}`}
           >
             flash
           </button>
           <button
             onClick={() => setMode("karuta")}
-            style={{
-              padding: "6px 10px",
-              border: "1px solid #222",
-              borderRadius: 6,
-              background: mode === "karuta" ? "#eee" : "#fff",
-              cursor: "pointer",
-            }}
+            className={`${styles.button} ${mode === "karuta" ? styles.buttonActive : ""}`}
           >
             karuta (sentence→image)
           </button>
         </div>
 
-        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+        <div className={styles.controlGroup}>
           <div>choices</div>
           {[2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => (
             <button
               key={n}
               onClick={() => setChoiceCount(n)}
-              style={{
-                width: 34,
-                height: 34,
-                border: "1px solid #222",
-                borderRadius: 6,
-                background: choiceCount === n ? "#eee" : "#fff",
-                cursor: "pointer",
-              }}
+              className={`${styles.choiceButton} ${choiceCount === n ? styles.choiceButtonActive : ""}`}
             >
               {n}
             </button>
           ))}
         </div>
 
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div className={styles.controlGroup}>
           <div style={{ opacity: 0.7 }}>|</div>
           <button
             onClick={() => setAutoSpeak((v) => !v)}
-            style={{
-              padding: "6px 10px",
-              border: "1px solid #222",
-              borderRadius: 6,
-              background: autoSpeak ? "#eee" : "#fff",
-              cursor: "pointer",
-            }}
+            className={`${styles.button} ${autoSpeak ? styles.buttonActive : ""}`}
             title="karuta時に自動で読み上げ"
           >
             auto speak: {autoSpeak ? "on" : "off"}
           </button>
         </div>
 
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div className={styles.controlGroup}>
           <div style={{ opacity: 0.7 }}>|</div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <div className={styles.controlGroup}>
             <span style={{ fontSize: 14 }}>Deck:</span>
             <select
               value={deckSize}
               onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
-              style={{ padding: 4, borderRadius: 4, border: "1px solid #ccc" }}
+              className={styles.select}
               disabled={isSurvival} // Disable while playing survival
             >
               <option value="5">5</option>
@@ -350,30 +315,18 @@ export default function Page() {
                 setRemainingCards(cards); // Sync back just in case
               }
             }}
-            style={{
-              padding: "6px 10px",
-              border: "1px solid #222",
-              borderRadius: 6,
-              background: isSurvival ? "#ffddd5" : "#fff",
-              cursor: "pointer",
-            }}
+            className={`${styles.button} ${isSurvival ? styles.buttonSurvival : ""}`}
           >
             Survival Mode: {isSurvival ? "ON" : "OFF"}
           </button>
         </div>
 
         {isSurvival && remainingCards.length <= 4 && (
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <div className={styles.controlGroup}>
             <div style={{ opacity: 0.7 }}>|</div>
             <button
               onClick={() => setTrickMode(!trickMode)}
-              style={{
-                padding: "6px 10px",
-                border: "1px solid #222",
-                borderRadius: 6,
-                background: trickMode ? "#d5efff" : "#fff",
-                cursor: "pointer",
-              }}
+              className={`${styles.button} ${trickMode ? styles.buttonTrick : ""}`}
             >
               Trick Mode: {trickMode ? "ON" : "OFF"}
             </button>
@@ -382,40 +335,20 @@ export default function Page() {
       </div>
 
       {/* 問題エリア */}
-      <div
-        style={{
-          marginTop: 14,
-          border: "1px solid #222",
-          borderRadius: 8,
-          padding: 12,
-          display: "grid",
-          gridTemplateColumns: mode === "flash" ? "1fr 420px" : "1fr",
-          gap: 12,
-        }}
-      >
+      <div className={styles.gameArea}>
         {mode === "flash" ? (
-          <>
+          <div className={styles.flashGrid}>
             {/* 左: 画像 */}
             <div>
               <div style={{ marginBottom: 10, opacity: 0.8 }}>
                 flash: pick the correct sentence for this image
               </div>
-              <div
-                style={{
-                  border: "1px solid #222",
-                  borderRadius: 8,
-                  padding: 10,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  minHeight: 360,
-                }}
-              >
+              <div className={styles.flashImageContainer}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={current.image}
                   alt="card"
-                  style={{ maxWidth: "100%", maxHeight: 360, objectFit: "contain" }}
+                  className={styles.flashImage}
                 />
               </div>
             </div>
@@ -423,20 +356,16 @@ export default function Page() {
             {/* 右: 選択肢（文） */}
             <div>
               <div style={{ marginBottom: 10 }}>choose one</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div className={styles.sentenceList}>
                 {choices.map((s, i) => (
                   <button
                     key={i}
                     onClick={() => judgeFlash(String(s))}
+                    className={styles.sentenceButton}
                     style={{
-                      textAlign: "left",
-                      padding: 10,
                       border: feedback?.value === String(s)
                         ? `2px solid ${feedback.isCorrect ? "green" : "red"}`
                         : "1px solid #222",
-                      borderRadius: 8,
-                      background: "#fff",
-                      cursor: "pointer",
                     }}
                   >
                     {String(s)}
@@ -444,27 +373,17 @@ export default function Page() {
                 ))}
               </div>
             </div>
-          </>
+          </div>
         ) : (
           <>
             {/* karuta: ターゲット文を常に表示 + 🔊 */}
-            <div
-              style={{
-                border: "1px solid #222",
-                borderRadius: 8,
-                padding: 10,
-                display: "flex",
-                gap: 10,
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            <div className={styles.karutaHeader}>
+              <div className={styles.controlGroup}>
                 <div style={{ opacity: 0.8 }}>target:</div>
-                <div style={{ fontSize: 18 }}>{current.sentence}</div>
+                <div className={styles.targetSentence}>{current.sentence}</div>
               </div>
 
-              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <div className={styles.controlGroup}>
                 <button
                   onClick={() => {
                     if (isSurvival && trickMode && activePool.length <= 4) {
@@ -473,26 +392,14 @@ export default function Page() {
                       speak(current.sentence);
                     }
                   }}
-                  style={{
-                    padding: "6px 10px",
-                    border: "1px solid #222",
-                    borderRadius: 6,
-                    background: "#fff",
-                    cursor: "pointer",
-                  }}
+                  className={styles.button}
                   title="読み上げ"
                 >
                   🔊 speak
                 </button>
                 <button
                   onClick={nextCard}
-                  style={{
-                    padding: "6px 10px",
-                    border: "1px solid #222",
-                    borderRadius: 6,
-                    background: "#fff",
-                    cursor: "pointer",
-                  }}
+                  className={styles.button}
                 >
                   skip
                 </button>
@@ -500,26 +407,23 @@ export default function Page() {
             </div>
 
             {/* 画像候補 */}
-            <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+            <div className={styles.karutaGrid}>
               {choices.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => judgeKaruta(String(img))}
+                  className={styles.karutaCard}
                   style={{
                     border: feedback?.value === String(img)
                       ? `2px solid ${feedback.isCorrect ? "green" : "red"}`
                       : "1px solid #222",
-                    borderRadius: 8,
-                    background: "#fff",
-                    cursor: "pointer",
-                    padding: 10,
                   }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={String(img)}
                     alt={`choice-${i}`}
-                    style={{ width: "100%", height: 220, objectFit: "contain", display: "block" }}
+                    className={styles.karutaImage}
                   />
                 </button>
               ))}
