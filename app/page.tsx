@@ -50,6 +50,7 @@ const translations = {
     english: "English",
     chinese: "Chinese",
     japanese: "Japanese",
+    appTitle: "Puzzle Grammar",
   },
   ja: {
     loading: "じゅんびちゅう...",
@@ -78,6 +79,7 @@ const translations = {
     english: "えいご",
     chinese: "ちゅうごくご",
     japanese: "にほんご",
+    appTitle: "パズルグラマー",
   },
   zh: {
     loading: "加载中...",
@@ -106,6 +108,7 @@ const translations = {
     english: "英语",
     chinese: "中文",
     japanese: "日语",
+    appTitle: "拼图语法",
   }
 };
 
@@ -350,7 +353,7 @@ export default function Page() {
   if (!current) {
     return (
       <main className={styles.container}>
-        <h1 className={styles.header}>SVO App</h1>
+        <h1 className={styles.header}>{t.appTitle || "Puzzle Grammar"}</h1>
         <p style={{ marginTop: 12 }}>{t.loading}</p>
       </main>
     );
@@ -358,7 +361,7 @@ export default function Page() {
 
   return (
     <main className={styles.container}>
-      <h1 className={styles.header}>SVO App</h1>
+      <h1 className={styles.header}>{t.appTitle}</h1>
 
       {/* 上部コントロール */}
       <div className={styles.controls}>
