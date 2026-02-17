@@ -265,15 +265,22 @@
 
   .karutaGrid {
     margin-top: 6px;
-    gap: 6px;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 4px;
+    justify-content: center;
   }
 
   .karutaCard {
-    padding: 4px;
+    padding: 2px;
+    aspect-ratio: 4/3;
+    justify-content: center;
   }
 
   .karutaImage {
-    height: 16vh;
-    min-height: 50px;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    object-fit: contain;
   }
 }
