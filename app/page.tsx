@@ -20,7 +20,7 @@ type Card = {
 
 type Mode = "flash" | "karuta";
 type ContentLang = "en" | "zh";
-type UiLang = "en" | "ja";
+type UiLang = "en" | "ja" | "zh";
 
 const translations = {
   en: {
@@ -48,36 +48,64 @@ const translations = {
     uiLang: "UI Language",
     contentLang: "Content Language",
     english: "English",
-    chinese: "中文",
-    japanese: "日本語",
+    chinese: "Chinese",
+    japanese: "Japanese",
   },
   ja: {
-    loading: "読み込み中...",
-    cards: "残り枚数",
-    score: "スコア",
-    streak: "連続正解",
+    loading: "じゅんびちゅう...",
+    cards: "のこり",
+    score: "てんすう",
+    streak: "れんぞく",
     mode: "モード",
     flash: "フラッシュ",
-    karuta: "カルタ",
-    choices: "選択肢数",
-    autoSpeak: "自動読み上げ",
-    on: "ON",
-    off: "OFF",
-    deck: "デッキ",
+    karuta: "かるた",
+    choices: "かず",
+    autoSpeak: "じどうよみあげ",
+    on: "オン",
+    off: "オフ",
+    deck: "まいすう",
     surprise: "サプライズ",
-    survivalMode: "サバイバルモード",
-    trickMode: "トリックモード",
-    flashInstruction: "フラッシュ: 正しい文を選んでください",
-    chooseOne: "1つ選択",
-    target: "ターゲット",
-    speak: "読み上げ",
+    survivalMode: "サバイバル",
+    trickMode: "トリック",
+    flashInstruction: "フラッシュ: ただしい文を えらんでね",
+    chooseOne: "ひとつ えらぼう",
+    target: "さがしてね",
+    speak: "きく",
     skip: "スキップ",
-    gameCleared: "ゲームクリア！リスタートします...",
-    uiLang: "表示言語",
-    contentLang: "学習言語",
-    english: "英語",
-    chinese: "中国語",
-    japanese: "日本語",
+    gameCleared: "クリア！ 最初にもどるよ",
+    uiLang: "ひょうじ",
+    contentLang: "カード",
+    english: "えいご",
+    chinese: "ちゅうごくご",
+    japanese: "にほんご",
+  },
+  zh: {
+    loading: "加载中...",
+    cards: "剩余",
+    score: "分数",
+    streak: "连胜",
+    mode: "模式",
+    flash: "闪卡",
+    karuta: "歌牌",
+    choices: "选项",
+    autoSpeak: "自动朗读",
+    on: "开",
+    off: "关",
+    deck: "卡片数",
+    surprise: "惊喜",
+    survivalMode: "生存模式",
+    trickMode: "陷阱模式",
+    flashInstruction: "闪卡：选择正确的句子",
+    chooseOne: "选择一个",
+    target: "目标",
+    speak: "朗读",
+    skip: "跳过",
+    gameCleared: "通关！重新开始...",
+    uiLang: "界面语言",
+    contentLang: "内容语言",
+    english: "英语",
+    chinese: "中文",
+    japanese: "日语",
   }
 };
 
@@ -195,6 +223,28 @@ export default function Page() {
   const getVerb = (c: Card) => contentLang === "zh" ? c.verb_zh : c.verb;
   const getObject = (c: Card) => contentLang === "zh" ? c.object_zh : c.object;
   const getLangCode = () => contentLang === "zh" ? "zh-CN" : "en-US";
+
+  // Cycle UI Language: en -> ja -> zh -> en
+  const toggleUiLang = () => {
+    setUiLang((prev) => {
+      if (prev === "en") return "ja";
+      if (prev === "ja") return "zh";
+      return "en";
+    });
+  };
+
+  // Helper for UI lang label
+  const getUiLangLabel = () => {
+    if (uiLang === "en") return t.english;
+    if (uiLang === "ja") return t.japanese;
+    return t.chinese;
+  };
+
+  // Helper for Content lang label
+  const getContentLangLabel = () => {
+    if (contentLang === "en") return t.english;
+    return t.chinese;
+  };
 
   // karuta時に自動で読み上げ
   useEffect(() => {
@@ -318,11 +368,11 @@ export default function Page() {
 
         <div className={styles.controlGroup}>
           <button
-            onClick={() => setUiLang(uiLang === "en" ? "ja" : "en")}
+            onClick={toggleUiLang}
             className={styles.button}
             title={t.uiLang}
           >
-            {t.uiLang}: {uiLang === "en" ? "English" : "日本語"}
+            {t.uiLang}: {getUiLangLabel()}
           </button>
 
           <div style={{ opacity: 0.7 }}>|</div>
@@ -332,7 +382,7 @@ export default function Page() {
             className={styles.button}
             title={t.contentLang}
           >
-            {t.contentLang}: {contentLang === "en" ? "English" : "中文"}
+            {t.contentLang}: {getContentLangLabel()}
           </button>
         </div>
 
@@ -438,7 +488,11 @@ export default function Page() {
               <div style={{ marginBottom: 10, opacity: 0.8 }}>
                 {t.flashInstruction} ({contentLang === "en" ? t.english : t.chinese})
               </div>
-              <div className={styles.flashImageContainer}>
+              <div
+                className={styles.flashImageContainer}
+                onClick={() => speak(getSentence(current), getLangCode())}
+                style={{ cursor: "pointer" }}
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={current.image}
