@@ -1,0 +1,29 @@
+CWD: C:\Users\kouyu\svo-work\svo-app
+Checking data from: C:\Users\kouyu\svo-work\svo-app\public\data\svo_cards.json
+Checking images in: C:\Users\kouyu\svo-work\svo-app\public\images
+Found 11 items in JSON.
+Files in public/images (11):
+ - "page_0.png" (len: 10)
+ - "page_1.png" (len: 10)
+ - "page_10.png" (len: 11)
+ - "page_2.png" (len: 10)
+ - "page_3.png" (len: 10)
+ - "page_4.png" (len: 10)
+ - "page_5.png" (len: 10)
+ - "page_6.png" (len: 10)
+ - "page_7.png" (len: 10)
+ - "page_8.png" (len: 10)
+ - "page_9.png" (len: 10)
+Item 0 imageFile: "page_0.png" (len: 10)
+Item 1 imageFile: "page_1.png" (len: 10)
+Item 2 imageFile: "page_2.png" (len: 10)
+Item 3 imageFile: "page_3.png" (len: 10)
+Item 4 imageFile: "page_4.png" (len: 10)
+Item 5 imageFile: "page_5.png" (len: 10)
+Item 6 imageFile: "page_6.png" (len: 10)
+Item 7 imageFile: "page_7.png" (len: 10)
+Item 8 imageFile: "page_8.png" (len: 10)
+Item 9 imageFile: "page_9.png" (len: 10)
+Item 10 imageFile: "page_10.png" (len: 11)
+
+Summary: 11 OK, 0 FAILED.
