@@ -200,3 +200,65 @@
     font-size: 16px;
   }
 }
+
+/* Landscape Mode Optimization */
+@media (max-height: 500px) and (orientation: landscape) {
+  .container {
+    padding: 8px;
+  }
+
+  .header {
+    display: none;
+    /* Hide header to save vertical space */
+  }
+
+  .controls {
+    margin-top: 4px;
+    padding: 4px;
+    gap: 6px;
+  }
+
+  .controlGroup {
+    gap: 4px;
+  }
+
+  .button,
+  .select {
+    padding: 2px 6px;
+    font-size: 12px;
+  }
+
+  .choiceButton {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
+  }
+
+  /* Compact Game Area */
+  .gameArea {
+    margin-top: 6px;
+    padding: 6px;
+  }
+
+  .karutaHeader {
+    padding: 4px;
+  }
+
+  .targetSentence {
+    font-size: 16px;
+  }
+
+  .karutaGrid {
+    margin-top: 6px;
+    gap: 6px;
+  }
+
+  .karutaCard {
+    padding: 4px;
+  }
+
+  .karutaImage {
+    height: 16vh;
+    min-height: 50px;
+  }
+}
