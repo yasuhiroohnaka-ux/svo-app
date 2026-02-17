@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { speak } from "@/utils/speak";
+import { playBuzz } from "@/utils/sound";
 
 type Card = {
   id?: string | number;
@@ -29,6 +30,7 @@ export default function Page() {
   const [index, setIndex] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
   const [streak, setStreak] = useState<number>(0);
+  const [wrongChoice, setWrongChoice] = useState<string | null>(null);
 
   // データ読み込み（public/data/svo_cards.json を想定）
   useEffect(() => {
@@ -88,6 +90,7 @@ export default function Page() {
   function nextCard() {
     if (cards.length === 0) return;
     setIndex((i) => (i + 1) % cards.length);
+    setWrongChoice(null);
   }
 
   function judgeFlash(selectedSentence: string) {
@@ -263,7 +266,7 @@ export default function Page() {
                     style={{
                       textAlign: "left",
                       padding: 10,
-                      border: "1px solid #222",
+                      border: wrongChoice === String(s) ? "2px solid red" : "1px solid #222",
                       borderRadius: 8,
                       background: "#fff",
                       cursor: "pointer",
@@ -330,7 +333,7 @@ export default function Page() {
                   key={i}
                   onClick={() => judgeKaruta(String(img))}
                   style={{
-                    border: "1px solid #222",
+                    border: wrongChoice === String(img) ? "2px solid red" : "1px solid #222",
                     borderRadius: 8,
                     background: "#fff",
                     cursor: "pointer",
