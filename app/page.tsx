@@ -11,10 +11,75 @@ type Card = {
   verb: string;
   object: string;
   sentence: string;      // 英文
+  subject_zh: string;
+  verb_zh: string;
+  object_zh: string;
+  sentence_zh: string;   // 中文
   image: string;         // 画像パス（例: /images/page_0.png）
 };
 
 type Mode = "flash" | "karuta";
+type ContentLang = "en" | "zh";
+type UiLang = "en" | "ja";
+
+const translations = {
+  en: {
+    loading: "loading...",
+    cards: "cards",
+    score: "score",
+    streak: "streak",
+    mode: "mode",
+    flash: "flash",
+    karuta: "karuta",
+    choices: "choices",
+    autoSpeak: "auto speak",
+    on: "on",
+    off: "off",
+    deck: "Deck",
+    surprise: "Surprise",
+    survivalMode: "Survival Mode",
+    trickMode: "Trick Mode",
+    flashInstruction: "flash: pick the correct",
+    chooseOne: "choose one",
+    target: "target",
+    speak: "speak",
+    skip: "skip",
+    gameCleared: "Game Cleared! Restarting...",
+    uiLang: "UI Language",
+    contentLang: "Content Language",
+    english: "English",
+    chinese: "中文",
+    japanese: "日本語",
+  },
+  ja: {
+    loading: "読み込み中...",
+    cards: "残り枚数",
+    score: "スコア",
+    streak: "連続正解",
+    mode: "モード",
+    flash: "フラッシュ",
+    karuta: "カルタ",
+    choices: "選択肢数",
+    autoSpeak: "自動読み上げ",
+    on: "ON",
+    off: "OFF",
+    deck: "デッキ",
+    surprise: "サプライズ",
+    survivalMode: "サバイバルモード",
+    trickMode: "トリックモード",
+    flashInstruction: "フラッシュ: 正しい文を選んでください",
+    chooseOne: "1つ選択",
+    target: "ターゲット",
+    speak: "読み上げ",
+    skip: "スキップ",
+    gameCleared: "ゲームクリア！リスタートします...",
+    uiLang: "表示言語",
+    contentLang: "学習言語",
+    english: "英語",
+    chinese: "中国語",
+    japanese: "日本語",
+  }
+};
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -28,6 +93,8 @@ function shuffle<T>(arr: T[]): T[] {
 export default function Page() {
   const [cards, setCards] = useState<Card[]>([]);
   const [mode, setMode] = useState<Mode>("flash");
+  const [contentLang, setContentLang] = useState<ContentLang>("en");
+  const [uiLang, setUiLang] = useState<UiLang>("en");
   const [choiceCount, setChoiceCount] = useState<number>(4);
   const [autoSpeak, setAutoSpeak] = useState<boolean>(false);
 
@@ -41,6 +108,8 @@ export default function Page() {
   const [remainingCards, setRemainingCards] = useState<Card[]>([]);
   const [trickMode, setTrickMode] = useState<boolean>(false);
   const [deckSize, setDeckSize] = useState<number | "all">("all");
+
+  const t = translations[uiLang];
 
   // データ読み込み（public/data/svo_cards.json を想定）
   useEffect(() => {
@@ -57,6 +126,10 @@ export default function Page() {
           verb: x.verb ?? "",
           object: x.object ?? "",
           sentence: x.sentence ?? x.text ?? "",
+          subject_zh: x.subject_zh ?? "",
+          verb_zh: x.verb_zh ?? "",
+          object_zh: x.object_zh ?? "",
+          sentence_zh: x.sentence_zh ?? "",
           image: x.image ?? x.img ?? x.imagePath ?? (x.imageFile ? `/images/${x.imageFile}` : ""),
         }))
         .filter((x) => x.sentence && x.image);
@@ -89,37 +162,39 @@ export default function Page() {
 
     if (isSurvival) {
       // Survival Mode:
-      // 1. Distractors must come from `activePool` (remaining cards) only.
-      // 2. If remaining cards < choiceCount, we show all remaining cards.
-
       const pool = activePool.filter((c) => c.id !== current.id);
       const maxChoices = Math.min(11, choiceCount);
-      // We want (maxChoices - 1) distractors, but we can't take more than what's available.
       const takeN = Math.min(pool.length, maxChoices - 1);
 
       const others = shuffle(pool).slice(0, takeN);
 
       if (mode === "flash") {
-        return shuffle([current, ...others]).map((c) => c.sentence);
+        return shuffle([current, ...others]).map((c) => contentLang === "zh" ? c.sentence_zh : c.sentence);
       } else {
         return shuffle([current, ...others]).map((c) => c.image);
       }
     } else {
       // Normal Mode:
-      // Always refill from full `cards` deck to maintain `choiceCount`.
       const pool = cards.filter((c) => c.id !== current.id);
       const n = Math.max(2, Math.min(11, choiceCount));
       const others = shuffle(pool).slice(0, n - 1);
 
       if (mode === "flash") {
-        const s = shuffle([current, ...others]).map((c) => c.sentence);
+        const s = shuffle([current, ...others]).map((c) => contentLang === "zh" ? c.sentence_zh : c.sentence);
         return s;
       } else {
         const imgs = shuffle([current, ...others]).map((c) => c.image);
         return imgs;
       }
     }
-  }, [cards, current, mode, choiceCount, activePool, isSurvival]);
+  }, [cards, current, mode, choiceCount, activePool, isSurvival, contentLang]);
+
+  // Helper to get text/audio based on contentLang
+  const getSentence = (c: Card) => contentLang === "zh" ? c.sentence_zh : c.sentence;
+  const getSubject = (c: Card) => contentLang === "zh" ? c.subject_zh : c.subject;
+  const getVerb = (c: Card) => contentLang === "zh" ? c.verb_zh : c.verb;
+  const getObject = (c: Card) => contentLang === "zh" ? c.object_zh : c.object;
+  const getLangCode = () => contentLang === "zh" ? "zh-CN" : "en-US";
 
   // karuta時に自動で読み上げ
   useEffect(() => {
@@ -129,11 +204,12 @@ export default function Page() {
 
     if (isSurvival && trickMode && activePool.length <= 4) {
       // Trick mode: speak S -> V -> O with intervals
-      speakQueue([current.subject, current.verb, current.object], 1000);
+      speakQueue([getSubject(current), getVerb(current), getObject(current)], 1000, getLangCode());
     } else {
-      speak(current.sentence);
+      speak(getSentence(current), getLangCode());
     }
-  }, [current, mode, autoSpeak, isSurvival, trickMode, activePool.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current, mode, autoSpeak, isSurvival, trickMode, activePool.length, contentLang]);
 
   function nextCard() {
     if (activePool.length === 0) return;
@@ -154,7 +230,10 @@ export default function Page() {
 
   function judgeFlash(selectedSentence: string) {
     if (!current) return;
-    const ok = selectedSentence === current.sentence;
+    // Check against current sentence (in correct lang)
+    const correctText = getSentence(current);
+    const ok = selectedSentence === correctText;
+
     if (ok) {
       setFeedback({ value: selectedSentence, isCorrect: true });
       playChime();
@@ -168,7 +247,7 @@ export default function Page() {
           setRemainingCards(newRemaining);
 
           if (newRemaining.length === 0) {
-            alert("Game Cleared! Restarting...");
+            alert(t.gameCleared);
             setRemainingCards(cards);
             setScore(0);
             setStreak(0);
@@ -201,7 +280,7 @@ export default function Page() {
           setRemainingCards(newRemaining);
 
           if (newRemaining.length === 0) {
-            alert("Game Cleared! Restarting...");
+            alert(t.gameCleared);
             setRemainingCards(cards);
             setScore(0);
             setStreak(0);
@@ -222,10 +301,7 @@ export default function Page() {
     return (
       <main className={styles.container}>
         <h1 className={styles.header}>SVO App</h1>
-        <p style={{ marginTop: 12 }}>loading...</p>
-        <p style={{ opacity: 0.7, marginTop: 8 }}>
-          public/data/svo_cards.json が読み込めない場合、パスやJSON形式を確認してください。
-        </p>
+        <p style={{ marginTop: 12 }}>{t.loading}</p>
       </main>
     );
   }
@@ -237,27 +313,47 @@ export default function Page() {
       {/* 上部コントロール */}
       <div className={styles.controls}>
         <div style={{ whiteSpace: "nowrap" }}>
-          cards: {activePool.length} / score: {score} / streak: {streak}
+          {t.cards}: {activePool.length} / {t.score}: {score} / {t.streak}: {streak}
         </div>
 
         <div className={styles.controlGroup}>
-          <div>mode</div>
+          <button
+            onClick={() => setUiLang(uiLang === "en" ? "ja" : "en")}
+            className={styles.button}
+            title={t.uiLang}
+          >
+            {t.uiLang}: {uiLang === "en" ? "English" : "日本語"}
+          </button>
+
+          <div style={{ opacity: 0.7 }}>|</div>
+
+          <button
+            onClick={() => setContentLang(contentLang === "en" ? "zh" : "en")}
+            className={styles.button}
+            title={t.contentLang}
+          >
+            {t.contentLang}: {contentLang === "en" ? "English" : "中文"}
+          </button>
+        </div>
+
+        <div className={styles.controlGroup}>
+          <div>{t.mode}</div>
           <button
             onClick={() => setMode("flash")}
             className={`${styles.button} ${mode === "flash" ? styles.buttonActive : ""}`}
           >
-            flash
+            {t.flash}
           </button>
           <button
             onClick={() => setMode("karuta")}
             className={`${styles.button} ${mode === "karuta" ? styles.buttonActive : ""}`}
           >
-            karuta (sentence→image)
+            {t.karuta}
           </button>
         </div>
 
         <div className={styles.controlGroup}>
-          <div>choices</div>
+          <div>{t.choices}</div>
           {[2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => (
             <button
               key={n}
@@ -274,9 +370,8 @@ export default function Page() {
           <button
             onClick={() => setAutoSpeak((v) => !v)}
             className={`${styles.button} ${autoSpeak ? styles.buttonActive : ""}`}
-            title="karuta時に自動で読み上げ"
           >
-            auto speak: {autoSpeak ? "on" : "off"}
+            {t.autoSpeak}: {autoSpeak ? t.on : t.off}
           </button>
         </div>
 
@@ -284,12 +379,12 @@ export default function Page() {
           <div style={{ opacity: 0.7 }}>|</div>
 
           <div className={styles.controlGroup}>
-            <span style={{ fontSize: 14 }}>Deck:</span>
+            <span style={{ fontSize: 14 }}>{t.deck}:</span>
             <select
               value={deckSize}
               onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
               className={styles.select}
-              disabled={isSurvival} // Disable while playing survival
+              disabled={isSurvival}
             >
               <option value="5">5</option>
               <option value="10">10</option>
@@ -312,12 +407,12 @@ export default function Page() {
                 setStreak(0);
                 setIndex(0);
               } else {
-                setRemainingCards(cards); // Sync back just in case
+                setRemainingCards(cards);
               }
             }}
             className={`${styles.button} ${isSurvival ? styles.buttonSurvival : ""}`}
           >
-            Survival Mode: {isSurvival ? "ON" : "OFF"}
+            {t.survivalMode}: {isSurvival ? t.on : t.off}
           </button>
         </div>
 
@@ -328,7 +423,7 @@ export default function Page() {
               onClick={() => setTrickMode(!trickMode)}
               className={`${styles.button} ${trickMode ? styles.buttonTrick : ""}`}
             >
-              Trick Mode: {trickMode ? "ON" : "OFF"}
+              {t.trickMode}: {trickMode ? t.on : t.off}
             </button>
           </div>
         )}
@@ -341,7 +436,7 @@ export default function Page() {
             {/* 左: 画像 */}
             <div>
               <div style={{ marginBottom: 10, opacity: 0.8 }}>
-                flash: pick the correct sentence for this image
+                {t.flashInstruction} ({contentLang === "en" ? t.english : t.chinese})
               </div>
               <div className={styles.flashImageContainer}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -355,7 +450,7 @@ export default function Page() {
 
             {/* 右: 選択肢（文） */}
             <div>
-              <div style={{ marginBottom: 10 }}>choose one</div>
+              <div style={{ marginBottom: 10 }}>{t.chooseOne}</div>
               <div className={styles.sentenceList}>
                 {choices.map((s, i) => (
                   <button
@@ -379,29 +474,29 @@ export default function Page() {
             {/* karuta: ターゲット文を常に表示 + 🔊 */}
             <div className={styles.karutaHeader}>
               <div className={styles.controlGroup}>
-                <div style={{ opacity: 0.8 }}>target:</div>
-                <div className={styles.targetSentence}>{current.sentence}</div>
+                <div style={{ opacity: 0.8 }}>{t.target}:</div>
+                <div className={styles.targetSentence}>{getSentence(current)}</div>
               </div>
 
               <div className={styles.controlGroup}>
                 <button
                   onClick={() => {
                     if (isSurvival && trickMode && activePool.length <= 4) {
-                      speakQueue([current.subject, current.verb, current.object], 1000);
+                      speakQueue([getSubject(current), getVerb(current), getObject(current)], 1000, getLangCode());
                     } else {
-                      speak(current.sentence);
+                      speak(getSentence(current), getLangCode());
                     }
                   }}
                   className={styles.button}
-                  title="読み上げ"
+                  title={t.speak}
                 >
-                  🔊 speak
+                  🔊 {t.speak}
                 </button>
                 <button
                   onClick={nextCard}
                   className={styles.button}
                 >
-                  skip
+                  {t.skip}
                 </button>
               </div>
             </div>

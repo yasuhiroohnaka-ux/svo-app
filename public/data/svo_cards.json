@@ -7,6 +7,10 @@
     "verb": "eats",
     "object": "a fish",
     "sentence": "A banana eats a fish.",
+    "subject_zh": "香蕉",
+    "verb_zh": "吃",
+    "object_zh": "鱼",
+    "sentence_zh": "香蕉吃鱼。",
     "imageFile": "page_0.png"
   },
   {
@@ -17,6 +21,10 @@
     "verb": "eats",
     "object": "a snake",
     "sentence": "A carrot eats a snake.",
+    "subject_zh": "胡萝卜",
+    "verb_zh": "吃",
+    "object_zh": "蛇",
+    "sentence_zh": "胡萝卜吃蛇。",
     "imageFile": "page_1.png"
   },
   {
@@ -27,6 +35,10 @@
     "verb": "washes",
     "object": "a dish",
     "sentence": "A girl washes a dish.",
+    "subject_zh": "女孩",
+    "verb_zh": "洗",
+    "object_zh": "盘子",
+    "sentence_zh": "女孩洗盘子。",
     "imageFile": "page_2.png"
   },
   {
@@ -37,6 +49,10 @@
     "verb": "washes",
     "object": "a car",
     "sentence": "A boy washes a car.",
+    "subject_zh": "男孩",
+    "verb_zh": "洗",
+    "object_zh": "车",
+    "sentence_zh": "男孩洗车。",
     "imageFile": "page_3.png"
   },
   {
@@ -47,6 +63,10 @@
     "verb": "washes",
     "object": "a dog",
     "sentence": "A boy washes a dog.",
+    "subject_zh": "男孩",
+    "verb_zh": "洗",
+    "object_zh": "狗",
+    "sentence_zh": "男孩洗狗。",
     "imageFile": "page_4.png"
   },
   {
@@ -57,6 +77,10 @@
     "verb": "washes",
     "object": "a fish",
     "sentence": "A boy washes a fish.",
+    "subject_zh": "男孩",
+    "verb_zh": "洗",
+    "object_zh": "鱼",
+    "sentence_zh": "男孩洗鱼。",
     "imageFile": "page_5.png"
   },
   {
@@ -67,6 +91,10 @@
     "verb": "washes",
     "object": "an apple",
     "sentence": "A boy washes an apple.",
+    "subject_zh": "男孩",
+    "verb_zh": "洗",
+    "object_zh": "苹果",
+    "sentence_zh": "男孩洗苹果。",
     "imageFile": "page_6.png"
   },
   {
@@ -77,6 +105,10 @@
     "verb": "washes",
     "object": "a boy",
     "sentence": "A car washes a boy.",
+    "subject_zh": "车",
+    "verb_zh": "洗",
+    "object_zh": "男孩",
+    "sentence_zh": "车洗男孩。",
     "imageFile": "page_7.png"
   },
   {
@@ -87,6 +119,10 @@
     "verb": "washes",
     "object": "a girl",
     "sentence": "A cup washes a girl.",
+    "subject_zh": "杯子",
+    "verb_zh": "洗",
+    "object_zh": "女孩",
+    "sentence_zh": "杯子洗女孩。",
     "imageFile": "page_8.png"
   },
   {
@@ -97,6 +133,10 @@
     "verb": "washes",
     "object": "a girl",
     "sentence": "A dish washes a girl.",
+    "subject_zh": "盘子",
+    "verb_zh": "洗",
+    "object_zh": "女孩",
+    "sentence_zh": "盘子洗女孩。",
     "imageFile": "page_9.png"
   },
   {
@@ -107,6 +147,10 @@
     "verb": "washes",
     "object": "a boy",
     "sentence": "A dog washes a boy.",
+    "subject_zh": "狗",
+    "verb_zh": "洗",
+    "object_zh": "男孩",
+    "sentence_zh": "狗洗男孩。",
     "imageFile": "page_10.png"
   }
 ]
