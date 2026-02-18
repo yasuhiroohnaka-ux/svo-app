@@ -430,14 +430,14 @@ export default function Page() {
       // Trick mode: speak S -> V -> O with 0.5s intervals
       speakQueue(
         [trickSentence.s, trickSentence.v, trickSentence.o],
-        500,
+        300,
         getLangCode(),
         onSpeakComplete
       );
     } else if (isTrickActive) {
       speakQueue(
         [getSubject(current), getVerb(current), getObject(current)],
-        500,
+        300,
         getLangCode(),
         onSpeakComplete // Also callback here? No, correct answer needs clicking
       );
@@ -552,9 +552,13 @@ export default function Page() {
       if (newPool.length === 0) {
         playChime();
         alert(t.gameCleared);
-        setRemainingCards(cards);
+        // Reset with respect to deckSize
+        const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
+        const shuffled = shuffle(cards);
+        setRemainingCards(shuffled.slice(0, targetCount));
         setScore(0);
         setStreak(0);
+        setIndex(0); // Also reset index to be safe
       } else {
         // Pick random next card
         const nextIdx = Math.floor(Math.random() * newPool.length);
@@ -864,9 +868,9 @@ export default function Page() {
                 <button
                   onClick={() => {
                     if (isTrickActive && trickSentence) {
-                      speakQueue([trickSentence.s, trickSentence.v, trickSentence.o], 500, getLangCode());
+                      speakQueue([trickSentence.s, trickSentence.v, trickSentence.o], 300, getLangCode());
                     } else if (isTrickActive) {
-                      speakQueue([getSubject(current), getVerb(current), getObject(current)], 500, getLangCode());
+                      speakQueue([getSubject(current), getVerb(current), getObject(current)], 300, getLangCode());
                     } else {
                       speak(getSentence(current), getLangCode());
                     }
