@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { speak, speakQueue } from "@/utils/speak";
 import { playBuzz, playChime } from "@/utils/sound";
 import styles from "./page.module.css";
@@ -21,6 +21,7 @@ type Card = {
 type Mode = "flash" | "karuta";
 type ContentLang = "en" | "zh";
 type UiLang = "en" | "ja" | "zh";
+type ArticleMode = "easy" | "hard";
 
 const translations = {
   en: {
@@ -51,6 +52,11 @@ const translations = {
     chinese: "Chinese",
     japanese: "Japanese",
     appTitle: "Puzzle Grammar",
+    voiceMode: "voice",
+    articleEasy: "easy",
+    articleHard: "hard",
+    listening: "Listening...",
+    sayTheSentence: "Say the sentence!",
   },
   ja: {
     loading: "じゅんびちゅう...",
@@ -80,6 +86,11 @@ const translations = {
     chinese: "ちゅうごくご",
     japanese: "にほんご",
     appTitle: "パズルグラマー",
+    voiceMode: "おんせい",
+    articleEasy: "かんたん",
+    articleHard: "むずかしい",
+    listening: "きいてるよ...",
+    sayTheSentence: "ぶんを いってね！",
   },
   zh: {
     loading: "加载中...",
@@ -109,6 +120,11 @@ const translations = {
     chinese: "中文",
     japanese: "日语",
     appTitle: "拼图语法",
+    voiceMode: "语音",
+    articleEasy: "简单",
+    articleHard: "困难",
+    listening: "正在听...",
+    sayTheSentence: "请说句子！",
   }
 };
 
@@ -119,6 +135,16 @@ function shuffle<T>(arr: T[]): T[] {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
+}
+
+/** Normalize for comparison: lowercase, trim, remove trailing punctuation */
+function normalize(s: string): string {
+  return s.toLowerCase().replace(/[.\s]+$/g, "").trim();
+}
+
+/** Remove articles (a, an, the) for easy mode comparison */
+function stripArticles(s: string): string {
+  return s.replace(/\b(a|an|the)\b/gi, "").replace(/\s+/g, " ").trim();
 }
 
 export default function Page() {
@@ -139,6 +165,13 @@ export default function Page() {
   const [remainingCards, setRemainingCards] = useState<Card[]>([]);
   const [trickMode, setTrickMode] = useState<boolean>(false);
   const [deckSize, setDeckSize] = useState<number | "all">("all");
+
+  // Voice Recognition State
+  const [voiceMode, setVoiceMode] = useState<boolean>(false);
+  const [articleMode, setArticleMode] = useState<ArticleMode>("easy");
+  const [isListening, setIsListening] = useState<boolean>(false);
+  const [spokenText, setSpokenText] = useState<string>("");
+  const recognitionRef = useRef<any>(null);
 
   const t = translations[uiLang];
 
@@ -187,40 +220,47 @@ export default function Page() {
     }
   }, [activePool.length, index]);
 
+  // Karuta: determine how many images to show based on deckSize
+  const karutaChoiceCount = useMemo(() => {
+    if (mode !== "karuta") return choiceCount;
+    if (isSurvival) return activePool.length; // survival uses all remaining
+    const total = cards.length;
+    if (deckSize === "all") return total;
+    return Math.min(Number(deckSize), total);
+  }, [mode, deckSize, cards.length, choiceCount, isSurvival, activePool.length]);
+
   // 選択肢生成（flash: 文、karuta: 画像）
   const choices = useMemo(() => {
     if (!current || activePool.length === 0) return [];
 
-    if (isSurvival) {
-      // Survival Mode:
-      const pool = activePool.filter((c) => c.id !== current.id);
-      const effectiveCount = mode === "flash" ? Math.min(5, choiceCount) : choiceCount;
-      const maxChoices = Math.min(11, effectiveCount);
-      const takeN = Math.min(pool.length, maxChoices - 1);
-
-      const others = shuffle(pool).slice(0, takeN);
-
-      if (mode === "flash") {
-        return shuffle([current, ...others]).map((c) => contentLang === "zh" ? c.sentence_zh : c.sentence);
+    if (mode === "karuta") {
+      // Karuta mode: use karutaChoiceCount
+      if (isSurvival) {
+        // In survival, show all remaining cards as choices
+        return shuffle(activePool).map((c) => c.image);
       } else {
+        // Normal: take karutaChoiceCount cards (including current)
+        const pool = cards.filter((c) => c.id !== current.id);
+        const n = Math.max(2, karutaChoiceCount);
+        const others = shuffle(pool).slice(0, n - 1);
         return shuffle([current, ...others]).map((c) => c.image);
       }
     } else {
-      // Normal Mode:
-      const pool = cards.filter((c) => c.id !== current.id);
-      const effectiveN = mode === "flash" ? Math.min(5, choiceCount) : choiceCount;
-      const n = Math.max(2, Math.min(11, effectiveN));
-      const others = shuffle(pool).slice(0, n - 1);
-
-      if (mode === "flash") {
-        const s = shuffle([current, ...others]).map((c) => contentLang === "zh" ? c.sentence_zh : c.sentence);
-        return s;
+      // Flash mode: use choiceCount (max 5)
+      const effectiveN = Math.min(5, choiceCount);
+      if (isSurvival) {
+        const pool = activePool.filter((c) => c.id !== current.id);
+        const takeN = Math.min(pool.length, effectiveN - 1);
+        const others = shuffle(pool).slice(0, takeN);
+        return shuffle([current, ...others]).map((c) => contentLang === "zh" ? c.sentence_zh : c.sentence);
       } else {
-        const imgs = shuffle([current, ...others]).map((c) => c.image);
-        return imgs;
+        const pool = cards.filter((c) => c.id !== current.id);
+        const n = Math.max(2, effectiveN);
+        const others = shuffle(pool).slice(0, n - 1);
+        return shuffle([current, ...others]).map((c) => contentLang === "zh" ? c.sentence_zh : c.sentence);
       }
     }
-  }, [cards, current, mode, choiceCount, activePool, isSurvival, contentLang]);
+  }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, contentLang]);
 
   // Helper to get text/audio based on contentLang
   const getSentence = (c: Card) => contentLang === "zh" ? c.sentence_zh : c.sentence;
@@ -281,6 +321,27 @@ export default function Page() {
       }
     }
     setFeedback(null);
+    setSpokenText("");
+  }
+
+  function handleCorrectAnswer() {
+    setScore((s) => s + 1);
+    setStreak((s) => s + 1);
+
+    if (isSurvival) {
+      const newRemaining = remainingCards.filter(c => c.id !== current.id);
+      setRemainingCards(newRemaining);
+
+      if (newRemaining.length === 0) {
+        alert(t.gameCleared);
+        setRemainingCards(cards);
+        setScore(0);
+        setStreak(0);
+      }
+      setFeedback(null);
+    } else {
+      nextCard();
+    }
   }
 
   function judgeFlash(selectedSentence: string) {
@@ -292,26 +353,7 @@ export default function Page() {
     if (ok) {
       setFeedback({ value: selectedSentence, isCorrect: true });
       playChime();
-
-      setTimeout(() => {
-        setScore((s) => s + 1);
-        setStreak((s) => s + 1);
-
-        if (isSurvival) {
-          const newRemaining = remainingCards.filter(c => c.id !== current.id);
-          setRemainingCards(newRemaining);
-
-          if (newRemaining.length === 0) {
-            alert(t.gameCleared);
-            setRemainingCards(cards);
-            setScore(0);
-            setStreak(0);
-          }
-          setFeedback(null);
-        } else {
-          nextCard();
-        }
-      }, 1000);
+      setTimeout(() => handleCorrectAnswer(), 1000);
     } else {
       setStreak(0);
       setFeedback({ value: selectedSentence, isCorrect: false });
@@ -319,32 +361,80 @@ export default function Page() {
     }
   }
 
+  /** Judge spoken text (voice recognition) */
+  function judgeVoice(spoken: string) {
+    if (!current) return;
+    const correctText = getSentence(current);
+    let normalizedSpoken = normalize(spoken);
+    let normalizedCorrect = normalize(correctText);
+
+    if (articleMode === "easy") {
+      normalizedSpoken = stripArticles(normalizedSpoken);
+      normalizedCorrect = stripArticles(normalizedCorrect);
+    }
+
+    const ok = normalizedSpoken === normalizedCorrect;
+
+    if (ok) {
+      setFeedback({ value: spoken, isCorrect: true });
+      playChime();
+      setTimeout(() => handleCorrectAnswer(), 1000);
+    } else {
+      setStreak(0);
+      setFeedback({ value: spoken, isCorrect: false });
+      playBuzz();
+    }
+  }
+
+  /** Start speech recognition */
+  const startListening = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser.");
+      return;
+    }
+
+    if (recognitionRef.current) {
+      recognitionRef.current.abort();
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = getLangCode();
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setSpokenText("");
+    };
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setSpokenText(transcript);
+      setIsListening(false);
+      judgeVoice(transcript);
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current, articleMode, contentLang]);
+
   function judgeKaruta(selectedImage: string) {
     if (!current) return;
     const ok = selectedImage === current.image;
     if (ok) {
       setFeedback({ value: selectedImage, isCorrect: true });
       playChime();
-
-      setTimeout(() => {
-        setScore((s) => s + 1);
-        setStreak((s) => s + 1);
-
-        if (isSurvival) {
-          const newRemaining = remainingCards.filter(c => c.id !== current.id);
-          setRemainingCards(newRemaining);
-
-          if (newRemaining.length === 0) {
-            alert(t.gameCleared);
-            setRemainingCards(cards);
-            setScore(0);
-            setStreak(0);
-          }
-          setFeedback(null);
-        } else {
-          nextCard();
-        }
-      }, 1000);
+      setTimeout(() => handleCorrectAnswer(), 1000);
     } else {
       setStreak(0);
       setFeedback({ value: selectedImage, isCorrect: false });
@@ -407,7 +497,8 @@ export default function Page() {
           </button>
         </div>
 
-        {mode === "flash" && (
+        {/* Flash mode: choices (max 5) */}
+        {mode === "flash" && !voiceMode && (
           <div className={styles.controlGroup}>
             <div>{t.choices}</div>
             {[2, 3, 4, 5].map((n) => (
@@ -422,6 +513,42 @@ export default function Page() {
           </div>
         )}
 
+        {/* Flash mode: voice recognition toggle + easy/hard */}
+        {mode === "flash" && (
+          <div className={styles.controlGroup}>
+            <div style={{ opacity: 0.7 }}>|</div>
+            <button
+              onClick={() => {
+                setVoiceMode((v) => !v);
+                if (recognitionRef.current) {
+                  recognitionRef.current.abort();
+                  setIsListening(false);
+                }
+              }}
+              className={`${styles.button} ${voiceMode ? styles.buttonActive : ""}`}
+            >
+              🎤 {t.voiceMode}: {voiceMode ? t.on : t.off}
+            </button>
+
+            {voiceMode && (
+              <>
+                <button
+                  onClick={() => setArticleMode("easy")}
+                  className={`${styles.button} ${articleMode === "easy" ? styles.buttonActive : ""}`}
+                >
+                  {t.articleEasy}
+                </button>
+                <button
+                  onClick={() => setArticleMode("hard")}
+                  className={`${styles.button} ${articleMode === "hard" ? styles.buttonActive : ""}`}
+                >
+                  {t.articleHard}
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
         <div className={styles.controlGroup}>
           <div style={{ opacity: 0.7 }}>|</div>
           <button
@@ -432,6 +559,7 @@ export default function Page() {
           </button>
         </div>
 
+        {/* Karuta mode: deck selector + survival */}
         {mode === "karuta" && (
           <div className={styles.controlGroup}>
             <div style={{ opacity: 0.7 }}>|</div>
@@ -512,25 +640,67 @@ export default function Page() {
               </div>
             </div>
 
-            {/* 右: 選択肢（文） */}
+            {/* 右: 選択肢 or 音声認識 */}
             <div>
-              <div style={{ marginBottom: 10 }}>{t.chooseOne}</div>
-              <div className={styles.sentenceList}>
-                {choices.map((s, i) => (
+              {voiceMode ? (
+                /* Voice recognition mode */
+                <div className={styles.voiceArea}>
+                  <div style={{ marginBottom: 10, fontWeight: "bold" }}>
+                    {t.sayTheSentence}
+                  </div>
+
                   <button
-                    key={i}
-                    onClick={() => judgeFlash(String(s))}
-                    className={styles.sentenceButton}
-                    style={{
-                      border: feedback?.value === String(s)
-                        ? `2px solid ${feedback.isCorrect ? "green" : "red"}`
-                        : "1px solid #222",
-                    }}
+                    onClick={startListening}
+                    className={`${styles.voiceButton} ${isListening ? styles.voiceButtonListening : ""}`}
+                    disabled={isListening}
                   >
-                    {String(s)}
+                    {isListening ? `🔴 ${t.listening}` : "🎤"}
                   </button>
-                ))}
-              </div>
+
+                  {spokenText && (
+                    <div
+                      className={styles.spokenResult}
+                      style={{
+                        borderColor: feedback?.isCorrect === true ? "green"
+                          : feedback?.isCorrect === false ? "red"
+                            : "#a5d6a7"
+                      }}
+                    >
+                      &quot;{spokenText}&quot;
+                    </div>
+                  )}
+
+                  <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
+                    <button onClick={() => speak(getSentence(current), getLangCode())} className={styles.button}>
+                      🔊 {t.speak}
+                    </button>
+                    <button onClick={nextCard} className={styles.button}>
+                      {t.skip}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Normal choice mode */
+                <>
+                  <div style={{ marginBottom: 10 }}>{t.chooseOne}</div>
+                  <div className={styles.sentenceList}>
+                    {choices.map((s, i) => (
+                      <button
+                        key={i}
+                        onClick={() => judgeFlash(String(s))}
+                        className={styles.sentenceButton}
+                        style={{
+                          border: feedback?.value === String(s)
+                            ? `2px solid ${feedback.isCorrect ? "green" : "red"}`
+                            : "1px solid #222",
+                        }}
+                      >
+                        {String(s)}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         ) : (

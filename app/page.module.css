@@ -251,6 +251,68 @@
   display: block;
 }
 
+/* Voice Recognition Styles */
+.voiceArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+}
+
+.voiceButton {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid #81c784;
+  background: #e8f5e9;
+  cursor: pointer;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.voiceButton:hover {
+  background: #c8e6c9;
+  transform: scale(1.05);
+}
+
+.voiceButtonListening {
+  border-color: #ef5350;
+  background: #ffebee;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(239, 83, 80, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 15px rgba(239, 83, 80, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 83, 80, 0);
+  }
+}
+
+.spokenResult {
+  margin-top: 8px;
+  padding: 12px 20px;
+  border: 2px solid #a5d6a7;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #1b5e20;
+  background: #f9fbe7;
+  text-align: center;
+  min-width: 200px;
+}
+
 /* ===================== */
 /* Responsive Breakpoints */
 /* ===================== */
