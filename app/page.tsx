@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { speak, speakQueue } from "@/utils/speak";
+import { speak, speakQueue, unlockSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 
 import styles from "./page.module.css";
@@ -329,6 +329,7 @@ export default function Page() {
   function judgeFlash(selectedSentence: string) {
     if (!current) return;
     unlockAudio();
+    unlockSpeech();
     // Check against current sentence (in correct lang)
     const correctText = getSentence(current);
     const ok = selectedSentence === correctText;
@@ -564,6 +565,7 @@ export default function Page() {
 
   const startGame = () => {
     unlockAudio();
+    unlockSpeech();
     setCountdown(3);
     setGameState("countdown");
   };
@@ -744,6 +746,7 @@ export default function Page() {
   function judgeKaruta(selectedImage: string) {
     if (!current) return;
     unlockAudio();
+    unlockSpeech();
 
     // User interacted, so clear silence timer
     if (silenceTimeoutRef.current) {
