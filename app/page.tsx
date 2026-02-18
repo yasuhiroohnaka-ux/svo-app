@@ -315,12 +315,9 @@ export default function Page() {
   const trickSentence = useMemo(() => {
     if (!trickMode || !current || !isSurvival || activePool.length > 10) return null;
 
-    // 25% chance to trigger trick sentence
-    if (Math.random() > 0.75) return null; // 25% chance means random < 0.25? Wait.
-    // User wants "trick sentence read with 1/4 probability".
-    // So 25% chance of getting a trick (fake) sentence. 75% chance of getting normal sentence?
-    // If I use Math.random() > 0.25, then 75% it returns null (normal).
-    // Yes.
+    // 20% chance to trigger trick sentence (1/5)
+    // If random > 0.2, return null (80% chance normal)
+    if (Math.random() > 0.2) return null;
 
     // Collect all unique subjects, verbs, objects from remaining cards
     const subjects = [...new Set(activePool.map(c => contentLang === "zh" ? c.subject_zh : c.subject))];
@@ -331,6 +328,15 @@ export default function Page() {
       const s = subjects[Math.floor(Math.random() * subjects.length)];
       const v = verbs[Math.floor(Math.random() * verbs.length)];
       const o = objects[Math.floor(Math.random() * objects.length)];
+
+      // Safety filter: prevent "eats" + "boy"/"girl"/"dog"
+      if (v.toLowerCase().includes("eats") || v.includes("吃")) {
+        const forbidden = ["boy", "girl", "dog", "男孩", "女孩", "狗"];
+        if (forbidden.some(word => o.toLowerCase().includes(word))) {
+          continue;
+        }
+      }
+
       const fake = contentLang === "zh" ? `${s}${v}${o}。` : `${s} ${v} ${o}.`;
       // Make sure this combo doesn't match any actual card
       const matchesReal = activePool.some(c => {
@@ -346,6 +352,14 @@ export default function Page() {
   const isTrickActive = trickMode && isSurvival && activePool.length <= 10;
   const displaySentence = isTrickActive && trickSentence ? trickSentence.sentence : (current ? getSentence(current) : "");
 
+  // Stable shuffled pool for survival mode
+  // This memo only re-runs when activePool (remaining cards) changes,
+  // NOT when 'current' changes (unlike the logic below).
+  const survivalChoices = useMemo(() => {
+    if (!isSurvival) return [];
+    return shuffle(activePool).map((c) => c.image);
+  }, [activePool, isSurvival]);
+
   // 選択肢生成（flash: 文、karuta: 画像）
   const choices = useMemo(() => {
     if (!current || activePool.length === 0) return [];
@@ -353,8 +367,8 @@ export default function Page() {
     if (mode === "karuta") {
       // Karuta mode: use karutaChoiceCount
       if (isSurvival) {
-        // In survival, show all remaining cards as choices
-        return shuffle(activePool).map((c) => c.image);
+        // In survival, show all remaining cards as choices (STABLE ORDER)
+        return survivalChoices;
       } else {
         // Normal: take karutaChoiceCount cards (including current)
         const pool = cards.filter((c) => c.id !== current.id);
@@ -377,7 +391,7 @@ export default function Page() {
         return shuffle([current, ...others]).map((c) => contentLang === "zh" ? c.sentence_zh : c.sentence);
       }
     }
-  }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, contentLang]);
+  }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, contentLang, survivalChoices]);
 
   // Ref for silence timeout in trick mode
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -413,17 +427,17 @@ export default function Page() {
     };
 
     if (isTrickActive && trickSentence) {
-      // Trick mode: speak S -> V -> O with 0.7s intervals
+      // Trick mode: speak S -> V -> O with 0.5s intervals
       speakQueue(
         [trickSentence.s, trickSentence.v, trickSentence.o],
-        700,
+        500,
         getLangCode(),
         onSpeakComplete
       );
     } else if (isTrickActive) {
       speakQueue(
         [getSubject(current), getVerb(current), getObject(current)],
-        700,
+        500,
         getLangCode(),
         onSpeakComplete // Also callback here? No, correct answer needs clicking
       );
@@ -850,9 +864,9 @@ export default function Page() {
                 <button
                   onClick={() => {
                     if (isTrickActive && trickSentence) {
-                      speakQueue([trickSentence.s, trickSentence.v, trickSentence.o], 1000, getLangCode());
+                      speakQueue([trickSentence.s, trickSentence.v, trickSentence.o], 500, getLangCode());
                     } else if (isTrickActive) {
-                      speakQueue([getSubject(current), getVerb(current), getObject(current)], 1000, getLangCode());
+                      speakQueue([getSubject(current), getVerb(current), getObject(current)], 500, getLangCode());
                     } else {
                       speak(getSentence(current), getLangCode());
                     }
