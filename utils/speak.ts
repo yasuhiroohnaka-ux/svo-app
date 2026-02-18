@@ -1,4 +1,4 @@
-export function speak(text: string, lang = "en-US") {
+export function speak(text: string, lang = "en-US", onComplete?: () => void) {
   if (typeof window === "undefined") return;
   const synth = window.speechSynthesis;
   if (!synth) return;
@@ -8,6 +8,15 @@ export function speak(text: string, lang = "en-US") {
   u.lang = lang;
   u.rate = 1.0;
   u.pitch = 1.0;
+
+  if (onComplete) {
+    u.onend = () => onComplete();
+    u.onerror = (e) => {
+      console.error("Speech error:", e);
+      onComplete();
+    };
+  }
+
   synth.speak(u);
 }
 

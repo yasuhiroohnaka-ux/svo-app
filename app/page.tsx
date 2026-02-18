@@ -188,7 +188,11 @@ export default function Page() {
   const [aiScore, setAiScore] = useState(0);
 
   const toggleVsMode = () => {
-    setIsVsMode((prev) => !prev);
+    setIsVsMode((prev) => {
+      const next = !prev;
+      if (next) setIsSurvival(true);
+      return next;
+    });
     setScore(0);
     setAiScore(0);
     setStreak(0);
@@ -501,7 +505,7 @@ export default function Page() {
       // Real sentence in Trick Mode
       if (!useInterval) {
         // 10-5: Normal speaking
-        speak(getSentence(current), getLangCode());
+        speak(getSentence(current), getLangCode(), callback);
       } else {
         // <= 4: Interval speaking
         speakQueue(
@@ -513,7 +517,7 @@ export default function Page() {
       }
     } else {
       // Normal Mode
-      speak(getSentence(current), getLangCode());
+      speak(getSentence(current), getLangCode(), callback);
     }
   }, [current, activePool.length, isTrickActive, trickSentence, contentLang]);
 
@@ -866,6 +870,7 @@ export default function Page() {
 
               <button
                 onClick={() => {
+                  if (isVsMode) return;
                   const newVal = !isSurvival;
                   setIsSurvival(newVal);
                   if (newVal) {
@@ -880,6 +885,7 @@ export default function Page() {
                   }
                 }}
                 className={`${styles.button} ${isSurvival ? styles.buttonSurvival : ""}`}
+                style={{ opacity: isVsMode ? 0.5 : 1, cursor: isVsMode ? "not-allowed" : "pointer" }}
               >
                 {t.survivalMode}: {isSurvival ? t.on : t.off}
               </button>
