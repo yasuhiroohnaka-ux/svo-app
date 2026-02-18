@@ -1,5 +1,6 @@
 const synth = typeof window !== "undefined" ? window.speechSynthesis : null;
 let currentUtterance: SpeechSynthesisUtterance | null = null; // Prevent GC
+let currentTimeout: NodeJS.Timeout | null = null; // Prevent race conditions
 
 export function speak(text: string, lang = "en-US", onComplete?: () => void) {
   // Use speakQueue for consistency and reliability (callbacks, cancellation)
@@ -43,9 +44,13 @@ export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComp
       if (finished) return;
       finished = true;
       clearTimeout(safetyTimer);
+      if (currentTimeout) {
+        clearTimeout(currentTimeout);
+        currentTimeout = null;
+      }
 
       if (interval > 0 && idx < texts.length - 1) {
-        setTimeout(() => {
+        currentTimeout = setTimeout(() => {
           idx++;
           playNext();
         }, interval);
@@ -67,6 +72,19 @@ export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComp
     synth?.speak(u);
   }
   playNext();
+}
+
+
+
+/** Cancel any speech and timeouts */
+export function cancelSpeech() {
+  if (currentTimeout) {
+    clearTimeout(currentTimeout);
+    currentTimeout = null;
+  }
+  if (synth) {
+    synth.cancel();
+  }
 }
 
 export function unlockSpeech() {

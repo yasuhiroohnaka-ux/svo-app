@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { speak, speakQueue, unlockSpeech } from "@/utils/speak";
+import { speak, speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 
 import styles from "./page.module.css";
@@ -185,6 +185,13 @@ export default function Page() {
         })();
     }, []);
 
+    // Cleanup speech on unmount
+    useEffect(() => {
+        return () => {
+            cancelSpeech();
+        };
+    }, []);
+
     // Determine current pool based on mode
     const activePool = isSurvival ? remainingCards : cards;
     const current = activePool[index];
@@ -359,7 +366,7 @@ export default function Page() {
     const togglePause = () => {
         if (gameState === "playing") {
             setGameState("paused");
-            window.speechSynthesis.cancel();
+            cancelSpeech();
             if (aiTimeoutRef.current) clearTimeout(aiTimeoutRef.current);
         } else if (gameState === "paused") {
             setGameState("playing");
