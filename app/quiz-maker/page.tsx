@@ -306,9 +306,15 @@ export default function Page() {
     const handleSpeak = useCallback((callback?: () => void) => {
         if (!current) return;
 
-        // Read all sentences with pause (1.2s)
-        speakQueue(current.sentences, 1200, "en-US", callback);
-    }, [current]);
+        if (mode === "flash") {
+            // Flash mode: Only read the target text (3rd sentence)
+            const target = getTargetText(current);
+            speakQueue([target], 1200, "en-US", callback);
+        } else {
+            // Read all sentences with pause (1.2s)
+            speakQueue(current.sentences, 1200, "en-US", callback);
+        }
+    }, [current, mode]);
 
     useEffect(() => {
         if (!autoSpeak || !current || mode === "flash" || gameState !== "playing") return;
