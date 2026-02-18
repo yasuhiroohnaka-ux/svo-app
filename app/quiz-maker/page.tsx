@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { speak, speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
+import { getRanking, saveRanking, clearRanking, formatTime, type RankEntry } from "@/utils/ranking";
 
 import styles from "./page.module.css";
 
@@ -33,7 +34,7 @@ const translations = {
         off: "off",
         deck: "Deck",
         surprise: "Surprise",
-        survivalMode: "Survival Mode",
+        survivalMode: "Time Trial",
         flashInstruction: "flash: pick the correct",
         chooseOne: "choose one",
         target: "target",
@@ -52,6 +53,20 @@ const translations = {
         contentLang: "Content",
         contentEn: "English",
         contentZh: "Chinese",
+        timeTrial: "Time Trial",
+        timer: "Time",
+        ranking: "Ranking",
+        rankingTitle: "🏆 Time Trial Ranking",
+        enterName: "Enter your name:",
+        clearRanking: "Clear Ranking",
+        close: "Close",
+        rank: "Rank",
+        name: "Name",
+        time: "Time",
+        date: "Date",
+        noRecords: "No records yet!",
+        newRecord: "🎉 New Record!",
+        yourTime: "Your time",
     },
     ja: {
         loading: "準備中...",
@@ -67,7 +82,7 @@ const translations = {
         off: "オフ",
         deck: "枚数",
         surprise: "サプライズ",
-        survivalMode: "サバイバル",
+        survivalMode: "タイムトライアル",
         flashInstruction: "フラッシュ：正しい文を選ぼう",
         chooseOne: "1つ選ぼう",
         target: "探してね",
@@ -86,6 +101,20 @@ const translations = {
         contentLang: "内容言語",
         contentEn: "英語",
         contentZh: "中国語",
+        timeTrial: "タイムトライアル",
+        timer: "タイム",
+        ranking: "ランキング",
+        rankingTitle: "🏆 タイムトライアル ランキング",
+        enterName: "なまえを いれてね：",
+        clearRanking: "ランキング クリア",
+        close: "とじる",
+        rank: "じゅんい",
+        name: "なまえ",
+        time: "タイム",
+        date: "にち",
+        noRecords: "まだ きろくが ないよ！",
+        newRecord: "🎉 しんきろく！",
+        yourTime: "きみの タイム",
     },
     zh: {
         loading: "加载中...",
@@ -120,6 +149,20 @@ const translations = {
         contentLang: "内容语言",
         contentEn: "英语",
         contentZh: "中文",
+        timeTrial: "计时挑战",
+        timer: "时间",
+        ranking: "排行榜",
+        rankingTitle: "🏆 计时挑战排行榜",
+        enterName: "请输入您的名字：",
+        clearRanking: "清除排行榜",
+        close: "关闭",
+        rank: "排名",
+        name: "名字",
+        time: "时间",
+        date: "日期",
+        noRecords: "暂无记录！",
+        newRecord: "🎉 新纪录！",
+        yourTime: "你的时间",
     }
 };
 
@@ -167,6 +210,21 @@ export default function Page() {
     const [isListening, setIsListening] = useState<boolean>(false);
     const [spokenText, setSpokenText] = useState<string>("");
     const [contentLang, setContentLang] = useState<ContentLang>("en");
+
+    // Time Trial timer
+    const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const [elapsedTime, setElapsedTime] = useState<number>(0);
+    const timerStartRef = useRef<number>(0);
+
+    // Ranking state
+    const [showRanking, setShowRanking] = useState(false);
+    const [rankingData, setRankingData] = useState<RankEntry[]>([]);
+    const [pendingEntry, setPendingEntry] = useState<RankEntry | null>(null);
+    const [playerName, setPlayerName] = useState("");
+    const [nameInputVisible, setNameInputVisible] = useState(false);
+    const [isNewRecord, setIsNewRecord] = useState(false);
+
+    const APP_KEY = "quiz";
 
     const t = translations[uiLang];
 
@@ -344,14 +402,19 @@ export default function Page() {
         const sentences = getSentences(current);
 
         if (mode === "flash") {
-            const target = getTargetText(current);
-            speakQueue([target], 1200, lang, callback);
+            if (isSurvival) {
+                // Time Trial: Speak all sentences with minimal interval
+                speakQueue(sentences, 200, lang, callback);
+            } else {
+                const target = getTargetText(current);
+                speakQueue([target], 1200, lang, callback);
+            }
         } else {
             speakQueue(sentences, 1200, lang, callback, (idx) => {
                 setVisibleSentenceCount(idx + 1);
             });
         }
-    }, [current, mode, contentLang]);
+    }, [current, mode, contentLang, isSurvival]);
 
     useEffect(() => {
         if (!autoSpeak || !current || gameState !== "playing") return;
@@ -369,16 +432,42 @@ export default function Page() {
         } else if (countdown === 0) {
             const timer = setTimeout(() => {
                 setGameState("playing");
+                if (isSurvival) {
+                    startTimer();
+                }
             }, 1000);
             return () => clearTimeout(timer);
         }
     }, [gameState, countdown]);
+
+    // Timer Effect
+    useEffect(() => {
+        return () => {
+            if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+        };
+    }, []);
 
     const startGame = () => {
         unlockAudio();
         unlockSpeech();
         setCountdown(3);
         setGameState("countdown");
+
+        // Reset Timer
+        setElapsedTime(0);
+        if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    };
+
+    const startTimer = () => {
+        const startTime = Date.now();
+        timerStartRef.current = startTime;
+        setElapsedTime(0);
+
+        if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = setInterval(() => {
+            const now = Date.now();
+            setElapsedTime((now - startTime) / 1000);
+        }, 100);
     };
 
     const togglePause = () => {
@@ -386,9 +475,39 @@ export default function Page() {
             setGameState("paused");
             cancelSpeech();
             if (aiTimeoutRef.current) clearTimeout(aiTimeoutRef.current);
+            // Pause Timer
+            if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
         } else if (gameState === "paused") {
             setGameState("playing");
+            // Resume Timer (simple restart)
+            const now = Date.now();
+            timerStartRef.current = now - (elapsedTime * 1000);
+            timerIntervalRef.current = setInterval(() => {
+                const n = Date.now();
+                setElapsedTime((n - timerStartRef.current) / 1000);
+            }, 100);
         }
+    };
+
+    const resetGame = () => {
+        const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
+        setRemainingCards(shuffle(cards).slice(0, targetCount));
+        setScore(0);
+        setAiScore(0);
+        setStreak(0);
+        setIndex(0);
+        setGameState("idle");
+        setElapsedTime(0);
+    };
+
+    const handleRankingRegister = () => {
+        if (!pendingEntry) return;
+        const entry = { ...pendingEntry, name: playerName || "Anonymous" };
+        saveRanking(APP_KEY, entry);
+        setNameInputVisible(false);
+        setRankingData(getRanking(APP_KEY));
+        setShowRanking(true);
+        resetGame();
     };
 
     // Simplified Voice Recognition (Checks contains)
@@ -497,18 +616,24 @@ export default function Page() {
                     let msg = finalPlayerScore > finalAiScore ? "YOU WIN!" : finalPlayerScore < finalAiScore ? "YOU LOSE!" : "DRAW!";
                     playChime();
                     alert(`${msg}\nPlayer: ${finalPlayerScore} - AI: ${finalAiScore}`);
+                    resetGame();
                 } else {
+                    // Time Trial Clear
                     playChime();
-                    alert(t.gameCleared);
+
+                    // Stop Timer
+                    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+
+                    // Show Ranking Input
+                    const cardCount = deckSize === "all" ? cards.length : Number(deckSize);
+                    setPendingEntry({
+                        name: "",
+                        time: elapsedTime,
+                        date: new Date().toISOString(),
+                        cards: cardCount
+                    });
+                    setNameInputVisible(true);
                 }
-                // Reset
-                const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
-                setRemainingCards(shuffle(cards).slice(0, targetCount));
-                setScore(0);
-                setAiScore(0);
-                setStreak(0);
-                setIndex(0);
-                setGameState("idle");
             } else {
                 setIndex(Math.floor(Math.random() * newPool.length));
             }
@@ -561,6 +686,11 @@ export default function Page() {
                     <>
                         {t.score}: {score} / {t.streak}: {streak}
                     </>
+                )}
+                {isSurvival && (
+                    <div className={styles.timer}>
+                        {t.timer}: {formatTime(elapsedTime)}
+                    </div>
                 )}
             </div>
 
@@ -673,7 +803,15 @@ export default function Page() {
                 {mode === "flash" ? (
                     <div className={styles.flashGrid}>
                         <div>
-                            <div style={{ marginBottom: 10, opacity: 0.8 }}>{t.flashInstruction}</div>
+                            {isSurvival ? (
+                                <div className={styles.survivalText}>
+                                    {getSentences(current).map((s, i) => (
+                                        <div key={i}>{s}</div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div style={{ marginBottom: 10, opacity: 0.8 }}>{t.flashInstruction}</div>
+                            )}
                             <div
                                 className={styles.flashImageContainer}
                                 onClick={() => {
@@ -803,6 +941,79 @@ export default function Page() {
                     </div>
                 )}
             </div>
+
+            {/* Ranking Name Input Modal */}
+            {nameInputVisible && (
+                <div className={styles.rankingOverlay}>
+                    <div className={styles.rankingModal}>
+                        <h2>{t.newRecord}</h2>
+                        <p>{t.yourTime}: {pendingEntry && formatTime(pendingEntry.time)}</p>
+                        <p>{t.enterName}</p>
+                        <input
+                            type="text"
+                            value={playerName}
+                            onChange={(e) => setPlayerName(e.target.value)}
+                            className={styles.nameInput}
+                            autoFocus
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") handleRankingRegister();
+                            }}
+                        />
+                        <div className={styles.modalButtons}>
+                            <button onClick={handleRankingRegister} className={styles.button}>OK</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Ranking Display Modal */}
+            {showRanking && (
+                <div className={styles.rankingOverlay}>
+                    <div className={styles.rankingModal}>
+                        <h2>{t.rankingTitle}</h2>
+                        <table className={styles.rankingTable}>
+                            <thead>
+                                <tr>
+                                    <th>{t.rank}</th>
+                                    <th>{t.name}</th>
+                                    <th>{t.time}</th>
+                                    <th>{t.date}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {rankingData.map((entry, i) => (
+                                    <tr key={i} className={isNewRecord && entry.date === pendingEntry?.date ? styles.newRecordRow : ""}>
+                                        <td>{i + 1}</td>
+                                        <td>{entry.name}</td>
+                                        <td>{formatTime(entry.time)}</td>
+                                        <td>{new Date(entry.date).toLocaleDateString()}</td>
+                                    </tr>
+                                ))}
+                                {rankingData.length === 0 && (
+                                    <tr>
+                                        <td colSpan={4} style={{ textAlign: "center" }}>{t.noRecords}</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                        <div className={styles.modalButtons}>
+                            <button onClick={() => {
+                                const confirmed = window.confirm("Clear ranking?");
+                                if (confirmed) {
+                                    clearRanking(APP_KEY);
+                                    setRankingData([]);
+                                }
+                            }} className={styles.button} style={{ background: "#ef5350" }}>
+                                {t.clearRanking}
+                            </button>
+                            <button onClick={() => setShowRanking(false)} className={styles.button}>
+                                {t.close}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <footer className={styles.copyright}>
                 © 2026 Yasuhiro Ohnaka — All rights reserved
             </footer>

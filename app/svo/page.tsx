@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { speak, speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
+import { getRanking, saveRanking, clearRanking, formatTime, type RankEntry } from "@/utils/ranking";
 
 import styles from "./page.module.css";
 
@@ -39,7 +40,7 @@ const translations = {
     off: "off",
     deck: "Deck",
     surprise: "Surprise",
-    survivalMode: "Survival Mode",
+    survivalMode: "Time Trial",
     trickMode: "Trick Mode",
     flashInstruction: "flash: pick the correct",
     chooseOne: "choose one",
@@ -58,6 +59,20 @@ const translations = {
     articleHard: "hard",
     listening: "Listening...",
     sayTheSentence: "Say the sentence!",
+    timeTrial: "Time Trial",
+    timer: "Time",
+    ranking: "Ranking",
+    rankingTitle: "🏆 Time Trial Ranking",
+    enterName: "Enter your name:",
+    clearRanking: "Clear Ranking",
+    close: "Close",
+    rank: "Rank",
+    name: "Name",
+    time: "Time",
+    date: "Date",
+    noRecords: "No records yet!",
+    newRecord: "🎉 New Record!",
+    yourTime: "Your time",
   },
   ja: {
     loading: "じゅんびちゅう...",
@@ -73,7 +88,7 @@ const translations = {
     off: "オフ",
     deck: "まいすう",
     surprise: "サプライズ",
-    survivalMode: "サバイバル",
+    survivalMode: "タイムトライアル",
     trickMode: "トリック",
     flashInstruction: "フラッシュ: ただしい文を えらんでね",
     chooseOne: "ひとつ えらぼう",
@@ -92,6 +107,20 @@ const translations = {
     articleHard: "むずかしい",
     listening: "きいてるよ...",
     sayTheSentence: "ぶんを いってね！",
+    timeTrial: "タイムトライアル",
+    timer: "タイム",
+    ranking: "ランキング",
+    rankingTitle: "🏆 タイムトライアル ランキング",
+    enterName: "なまえを いれてね：",
+    clearRanking: "ランキング クリア",
+    close: "とじる",
+    rank: "じゅんい",
+    name: "なまえ",
+    time: "タイム",
+    date: "にち",
+    noRecords: "まだ きろくが ないよ！",
+    newRecord: "🎉 しんきろく！",
+    yourTime: "きみの タイム",
   },
   zh: {
     loading: "加载中...",
@@ -107,7 +136,7 @@ const translations = {
     off: "关",
     deck: "卡片数",
     surprise: "惊喜",
-    survivalMode: "生存模式",
+    survivalMode: "计时挑战",
     trickMode: "陷阱模式",
     flashInstruction: "闪卡：选择正确的句子",
     chooseOne: "选择一个",
@@ -126,6 +155,20 @@ const translations = {
     articleHard: "困难",
     listening: "正在听...",
     sayTheSentence: "请说句子！",
+    timeTrial: "计时挑战",
+    timer: "时间",
+    ranking: "排行榜",
+    rankingTitle: "🏆 计时挑战排行榜",
+    enterName: "请输入您的名字：",
+    clearRanking: "清除排行榜",
+    close: "关闭",
+    rank: "排名",
+    name: "名字",
+    time: "时间",
+    date: "日期",
+    noRecords: "暂无记录！",
+    newRecord: "🎉 新纪录！",
+    yourTime: "你的时间",
   }
 };
 
@@ -220,6 +263,21 @@ export default function Page() {
   // silenceTimeoutRef is declared below? Let's check context.
   // Actually, I should just remove silenceTimeoutRef from here if it exists below.
   const aiTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Time Trial timer
+  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const timerStartRef = useRef<number>(0);
+
+  // Ranking state
+  const [showRanking, setShowRanking] = useState(false);
+  const [rankingData, setRankingData] = useState<RankEntry[]>([]);
+  const [pendingEntry, setPendingEntry] = useState<RankEntry | null>(null);
+  const [playerName, setPlayerName] = useState("");
+  const [nameInputVisible, setNameInputVisible] = useState(false);
+  const [isNewRecord, setIsNewRecord] = useState(false);
+
+  const APP_KEY = "svo";
 
   const t = translations[uiLang];
 
@@ -565,16 +623,42 @@ export default function Page() {
       // 0 means "GO!" - show it for a moment, then start
       const timer = setTimeout(() => {
         setGameState("playing");
+        if (mode === "karuta" && isSurvival) {
+          startTimer();
+        }
       }, 1000);
       return () => clearTimeout(timer);
     }
   }, [gameState, countdown]);
+
+  // Timer Effect
+  useEffect(() => {
+    return () => {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    };
+  }, []);
 
   const startGame = () => {
     unlockAudio();
     unlockSpeech();
     setCountdown(3);
     setGameState("countdown");
+
+    // Reset Timer
+    setElapsedTime(0);
+    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+  };
+
+  const startTimer = () => {
+    const startTime = Date.now();
+    timerStartRef.current = startTime;
+    setElapsedTime(0);
+
+    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    timerIntervalRef.current = setInterval(() => {
+      const now = Date.now();
+      setElapsedTime((now - startTime) / 1000);
+    }, 100);
   };
 
   const togglePause = () => {
@@ -583,9 +667,45 @@ export default function Page() {
       cancelSpeech();
       if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
       if (aiTimeoutRef.current) clearTimeout(aiTimeoutRef.current);
+      // Pause Timer
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     } else if (gameState === "paused") {
       setGameState("playing");
+      // Resume Timer (adjust start time to account for pause?) 
+      // Simplified: Just restart interval, but we need to track accumulated time.
+      // Better: store "timeAtPause" and adjust "timerStartRef".
+      // Let's Keep it simple: Time Trial = No Pause allowed? Or accurate pause?
+      // For accurate pause:
+      // start = now - elapsedTime * 1000
+      const now = Date.now();
+      timerStartRef.current = now - (elapsedTime * 1000);
+      timerIntervalRef.current = setInterval(() => {
+        const n = Date.now();
+        setElapsedTime((n - timerStartRef.current) / 1000);
+      }, 100);
     }
+  };
+
+  const resetGame = () => {
+    const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
+    const shuffled = shuffle(cards);
+    setRemainingCards(shuffled.slice(0, targetCount));
+    setScore(0);
+    setAiScore(0);
+    setStreak(0);
+    setIndex(0);
+    setGameState("idle");
+    setElapsedTime(0);
+  };
+
+  const handleRankingRegister = () => {
+    if (!pendingEntry) return;
+    const entry = { ...pendingEntry, name: playerName || "Anonymous" };
+    saveRanking(APP_KEY, entry);
+    setNameInputVisible(false);
+    setRankingData(getRanking(APP_KEY));
+    setShowRanking(true);
+    resetGame();
   };
 
   /** Judge spoken text (voice recognition) */
@@ -734,19 +854,24 @@ export default function Page() {
 
           playChime();
           alert(`${msg}\nPlayer: ${finalPlayerScore} - AI: ${finalAiScore}`);
+          resetGame();
         } else {
+          // Time Trial Clear
           playChime();
-          alert(t.gameCleared);
-        }
+          // Stop Timer
+          if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
 
-        // Reset with respect to deckSize
-        const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
-        const shuffled = shuffle(cards);
-        setRemainingCards(shuffled.slice(0, targetCount));
-        setScore(0);
-        setAiScore(0);
-        setStreak(0);
-        setIndex(0);
+          // Show Name Input for Ranking
+          // Calculate card count
+          const cardCount = deckSize === "all" ? cards.length : Number(deckSize);
+          setPendingEntry({
+            name: "",
+            time: elapsedTime,
+            date: new Date().toISOString(),
+            cards: cardCount
+          });
+          setNameInputVisible(true);
+        }
       } else {
         // Pick random next card
         const nextIdx = Math.floor(Math.random() * newPool.length);
@@ -812,6 +937,9 @@ export default function Page() {
           <>
             score: {score} / streak: {streak}
           </>
+        )}
+        {mode === "karuta" && isSurvival && (
+          <span className={styles.timer}>{formatTime(elapsedTime)}</span>
         )}
       </div>
 
@@ -1214,6 +1342,70 @@ export default function Page() {
           </div>
         )}
       </div>
+      {/* Name Input Modal */}
+      {nameInputVisible && (
+        <div className={styles.rankingOverlay}>
+          <div className={styles.rankingModal}>
+            <div className={styles.rankingHeader}>{t.rankingTitle}</div>
+            <div style={{ marginBottom: 12 }}>{t.newRecord}</div>
+            <div style={{ marginBottom: 20, fontSize: 32, fontWeight: "bold", color: "#ffca28" }}>{formatTime(pendingEntry?.time || 0)}</div>
+            <div style={{ marginBottom: 8 }}>{t.enterName}</div>
+            <input
+              type="text"
+              className={styles.rankingInput}
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              placeholder="Name"
+              maxLength={10}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleRankingRegister();
+              }}
+            />
+            <button className={styles.rankingButton} onClick={handleRankingRegister}>
+              OK
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Ranking List Modal */}
+      {showRanking && (
+        <div className={styles.rankingOverlay}>
+          <div className={styles.rankingModal}>
+            <div className={styles.rankingHeader}>{t.ranking}</div>
+            <table className={styles.rankingTable}>
+              <thead>
+                <tr>
+                  <th>{t.rank}</th>
+                  <th>{t.name}</th>
+                  <th>{t.time}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rankingData.length === 0 ? (
+                  <tr><td colSpan={3}>{t.noRecords}</td></tr>
+                ) : (
+                  rankingData.map((d, i) => (
+                    <tr key={i} className={pendingEntry && d.date === pendingEntry.date ? styles.rankingRowNew : ""}>
+                      <td>{i + 1}</td>
+                      <td>{d.name}</td>
+                      <td>{formatTime(d.time)}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+            <button
+              className={styles.rankingCloseButton}
+              onClick={() => setShowRanking(false)}
+            >
+              {t.close}
+            </button>
+          </div>
+        </div>
+      )}
+
       <footer className={styles.copyright}>
         © 2026 Yasuhiro Ohnaka — All rights reserved
       </footer>

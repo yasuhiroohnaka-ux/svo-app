@@ -666,3 +666,122 @@
   opacity: 0.7;
   letter-spacing: 0.5px;
 }
+
+/* Timer */
+.timer {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ffca28;
+  margin-left: 12px;
+  font-family: monospace;
+}
+
+/* Ranking Modal */
+.rankingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.rankingModal {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+}
+
+.rankingHeader {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 16px;
+}
+
+.rankingTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.rankingTable th {
+  background: #f5f5f5;
+  padding: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.rankingTable td {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+  color: #333;
+}
+
+.rankingTable tr:nth-child(1) td {
+  font-weight: bold;
+  color: #d84315;
+  /* Gold-ish/Red for 1st */
+}
+
+.rankingRowNew {
+  background-color: #fff9c4;
+  /* Light yellow highlight */
+}
+
+.rankingInput {
+  width: 80%;
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  margin-bottom: 16px;
+}
+
+.rankingButton {
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.rankingButton:hover {
+  opacity: 0.9;
+}
+
+.rankingCloseButton {
+  margin-top: 12px;
+  background: #999;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
