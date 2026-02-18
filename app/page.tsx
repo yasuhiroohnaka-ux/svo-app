@@ -607,13 +607,10 @@ export default function Page() {
                 className={styles.select}
                 disabled={isSurvival}
               >
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="15">15</option>
-                <option value="20">20</option>
-                <option value="30">30</option>
-                <option value="35">35</option>
-                <option value="all">All</option>
+                {[5, 10, 15, 20, 30, 35].filter(n => n <= cards.length).map(n => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+                <option value="all">All ({cards.length})</option>
               </select>
             </div>
 
