@@ -214,12 +214,17 @@
   color: #1b5e20;
 }
 
-/* Karuta Grid — optimized for up to 35 cards */
+/* Karuta Grid — dynamic sizing based on card count */
 .karutaGrid {
+  --card-count: 35;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  /* Dynamic min-width: fewer cards = larger cards */
+  grid-template-columns: repeat(auto-fill,
+      minmax(clamp(140px, calc(300px - var(--card-count) * 5px), 280px),
+        1fr));
   gap: 8px;
   justify-content: center;
+  align-content: start;
 }
 
 .karutaCard {
@@ -246,7 +251,8 @@
 .karutaImage {
   width: 100%;
   height: auto;
-  max-height: 120px;
+  /* Dynamic image max-height: fewer cards = taller images */
+  max-height: clamp(120px, calc(350px - var(--card-count) * 6px), 320px);
   object-fit: contain;
   display: block;
 }

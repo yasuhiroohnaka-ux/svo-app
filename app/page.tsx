@@ -245,6 +245,33 @@ export default function Page() {
     return Math.min(Number(deckSize), total);
   }, [mode, deckSize, cards.length, choiceCount, isSurvival, activePool.length]);
 
+  // Trick mode: generate a confusing sentence from remaining cards' S/V/O
+  const trickSentence = useMemo(() => {
+    if (!trickMode || !current || !isSurvival || activePool.length > 10) return null;
+    // Collect all unique subjects, verbs, objects from remaining cards
+    const subjects = [...new Set(activePool.map(c => contentLang === "zh" ? c.subject_zh : c.subject))];
+    const verbs = [...new Set(activePool.map(c => contentLang === "zh" ? c.verb_zh : c.verb))];
+    const objects = [...new Set(activePool.map(c => contentLang === "zh" ? c.object_zh : c.object))];
+    // Pick random S, V, O that don't match any existing card exactly
+    for (let attempt = 0; attempt < 20; attempt++) {
+      const s = subjects[Math.floor(Math.random() * subjects.length)];
+      const v = verbs[Math.floor(Math.random() * verbs.length)];
+      const o = objects[Math.floor(Math.random() * objects.length)];
+      const fake = contentLang === "zh" ? `${s}${v}${o}。` : `${s} ${v} ${o}.`;
+      // Make sure this combo doesn't match any actual card
+      const matchesReal = activePool.some(c => {
+        const real = contentLang === "zh" ? c.sentence_zh : c.sentence;
+        return real === fake;
+      });
+      if (!matchesReal) return { sentence: fake, s, v, o };
+    }
+    return null; // fallback: use real sentence
+  }, [trickMode, current, isSurvival, activePool, contentLang]);
+
+  // The sentence to display/speak (may be trick sentence)
+  const isTrickActive = trickMode && isSurvival && activePool.length <= 10;
+  const displaySentence = isTrickActive && trickSentence ? trickSentence.sentence : (current ? getSentence(current) : "");
+
   // 選択肢生成（flash: 文、karuta: 画像）
   const choices = useMemo(() => {
     if (!current || activePool.length === 0) return [];
@@ -313,14 +340,16 @@ export default function Page() {
     if (mode !== "karuta") return;
     if (!autoSpeak) return;
 
-    if (isSurvival && trickMode && activePool.length <= 4) {
-      // Trick mode: speak S -> V -> O with intervals
+    if (isTrickActive && trickSentence) {
+      // Trick mode: speak S -> V -> O with 1s intervals
+      speakQueue([trickSentence.s, trickSentence.v, trickSentence.o], 1000, getLangCode());
+    } else if (isTrickActive) {
       speakQueue([getSubject(current), getVerb(current), getObject(current)], 1000, getLangCode());
     } else {
       speak(getSentence(current), getLangCode());
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [current, mode, autoSpeak, isSurvival, trickMode, activePool.length, contentLang]);
+  }, [current, mode, autoSpeak, isSurvival, trickMode, activePool.length, contentLang, trickSentence]);
 
   function nextCard() {
     if (activePool.length === 0) return;
@@ -636,7 +665,7 @@ export default function Page() {
           </div>
         )}
 
-        {mode === "karuta" && isSurvival && remainingCards.length <= 4 && (
+        {mode === "karuta" && isSurvival && remainingCards.length <= 10 && (
           <div className={styles.controlGroup}>
             <div style={{ opacity: 0.7 }}>|</div>
             <button
@@ -741,13 +770,15 @@ export default function Page() {
             <div className={styles.karutaHeader}>
               <div className={styles.controlGroup}>
                 <div style={{ opacity: 0.8 }}>{t.target}:</div>
-                <div className={styles.targetSentence}>{getSentence(current)}</div>
+                <div className={styles.targetSentence}>{displaySentence}</div>
               </div>
 
               <div className={styles.controlGroup}>
                 <button
                   onClick={() => {
-                    if (isSurvival && trickMode && activePool.length <= 4) {
+                    if (isTrickActive && trickSentence) {
+                      speakQueue([trickSentence.s, trickSentence.v, trickSentence.o], 1000, getLangCode());
+                    } else if (isTrickActive) {
                       speakQueue([getSubject(current), getVerb(current), getObject(current)], 1000, getLangCode());
                     } else {
                       speak(getSentence(current), getLangCode());
@@ -767,8 +798,11 @@ export default function Page() {
               </div>
             </div>
 
-            {/* 画像候補 */}
-            <div className={styles.karutaGrid}>
+            {/* 画像候補 — dynamic sizing via CSS variable */}
+            <div
+              className={styles.karutaGrid}
+              style={{ "--card-count": choices.length } as React.CSSProperties}
+            >
               {choices.map((img, i) => (
                 <button
                   key={i}
