@@ -388,6 +388,18 @@ export default function Page() {
         const correctWords = filterWords(correctText);
         const spokenWords = filterWords(spokenClean);
 
+        // Critical Check: Prepositions and Negations change meaning significantly.
+        // If these exist in target, they MUST exist in spoken result.
+        const criticalWords = ["on", "in", "under", "by", "at", "to", "from", "with", "next", "between", "not", "no", "never"];
+        const missingCritical = correctWords.some(w => criticalWords.includes(w) && !spokenWords.includes(w));
+
+        if (missingCritical) {
+            setStreak(0);
+            setFeedback({ value: spoken, isCorrect: false });
+            playBuzz();
+            return;
+        }
+
         let matchCount = 0;
         correctWords.forEach(w => {
             if (spokenWords.includes(w)) matchCount++;
