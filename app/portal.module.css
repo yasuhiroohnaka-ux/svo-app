@@ -1,0 +1,213 @@
+/* =============================================
+   Portal — Pixel Art Style, Bright & Kid-Friendly
+   ============================================= */
+
+.portal {
+    min-height: 100vh;
+    background-color: #1a1a2e;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+    font-family: 'Nunito', sans-serif;
+}
+
+/* ---- Header ---- */
+.header {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.logo {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(18px, 4vw, 32px);
+    color: #ffe066;
+    text-shadow:
+        4px 4px 0 #b8860b,
+        0 0 30px rgba(255, 224, 102, 0.4);
+    letter-spacing: 2px;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.subtitle {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(8px, 1.5vw, 11px);
+    color: #a0c4ff;
+    letter-spacing: 1px;
+    opacity: 0.85;
+}
+
+/* Stars decoration */
+.stars {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 16px 0;
+    font-size: 20px;
+    animation: twinkle 2s ease-in-out infinite alternate;
+}
+
+@keyframes twinkle {
+    from {
+        opacity: 0.6;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* ---- App Grid ---- */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 28px;
+    width: 100%;
+    max-width: 960px;
+}
+
+/* ---- App Card ---- */
+.card {
+    display: block;
+    text-decoration: none;
+    background: #16213e;
+    border: 4px solid #0f3460;
+    border-radius: 0;
+    /* pixel style: no border-radius */
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.1s, box-shadow 0.1s;
+    /* Pixel shadow */
+    box-shadow:
+        4px 4px 0 #0f3460,
+        8px 8px 0 rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--card-accent);
+}
+
+.card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow:
+        7px 7px 0 #0f3460,
+        11px 11px 0 rgba(0, 0, 0, 0.3);
+}
+
+.card:active {
+    transform: translate(2px, 2px);
+    box-shadow:
+        2px 2px 0 #0f3460;
+}
+
+/* Card accent colors per app */
+.cardSvo {
+    --card-accent: #ff6b6b;
+}
+
+.cardQuiz {
+    --card-accent: #4ecdc4;
+}
+
+.cardSoon {
+    --card-accent: #888;
+    opacity: 0.6;
+    cursor: default;
+}
+
+.cardSoon:hover {
+    transform: none;
+    box-shadow: 4px 4px 0 #0f3460, 8px 8px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Pixel icon */
+.cardIcon {
+    font-size: 48px;
+    display: block;
+    margin-bottom: 16px;
+    image-rendering: pixelated;
+    line-height: 1;
+}
+
+.cardTitle {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(10px, 2vw, 14px);
+    color: #ffffff;
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.cardDesc {
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #a0c4ff;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.cardTag {
+    display: inline-block;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    padding: 4px 8px;
+    background: var(--card-accent);
+    color: #1a1a2e;
+    margin-right: 4px;
+    margin-bottom: 4px;
+}
+
+.cardArrow {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: var(--card-accent);
+    opacity: 0;
+    transition: opacity 0.15s, right 0.15s;
+}
+
+.card:hover .cardArrow {
+    opacity: 1;
+    right: 16px;
+}
+
+/* ---- Footer ---- */
+.footer {
+    margin-top: 56px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: #444;
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 600px) {
+    .portal {
+        padding: 24px 12px 40px;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .logo {
+        font-size: 16px;
+    }
+}
