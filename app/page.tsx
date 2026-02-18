@@ -315,16 +315,41 @@ export default function Page() {
   const trickSentence = useMemo(() => {
     if (!trickMode || !current || !isSurvival || activePool.length > 10) return null;
 
-    // 20% chance to trigger trick sentence (1/5)
-    // If random > 0.2, return null (80% chance normal)
-    if (Math.random() > 0.2) return null;
+    // Probability logic:
+    // If cards <= 4, 33% chance (1/3).
+    // Else, 20% chance (1/5).
+    const threshold = activePool.length <= 4 ? (1 / 3) : 0.2;
+    // Math.random() < threshold means trick triggers.
+    // If Math.random() > threshold, it's normal (return null).
+    if (Math.random() > threshold) return null;
 
+    // Determine trick type: "Fake" (constructed) or "Ghost" (already taken card)
+    // Only possible if there are taken cards.
+    // Let's say 50% chance for Ghost if available.
+    const takenCards = cards.filter(c => !activePool.some(r => r.id === c.id));
+    const useGhost = takenCards.length > 0 && Math.random() > 0.5;
+
+    if (useGhost) {
+      // Pick a random taken card
+      const ghostCard = takenCards[Math.floor(Math.random() * takenCards.length)];
+      return {
+        s: contentLang === "zh" ? ghostCard.subject_zh : ghostCard.subject,
+        v: contentLang === "zh" ? ghostCard.verb_zh : ghostCard.verb,
+        o: contentLang === "zh" ? ghostCard.object_zh : ghostCard.object,
+        sentence: contentLang === "zh" ? ghostCard.sentence_zh : ghostCard.sentence
+      };
+    }
+
+    // Otherwise generate Fake sentence
     // Collect all unique subjects, verbs, objects from remaining cards
     const subjects = [...new Set(activePool.map(c => contentLang === "zh" ? c.subject_zh : c.subject))];
     const verbs = [...new Set(activePool.map(c => contentLang === "zh" ? c.verb_zh : c.verb))];
     const objects = [...new Set(activePool.map(c => contentLang === "zh" ? c.object_zh : c.object))];
-    // Pick random S, V, O that don't match any existing card exactly
-    for (let attempt = 0; attempt < 20; attempt++) {
+
+    // Safety check: need at least 1 of each to build a sentence
+    if (subjects.length === 0 || verbs.length === 0 || objects.length === 0) return null;
+
+    for (let i = 0; i < 50; i++) {
       const s = subjects[Math.floor(Math.random() * subjects.length)];
       const v = verbs[Math.floor(Math.random() * verbs.length)];
       const o = objects[Math.floor(Math.random() * objects.length)];
@@ -338,15 +363,20 @@ export default function Page() {
       }
 
       const fake = contentLang === "zh" ? `${s}${v}${o}。` : `${s} ${v} ${o}.`;
-      // Make sure this combo doesn't match any actual card
+      // Make sure this combo doesn't match any actual card (in activePool)
+      // Note: It MIGHT match a taken card (ghost), but that's fine as a trick!
+      // But here we rely on "activePool" for parts, so usually it won't match a ghost unless components overlap.
+      // The condition is: "Must not match a card CURRENTLY ON FIELD".
       const matchesReal = activePool.some(c => {
         const real = contentLang === "zh" ? c.sentence_zh : c.sentence;
         return real === fake;
       });
-      if (!matchesReal) return { sentence: fake, s, v, o };
+      if (!matchesReal) {
+        return { s, v, o, sentence: fake };
+      }
     }
     return null; // fallback: use real sentence
-  }, [trickMode, current, isSurvival, activePool, contentLang]);
+  }, [trickMode, current, isSurvival, activePool, contentLang, cards]);
 
   // The sentence to display/speak (may be trick sentence)
   const isTrickActive = trickMode && isSurvival && activePool.length <= 10;
@@ -404,54 +434,80 @@ export default function Page() {
   }, [current]);
 
   // karuta時に自動で読み上げ
-  useEffect(() => {
-    if (!current) return;
-    if (mode !== "karuta") return;
-    if (!autoSpeak) return;
+  const onSpeakComplete = useCallback(() => {
+    // If trick mode & trick sentence (fake), wait 2s then auto-correct
+    if (isTrickActive && trickSentence) {
+      silenceTimeoutRef.current = setTimeout(() => {
+        // If this fires, user hasn't clicked anything for 2s after reading
+        // Pass true to keep the card in the deck (just a "pass")
+        handleCorrectAnswer(true);
+      }, 2000);
+    }
+  }, [isTrickActive, trickSentence]); // logic implies handleCorrectAnswer is stable/hoisted
 
-    // Clear any existing silence timer
+  // Helper to handle speaking (auto or manual)
+  const handleSpeak = useCallback((callback?: () => void) => {
+    if (!current) return;
     if (silenceTimeoutRef.current) {
       clearTimeout(silenceTimeoutRef.current);
       silenceTimeoutRef.current = null;
     }
 
-    const onSpeakComplete = () => {
-      // If trick mode & trick sentence (fake), wait 2s then auto-correct
-      if (isTrickActive && trickSentence) {
-        silenceTimeoutRef.current = setTimeout(() => {
-          // If this fires, user hasn't clicked anything for 2s after reading
-          // Pass true to keep the card in the deck (just a "pass")
-          handleCorrectAnswer(true);
-        }, 2000);
-      }
-    };
+    const useInterval = activePool.length <= 4;
+    const interval = useInterval ? 300 : 0;
 
     if (isTrickActive && trickSentence) {
-      // Trick mode: speak S -> V -> O with 0.5s intervals
+      // Trick (Fake or Ghost)
       speakQueue(
         [trickSentence.s, trickSentence.v, trickSentence.o],
-        300,
+        interval,
         getLangCode(),
-        onSpeakComplete
+        callback
       );
     } else if (isTrickActive) {
-      speakQueue(
-        [getSubject(current), getVerb(current), getObject(current)],
-        300,
-        getLangCode(),
-        onSpeakComplete // Also callback here? No, correct answer needs clicking
-      );
+      // Real sentence in Trick Mode
+      if (!useInterval) {
+        // 10-5: Normal speaking
+        speak(getSentence(current), getLangCode());
+      } else {
+        // <= 4: Interval speaking
+        speakQueue(
+          [getSubject(current), getVerb(current), getObject(current)],
+          interval,
+          getLangCode(),
+          callback
+        );
+      }
     } else {
+      // Normal Mode
       speak(getSentence(current), getLangCode());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [current, mode, autoSpeak, isSurvival, trickMode, activePool.length, contentLang, trickSentence]);
+  }, [current, activePool.length, isTrickActive, trickSentence, contentLang]);
+
+  // Auto-speak effect
+  useEffect(() => {
+    if (!autoSpeak || !current || mode === "flash") return;
+
+    // Slight delay to allow UI to settle?
+    const timer = setTimeout(() => {
+      handleSpeak(onSpeakComplete);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [current, autoSpeak, mode, handleSpeak, onSpeakComplete]);
+
 
   /** Judge spoken text (voice recognition) */
   function judgeVoice(spoken: string) {
     if (!current) return;
 
     let ok = false;
+    let processedSpoken = spoken;
+
+    // Fix for "washes" often recognized as "watches"
+    const correctText = getSentence(current);
+    if (correctText.toLowerCase().includes("washes")) {
+      processedSpoken = processedSpoken.replace(/\bwatches\b/gi, "washes");
+    }
 
     if (articleMode === "easy") {
       // Easy mode: check if the core S, V, O words are present in spoken text
@@ -464,7 +520,7 @@ export default function Page() {
       const subjectNoun = subjectWords.filter(w => !["a", "an", "the"].includes(w)).pop() || "";
       const objectNoun = objectWords.filter(w => !["a", "an", "the"].includes(w)).pop() || "";
 
-      const spokenWords = extractWords(spoken);
+      const spokenWords = extractWords(processedSpoken);
       // Also stem spoken words to catch "wash" vs "washes" etc.
       const spokenStemmed = spokenWords.map(w => stemVerb(w));
 
@@ -476,12 +532,11 @@ export default function Page() {
       ok = hasSubject && hasVerb && hasObject;
     } else {
       // Hard mode: exact match (after normalization)
-      const correctText = getSentence(current);
-      ok = normalize(spoken) === normalize(correctText);
+      ok = normalize(processedSpoken) === normalize(correctText);
     }
 
     if (ok) {
-      setFeedback({ value: spoken, isCorrect: true });
+      setFeedback({ value: spoken, isCorrect: true }); // Show original spoken text? Or processed? User said "watches" but we accepted it. Maybe show original.
       playChime();
       setTimeout(() => handleCorrectAnswer(), 1000);
     } else {
