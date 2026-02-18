@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { speak, speakQueue } from "@/utils/speak";
-import { playBuzz, playChime } from "@/utils/sound";
+import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
+
 import styles from "./page.module.css";
 
 type Card = {
@@ -327,6 +328,7 @@ export default function Page() {
 
   function judgeFlash(selectedSentence: string) {
     if (!current) return;
+    unlockAudio();
     // Check against current sentence (in correct lang)
     const correctText = getSentence(current);
     const ok = selectedSentence === correctText;
@@ -561,6 +563,7 @@ export default function Page() {
   }, [gameState, countdown]);
 
   const startGame = () => {
+    unlockAudio();
     setCountdown(3);
     setGameState("countdown");
   };
@@ -740,6 +743,7 @@ export default function Page() {
 
   function judgeKaruta(selectedImage: string) {
     if (!current) return;
+    unlockAudio();
 
     // User interacted, so clear silence timer
     if (silenceTimeoutRef.current) {
@@ -1027,7 +1031,10 @@ export default function Page() {
               </div>
               <div
                 className={styles.flashImageContainer}
-                onClick={() => speak(getSentence(current), getLangCode())}
+                onClick={() => {
+                  unlockAudio();
+                  speak(getSentence(current), getLangCode());
+                }}
                 style={{ cursor: "pointer" }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}

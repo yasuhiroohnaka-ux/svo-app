@@ -1,10 +1,30 @@
+let audioCtx: AudioContext | null = null;
+
+function getAudioContext() {
+    if (typeof window === "undefined") return null;
+    if (!audioCtx) {
+        const Ctx = window.AudioContext || (window as any).webkitAudioContext;
+        if (Ctx) {
+            audioCtx = new Ctx();
+        }
+    }
+    return audioCtx;
+}
+
+export function unlockAudio() {
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === "suspended") {
+        ctx.resume();
+    }
+}
+
 export function playBuzz() {
-    if (typeof window === "undefined") return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
 
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContext) return;
+    // Resume if suspended (attempt)
+    if (ctx.state === "suspended") ctx.resume().catch(() => { });
 
-    const ctx = new AudioContext();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
 
@@ -14,19 +34,19 @@ export function playBuzz() {
     gain.connect(ctx.destination);
 
     osc.start();
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
     osc.stop(ctx.currentTime + 0.5);
 }
 
 export function playChime() {
-    if (typeof window === "undefined") return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
 
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    if (!AudioContext) return;
+    // Resume if suspended (attempt)
+    if (ctx.state === "suspended") ctx.resume().catch(() => { });
 
-    const ctx = new AudioContext();
     const t = ctx.currentTime;
-
     const osc1 = ctx.createOscillator();
     const osc2 = ctx.createOscillator();
     const gain = ctx.createGain();
