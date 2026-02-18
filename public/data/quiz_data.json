@@ -66,9 +66,9 @@
         "id": "page_7",
         "image": "/images/quiz/img_7.png",
         "sentences": [
-            "It is snowy.",
-            "There is an elephant.",
-            "The elephant is thin."
+            "It is sunny.",
+            "There is a monkey.",
+            "The monkey is sleepy."
         ]
     },
     {
@@ -76,8 +76,8 @@
         "image": "/images/quiz/img_8.png",
         "sentences": [
             "It is snowy.",
-            "There are two elephants.",
-            "The elephants are talking."
+            "There is an elephant.",
+            "The elephant is thin."
         ]
     },
     {
@@ -85,22 +85,22 @@
         "image": "/images/quiz/img_9.png",
         "sentences": [
             "It is snowy.",
-            "There is an elephant.",
-            "The elephant is writing."
+            "There are elephants.",
+            "The elephants are talking."
         ]
     },
     {
         "id": "page_10",
         "image": "/images/quiz/img_10.png",
         "sentences": [
-            "It is cloudy.",
-            "There is a bear.",
-            "The bear is eating."
+            "It is snowy.",
+            "There is an elephant.",
+            "The elephant is writing."
         ]
     },
     {
         "id": "page_11",
-        "image": "/images/page_11.png",
+        "image": "/images/quiz/img_11.png",
         "sentences": [
             "It is cloudy.",
             "There is a bear.",
@@ -109,7 +109,7 @@
     },
     {
         "id": "page_12",
-        "image": "/images/page_12.png",
+        "image": "/images/quiz/img_12.png",
         "sentences": [
             "It is cloudy.",
             "There is a bear.",
@@ -118,7 +118,7 @@
     },
     {
         "id": "page_13",
-        "image": "/images/page_13.png",
+        "image": "/images/quiz/img_13.png",
         "sentences": [
             "It is cloudy.",
             "There is a bear.",
@@ -127,7 +127,7 @@
     },
     {
         "id": "page_14",
-        "image": "/images/page_14.png",
+        "image": "/images/quiz/img_14.png",
         "sentences": [
             "It is snowy.",
             "There is an alligator.",
@@ -136,7 +136,7 @@
     },
     {
         "id": "page_15",
-        "image": "/images/page_15.png",
+        "image": "/images/quiz/img_15.png",
         "sentences": [
             "It is snowy.",
             "There is an alligator.",
