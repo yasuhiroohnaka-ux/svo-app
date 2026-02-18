@@ -229,6 +229,35 @@ export default function Page() {
   const activePool = isSurvival ? remainingCards : cards;
   const current = activePool[index];
 
+  // Helper to get text/audio based on contentLang
+  const getSentence = (c: Card) => contentLang === "zh" ? c.sentence_zh : c.sentence;
+  const getSubject = (c: Card) => contentLang === "zh" ? c.subject_zh : c.subject;
+  const getVerb = (c: Card) => contentLang === "zh" ? c.verb_zh : c.verb;
+  const getObject = (c: Card) => contentLang === "zh" ? c.object_zh : c.object;
+  const getLangCode = () => contentLang === "zh" ? "zh-CN" : "en-US";
+
+  // Cycle UI Language: en -> ja -> zh -> en
+  const toggleUiLang = () => {
+    setUiLang((prev) => {
+      if (prev === "en") return "ja";
+      if (prev === "ja") return "zh";
+      return "en";
+    });
+  };
+
+  // Helper for UI lang label
+  const getUiLangLabel = () => {
+    if (uiLang === "en") return t.english;
+    if (uiLang === "ja") return t.japanese;
+    return t.chinese;
+  };
+
+  // Helper for Content lang label
+  const getContentLangLabel = () => {
+    if (contentLang === "en") return t.english;
+    return t.chinese;
+  };
+
   // Effect to reset index if out of bounds (e.g. after removing a card)
   useEffect(() => {
     if (index >= activePool.length && activePool.length > 0) {
@@ -244,6 +273,61 @@ export default function Page() {
     if (deckSize === "all") return total;
     return Math.min(Number(deckSize), total);
   }, [mode, deckSize, cards.length, choiceCount, isSurvival, activePool.length]);
+
+  function nextCard() {
+    if (activePool.length === 0) return;
+
+    if (!isSurvival) {
+      setIndex((i) => (i + 1) % activePool.length);
+    } else {
+      // If survival, pick random from remaining
+      if (activePool.length > 1) {
+        const nextIdx = Math.floor(Math.random() * activePool.length);
+        setIndex(nextIdx);
+      } else {
+        setIndex(0);
+      }
+    }
+    setFeedback(null);
+    setSpokenText("");
+  }
+
+  function handleCorrectAnswer() {
+    setScore((s) => s + 1);
+    setStreak((s) => s + 1);
+
+    if (isSurvival) {
+      const newRemaining = remainingCards.filter(c => c.id !== current.id);
+      setRemainingCards(newRemaining);
+
+      if (newRemaining.length === 0) {
+        alert(t.gameCleared);
+        setRemainingCards(cards);
+        setScore(0);
+        setStreak(0);
+      }
+      setFeedback(null);
+    } else {
+      nextCard();
+    }
+  }
+
+  function judgeFlash(selectedSentence: string) {
+    if (!current) return;
+    // Check against current sentence (in correct lang)
+    const correctText = getSentence(current);
+    const ok = selectedSentence === correctText;
+
+    if (ok) {
+      setFeedback({ value: selectedSentence, isCorrect: true });
+      playChime();
+      setTimeout(() => handleCorrectAnswer(), 1000);
+    } else {
+      setStreak(0);
+      setFeedback({ value: selectedSentence, isCorrect: false });
+      playBuzz();
+    }
+  }
 
   // Trick mode: generate a confusing sentence from remaining cards' S/V/O
   const trickSentence = useMemo(() => {
@@ -305,35 +389,6 @@ export default function Page() {
     }
   }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, contentLang]);
 
-  // Helper to get text/audio based on contentLang
-  const getSentence = (c: Card) => contentLang === "zh" ? c.sentence_zh : c.sentence;
-  const getSubject = (c: Card) => contentLang === "zh" ? c.subject_zh : c.subject;
-  const getVerb = (c: Card) => contentLang === "zh" ? c.verb_zh : c.verb;
-  const getObject = (c: Card) => contentLang === "zh" ? c.object_zh : c.object;
-  const getLangCode = () => contentLang === "zh" ? "zh-CN" : "en-US";
-
-  // Cycle UI Language: en -> ja -> zh -> en
-  const toggleUiLang = () => {
-    setUiLang((prev) => {
-      if (prev === "en") return "ja";
-      if (prev === "ja") return "zh";
-      return "en";
-    });
-  };
-
-  // Helper for UI lang label
-  const getUiLangLabel = () => {
-    if (uiLang === "en") return t.english;
-    if (uiLang === "ja") return t.japanese;
-    return t.chinese;
-  };
-
-  // Helper for Content lang label
-  const getContentLangLabel = () => {
-    if (contentLang === "en") return t.english;
-    return t.chinese;
-  };
-
   // karuta時に自動で読み上げ
   useEffect(() => {
     if (!current) return;
@@ -350,61 +405,6 @@ export default function Page() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, mode, autoSpeak, isSurvival, trickMode, activePool.length, contentLang, trickSentence]);
-
-  function nextCard() {
-    if (activePool.length === 0) return;
-
-    if (!isSurvival) {
-      setIndex((i) => (i + 1) % activePool.length);
-    } else {
-      // If survival, pick random from remaining
-      if (activePool.length > 1) {
-        const nextIdx = Math.floor(Math.random() * activePool.length);
-        setIndex(nextIdx);
-      } else {
-        setIndex(0);
-      }
-    }
-    setFeedback(null);
-    setSpokenText("");
-  }
-
-  function handleCorrectAnswer() {
-    setScore((s) => s + 1);
-    setStreak((s) => s + 1);
-
-    if (isSurvival) {
-      const newRemaining = remainingCards.filter(c => c.id !== current.id);
-      setRemainingCards(newRemaining);
-
-      if (newRemaining.length === 0) {
-        alert(t.gameCleared);
-        setRemainingCards(cards);
-        setScore(0);
-        setStreak(0);
-      }
-      setFeedback(null);
-    } else {
-      nextCard();
-    }
-  }
-
-  function judgeFlash(selectedSentence: string) {
-    if (!current) return;
-    // Check against current sentence (in correct lang)
-    const correctText = getSentence(current);
-    const ok = selectedSentence === correctText;
-
-    if (ok) {
-      setFeedback({ value: selectedSentence, isCorrect: true });
-      playChime();
-      setTimeout(() => handleCorrectAnswer(), 1000);
-    } else {
-      setStreak(0);
-      setFeedback({ value: selectedSentence, isCorrect: false });
-      playBuzz();
-    }
-  }
 
   /** Judge spoken text (voice recognition) */
   function judgeVoice(spoken: string) {
