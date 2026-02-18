@@ -292,25 +292,7 @@ export default function Page() {
     setSpokenText("");
   }
 
-  function handleCorrectAnswer() {
-    setScore((s) => s + 1);
-    setStreak((s) => s + 1);
 
-    if (isSurvival) {
-      const newRemaining = remainingCards.filter(c => c.id !== current.id);
-      setRemainingCards(newRemaining);
-
-      if (newRemaining.length === 0) {
-        alert(t.gameCleared);
-        setRemainingCards(cards);
-        setScore(0);
-        setStreak(0);
-      }
-      setFeedback(null);
-    } else {
-      nextCard();
-    }
-  }
 
   function judgeFlash(selectedSentence: string) {
     if (!current) return;
@@ -332,6 +314,14 @@ export default function Page() {
   // Trick mode: generate a confusing sentence from remaining cards' S/V/O
   const trickSentence = useMemo(() => {
     if (!trickMode || !current || !isSurvival || activePool.length > 10) return null;
+
+    // 25% chance to trigger trick sentence
+    if (Math.random() > 0.75) return null; // 25% chance means random < 0.25? Wait.
+    // User wants "trick sentence read with 1/4 probability".
+    // So 25% chance of getting a trick (fake) sentence. 75% chance of getting normal sentence?
+    // If I use Math.random() > 0.25, then 75% it returns null (normal).
+    // Yes.
+
     // Collect all unique subjects, verbs, objects from remaining cards
     const subjects = [...new Set(activePool.map(c => contentLang === "zh" ? c.subject_zh : c.subject))];
     const verbs = [...new Set(activePool.map(c => contentLang === "zh" ? c.verb_zh : c.verb))];
@@ -416,7 +406,8 @@ export default function Page() {
       if (isTrickActive && trickSentence) {
         silenceTimeoutRef.current = setTimeout(() => {
           // If this fires, user hasn't clicked anything for 2s after reading
-          handleCorrectAnswer();
+          // Pass true to keep the card in the deck (just a "pass")
+          handleCorrectAnswer(true);
         }, 2000);
       }
     };
@@ -527,6 +518,43 @@ export default function Page() {
     recognition.start();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, articleMode, contentLang]);
+
+  function handleCorrectAnswer(keepCard = false) {
+    if (!current) return;
+    setScore((s) => s + 1);
+    setStreak((s) => s + 1);
+
+    // Stop trick silence timer if any
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+      silenceTimeoutRef.current = null;
+    }
+
+    if (mode === "karuta" && isSurvival && !keepCard) {
+      // Remove current card from remaining
+      const newPool = remainingCards.filter((c) => c.id !== current.id);
+      setRemainingCards(newPool);
+
+      if (newPool.length === 0) {
+        playChime();
+        alert(t.gameCleared);
+        setRemainingCards(cards);
+        setScore(0);
+        setStreak(0);
+      } else {
+        // Pick random next card
+        const nextIdx = Math.floor(Math.random() * newPool.length);
+        setIndex(nextIdx);
+      }
+    } else if (mode === "karuta" && isSurvival && keepCard) {
+      // Just pick random next card from CURRENT pool (which hasn't changed)
+      const nextIdx = Math.floor(Math.random() * remainingCards.length);
+      setIndex(nextIdx);
+    } else {
+      // Flash mode or normal Karuta
+      nextCard();
+    }
+  }
 
   function judgeKaruta(selectedImage: string) {
     if (!current) return;
