@@ -1,7 +1,7 @@
 [
     {
         "id": "page_0",
-        "image": "/images/page_0.png",
+        "image": "/images/quiz/page_0.png",
         "sentences": [
             "It is sunny.",
             "There is an eraser.",
@@ -10,7 +10,7 @@
     },
     {
         "id": "page_1",
-        "image": "/images/page_1.png",
+        "image": "/images/quiz/page_1.png",
         "sentences": [
             "It is sunny.",
             "There is an eraser.",
@@ -19,7 +19,7 @@
     },
     {
         "id": "page_2",
-        "image": "/images/page_2.png",
+        "image": "/images/quiz/page_2.png",
         "sentences": [
             "It is sunny.",
             "There is an eraser.",
@@ -28,7 +28,7 @@
     },
     {
         "id": "page_3",
-        "image": "/images/page_3.png",
+        "image": "/images/quiz/page_3.png",
         "sentences": [
             "It is cloudy.",
             "There is a giraffe.",
@@ -37,7 +37,7 @@
     },
     {
         "id": "page_4",
-        "image": "/images/page_4.png",
+        "image": "/images/quiz/page_4.png",
         "sentences": [
             "It is cloudy.",
             "There is a giraffe.",
@@ -46,7 +46,7 @@
     },
     {
         "id": "page_5",
-        "image": "/images/page_5.png",
+        "image": "/images/quiz/page_5.png",
         "sentences": [
             "It is sunny.",
             "There is a monkey.",
@@ -55,7 +55,7 @@
     },
     {
         "id": "page_6",
-        "image": "/images/page_6.png",
+        "image": "/images/quiz/page_6.png",
         "sentences": [
             "It is sunny.",
             "There is a monkey.",
@@ -64,7 +64,7 @@
     },
     {
         "id": "page_7",
-        "image": "/images/page_7.png",
+        "image": "/images/quiz/page_7.png",
         "sentences": [
             "It is snowy.",
             "There is an elephant.",
@@ -73,7 +73,7 @@
     },
     {
         "id": "page_8",
-        "image": "/images/page_8.png",
+        "image": "/images/quiz/page_8.png",
         "sentences": [
             "It is snowy.",
             "There are two elephants.",
@@ -82,7 +82,7 @@
     },
     {
         "id": "page_9",
-        "image": "/images/page_9.png",
+        "image": "/images/quiz/page_9.png",
         "sentences": [
             "It is snowy.",
             "There is an elephant.",
@@ -91,7 +91,7 @@
     },
     {
         "id": "page_10",
-        "image": "/images/page_10.png",
+        "image": "/images/quiz/page_10.png",
         "sentences": [
             "It is cloudy.",
             "There is a bear.",
