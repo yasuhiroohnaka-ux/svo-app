@@ -1,36 +1,46 @@
+/* =============================================
+   Quiz Maker — Blue / Sky-Blue / White Theme
+   Target: ~Grade 4 (age 9-10), friendly & clear
+   ============================================= */
+
+/* Google Fonts: Nunito — rounded, friendly, legible */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
+
 /* Main Container */
 .container {
     padding: 16px;
-    font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, system-ui, sans-serif;
+    font-family: 'Nunito', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, system-ui, sans-serif;
+    font-weight: 700;
     max-width: 1400px;
     margin: 0 auto;
-    background-color: #f1f8e9;
+    background: linear-gradient(160deg, #e3f2fd 0%, #f0f8ff 60%, #ffffff 100%);
     min-height: 100vh;
-    color: #1b5e20;
+    color: #0d47a1;
 }
 
 .header {
     margin: 0;
-    color: #2e7d32;
+    color: #1565c0;
     text-align: center;
-    font-size: 1.6rem;
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+    font-size: 1.8rem;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.9), 0 2px 8px rgba(21, 101, 192, 0.2);
 }
 
 /* Controls Area */
 .controls {
     margin-top: 10px;
     background-color: #ffffff;
-    border: 2px solid #a5d6a7;
-    border-radius: 16px;
+    border: 2.5px solid #90caf9;
+    border-radius: 20px;
     padding: 12px 16px;
     display: flex;
     gap: 10px;
     align-items: center;
     flex-wrap: wrap;
     justify-content: center;
-    /* Center content */
-    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.1);
+    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.12);
 }
 
 .controlGroup {
@@ -39,26 +49,27 @@
     align-items: center;
     flex-wrap: wrap;
     justify-content: center;
-    /* Center items */
 }
 
 .button {
-    padding: 6px 12px;
-    border: 2px solid #81c784;
-    border-radius: 12px;
+    padding: 7px 14px;
+    border: 2.5px solid #64b5f6;
+    border-radius: 14px;
     background: #ffffff;
-    color: #2e7d32;
+    color: #1565c0;
     cursor: pointer;
-    font-size: 14px;
-    font-weight: bold;
+    font-size: 15px;
+    font-weight: 800;
+    font-family: inherit;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 5px rgba(21, 101, 192, 0.1);
 }
 
 .button:hover {
-    background: #e8f5e9;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: #e3f2fd;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 10px rgba(21, 101, 192, 0.15);
+    border-color: #42a5f5;
 }
 
 .button:active {
@@ -67,16 +78,16 @@
 }
 
 .buttonActive {
-    background: #4caf50;
+    background: #1e88e5;
     color: #ffffff;
-    border-color: #388e3c;
+    border-color: #1565c0;
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Survival Mode Button Special Style */
+/* Survival Mode Button */
 .buttonSurvival {
-    background: #fff3e0;
-    border-color: #ffcc80;
+    background: #fff8e1;
+    border-color: #ffd54f;
     color: #e65100;
 }
 
@@ -86,65 +97,78 @@
     border-color: #f57c00;
 }
 
-/* Trick Mode Button Special Style */
+/* Trick Mode Button */
 .buttonTrick {
-    background: #e1f5fe;
-    border-color: #81d4fa;
-    color: #0277bd;
+    background: #e8eaf6;
+    border-color: #9fa8da;
+    color: #283593;
 }
 
 .buttonTrick.buttonActive {
-    background: #03a9f4;
+    background: #3f51b5;
     color: white;
-    border-color: #0288d1;
+    border-color: #283593;
 }
 
 .select {
-    padding: 6px 10px;
-    border-radius: 8px;
-    border: 2px solid #a5d6a7;
-    font-size: 14px;
-    color: #1b5e20;
+    padding: 7px 12px;
+    border-radius: 10px;
+    border: 2.5px solid #90caf9;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: inherit;
+    color: #1565c0;
     background: #ffffff;
     cursor: pointer;
 }
 
 .choiceButton {
-    width: 34px;
-    height: 34px;
-    border: 2px solid #a5d6a7;
+    width: 36px;
+    height: 36px;
+    border: 2.5px solid #90caf9;
     border-radius: 50%;
     background: #ffffff;
-    color: #2e7d32;
+    color: #1565c0;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    font-size: 14px;
+    font-weight: 800;
+    font-family: inherit;
+    font-size: 15px;
     transition: all 0.2s;
 }
 
 .choiceButton:hover {
-    background: #e8f5e9;
-    border-color: #66bb6a;
+    background: #e3f2fd;
+    border-color: #42a5f5;
 }
 
 .choiceButtonActive {
-    background: #4caf50;
+    background: #1e88e5;
     color: #ffffff;
-    border-color: #388e3c;
+    border-color: #1565c0;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Status Row */
+.statusRow {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 800;
+    color: #1565c0;
+    margin-top: 6px;
+    opacity: 0.85;
 }
 
 /* Game Area */
 .gameArea {
     margin-top: 12px;
     background: #ffffff;
-    border: 2px solid #a5d6a7;
-    border-radius: 16px;
+    border: 2.5px solid #90caf9;
+    border-radius: 20px;
     padding: 16px;
-    box-shadow: 0 8px 16px rgba(46, 125, 50, 0.08);
+    box-shadow: 0 8px 20px rgba(21, 101, 192, 0.1);
 }
 
 /* Flash Mode Layout */
@@ -155,21 +179,21 @@
 }
 
 .flashImageContainer {
-    border: 2px solid #c8e6c9;
-    border-radius: 16px;
+    border: 2.5px solid #bbdefb;
+    border-radius: 18px;
     padding: 16px;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 300px;
-    background: #f1f8e9;
+    background: linear-gradient(135deg, #e3f2fd, #f5f9ff);
 }
 
 .flashImage {
     max-width: 100%;
     max-height: 360px;
     object-fit: contain;
-    filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.1));
+    filter: drop-shadow(0 4px 6px rgba(21, 101, 192, 0.15));
 }
 
 .sentenceList {
@@ -180,29 +204,33 @@
 
 .sentenceButton {
     text-align: left;
-    padding: 14px;
-    border: 2px solid #a5d6a7;
-    border-radius: 12px;
+    padding: 16px;
+    border: 2.5px solid #90caf9;
+    border-radius: 14px;
     background: #ffffff;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 17px;
+    font-weight: 800;
+    font-family: inherit;
     width: 100%;
-    color: #1b5e20;
+    color: #0d47a1;
     transition: all 0.2s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 6px rgba(21, 101, 192, 0.08);
+    line-height: 1.4;
 }
 
 .sentenceButton:hover {
-    background: #f1f8e9;
-    transform: translateX(4px);
-    border-color: #66bb6a;
+    background: #e3f2fd;
+    transform: translateX(5px);
+    border-color: #42a5f5;
+    box-shadow: 0 4px 10px rgba(21, 101, 192, 0.15);
 }
 
 /* Karuta Mode Layout */
 .karutaHeader {
-    background: #e8f5e9;
-    border: 2px solid #c8e6c9;
-    border-radius: 12px;
+    background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
+    border: 2.5px solid #bbdefb;
+    border-radius: 14px;
     padding: 10px 16px;
     display: flex;
     gap: 10px;
@@ -213,16 +241,16 @@
 }
 
 .targetSentence {
-    font-size: 18px;
-    font-weight: bold;
-    color: #1b5e20;
+    font-size: 19px;
+    font-weight: 900;
+    color: #0d47a1;
+    line-height: 1.5;
 }
 
-/* Karuta Grid — dynamic sizing based on card count */
+/* Karuta Grid */
 .karutaGrid {
     --card-count: 35;
     display: grid;
-    /* Dynamic min-width: fewer cards = larger cards */
     grid-template-columns: repeat(auto-fill,
             minmax(clamp(140px, calc(300px - var(--card-count) * 5px), 280px),
                 1fr));
@@ -233,8 +261,8 @@
 }
 
 .karutaCard {
-    border: 2px solid #c8e6c9;
-    border-radius: 10px;
+    border: 2.5px solid #bbdefb;
+    border-radius: 12px;
     background: #ffffff;
     cursor: pointer;
     padding: 6px;
@@ -243,20 +271,19 @@
     align-items: center;
     justify-content: center;
     transition: all 0.15s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 6px rgba(21, 101, 192, 0.08);
     overflow: hidden;
 }
 
 .karutaCard:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 10px rgba(46, 125, 50, 0.15);
-    border-color: #66bb6a;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(21, 101, 192, 0.2);
+    border-color: #42a5f5;
 }
 
 .karutaImage {
     width: 100%;
     height: auto;
-    /* Dynamic image max-height: fewer cards = taller images */
     max-height: clamp(120px, calc(350px - var(--card-count) * 6px), 320px);
     object-fit: contain;
     display: block;
@@ -272,28 +299,28 @@
 }
 
 .voiceButton {
-    width: 80px;
-    height: 80px;
+    width: 84px;
+    height: 84px;
     border-radius: 50%;
-    border: 3px solid #81c784;
-    background: #e8f5e9;
+    border: 3px solid #64b5f6;
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
     cursor: pointer;
-    font-size: 32px;
+    font-size: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(21, 101, 192, 0.15);
 }
 
 .voiceButton:hover {
-    background: #c8e6c9;
-    transform: scale(1.05);
+    background: linear-gradient(135deg, #bbdefb, #90caf9);
+    transform: scale(1.07);
 }
 
 .voiceButtonListening {
     border-color: #ef5350;
-    background: #ffebee;
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
     animation: pulse 1.5s infinite;
 }
 
@@ -314,12 +341,13 @@
 .spokenResult {
     margin-top: 8px;
     padding: 12px 20px;
-    border: 2px solid #a5d6a7;
-    border-radius: 12px;
+    border: 2.5px solid #90caf9;
+    border-radius: 14px;
     font-size: 18px;
-    font-weight: bold;
-    color: #1b5e20;
-    background: #f9fbe7;
+    font-weight: 800;
+    font-family: inherit;
+    color: #0d47a1;
+    background: #f0f8ff;
     text-align: center;
     min-width: 200px;
 }
@@ -328,7 +356,6 @@
 /* Responsive Breakpoints */
 /* ===================== */
 
-/* Large Tablets & Small Desktops (max-width: 1024px) */
 @media (max-width: 1024px) {
     .container {
         padding: 12px;
@@ -349,14 +376,13 @@
     }
 }
 
-/* Tablets & large phones (max-width: 768px) */
 @media (max-width: 768px) {
     .container {
         padding: 10px;
     }
 
     .header {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
     }
 
     .controls {
@@ -369,7 +395,6 @@
         margin-top: 10px;
     }
 
-    /* Flash Mode: Stack vertically on mobile */
     .flashGrid {
         grid-template-columns: 1fr;
         gap: 12px;
@@ -385,11 +410,10 @@
     }
 
     .sentenceButton {
-        padding: 10px;
-        font-size: 15px;
+        padding: 12px;
+        font-size: 16px;
     }
 
-    /* Karuta: smaller cards for tablet */
     .karutaGrid {
         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
         gap: 5px;
@@ -398,7 +422,7 @@
     .karutaCard {
         padding: 4px;
         border-radius: 8px;
-        border-width: 1px;
+        border-width: 2px;
     }
 
     .karutaImage {
@@ -411,52 +435,51 @@
     }
 
     .targetSentence {
-        font-size: 16px;
+        font-size: 17px;
     }
 }
 
-/* Small phones (max-width: 480px) */
 @media (max-width: 480px) {
     .container {
         padding: 6px;
     }
 
     .header {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
     }
 
     .controls {
         padding: 8px;
         gap: 6px;
-        border-radius: 10px;
+        border-radius: 12px;
     }
 
     .button {
-        padding: 5px 8px;
-        font-size: 12px;
-        border-radius: 8px;
+        padding: 5px 9px;
+        font-size: 13px;
+        border-radius: 10px;
     }
 
     .choiceButton {
-        width: 28px;
-        height: 28px;
-        font-size: 12px;
-        border-width: 1px;
+        width: 30px;
+        height: 30px;
+        font-size: 13px;
+        border-width: 2px;
     }
 
     .select {
         padding: 4px 8px;
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .gameArea {
         padding: 6px;
-        border-radius: 10px;
+        border-radius: 12px;
         margin-top: 8px;
     }
 
     .targetSentence {
-        font-size: 14px;
+        font-size: 15px;
     }
 
     .karutaHeader {
@@ -464,7 +487,6 @@
         margin-bottom: 6px;
     }
 
-    /* Karuta: compact for small phones — 4-5 columns */
     .karutaGrid {
         grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
         gap: 3px;
@@ -489,8 +511,8 @@
     }
 
     .sentenceButton {
-        padding: 8px;
-        font-size: 14px;
+        padding: 10px;
+        font-size: 15px;
     }
 
     .sentenceList {
@@ -498,7 +520,6 @@
     }
 }
 
-/* Very small phones (max-width: 360px) */
 @media (max-width: 360px) {
     .karutaGrid {
         grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
@@ -514,7 +535,6 @@
     }
 }
 
-/* Landscape Mode Optimization */
 @media (max-height: 500px) and (orientation: landscape) {
     .container {
         padding: 6px;
@@ -529,7 +549,7 @@
         margin-top: 4px;
         padding: 6px;
         gap: 6px;
-        border-radius: 8px;
+        border-radius: 10px;
     }
 
     .controlGroup {
@@ -540,19 +560,19 @@
     .select {
         padding: 4px 8px;
         font-size: 12px;
-        border-radius: 6px;
+        border-radius: 8px;
     }
 
     .choiceButton {
-        width: 24px;
-        height: 24px;
-        font-size: 11px;
+        width: 26px;
+        height: 26px;
+        font-size: 12px;
     }
 
     .gameArea {
         margin-top: 4px;
         padding: 6px;
-        border-radius: 8px;
+        border-radius: 10px;
     }
 
     .karutaHeader {
@@ -564,7 +584,6 @@
         font-size: 15px;
     }
 
-    /* Landscape karuta: maximize horizontal space */
     .karutaGrid {
         margin-top: 4px;
         grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
@@ -584,7 +603,6 @@
         max-height: 70px;
     }
 
-    /* Landscape flash */
     .flashGrid {
         grid-template-columns: 1fr 300px;
         gap: 10px;
@@ -598,7 +616,6 @@
     .flashImage {
         max-height: 180px;
         padding: 2px;
-        /* Prevent clipping */
     }
 
     .sentenceButton {
@@ -618,30 +635,34 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(13, 71, 161, 0.55);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(2px);
+    backdrop-filter: blur(3px);
 }
 
 .overlayText {
-    font-size: 80px;
+    font-size: 90px;
     color: #ffffff;
-    font-weight: bold;
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    font-weight: 900;
+    font-family: inherit;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .overlaySubText {
     font-size: 32px;
+    font-weight: 800;
+    font-family: inherit;
     color: #ffffff;
     margin-top: 20px;
-    background: rgba(0, 0, 0, 0.3);
-    padding: 10px 20px;
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px 24px;
+    border-radius: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 @keyframes popIn {
