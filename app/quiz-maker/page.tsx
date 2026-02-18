@@ -317,7 +317,7 @@ export default function Page() {
     }, [current, mode]);
 
     useEffect(() => {
-        if (!autoSpeak || !current || mode === "flash" || gameState !== "playing") return;
+        if (!autoSpeak || !current || gameState !== "playing") return;
         const timer = setTimeout(() => {
             handleSpeak(onSpeakComplete);
         }, 500);
