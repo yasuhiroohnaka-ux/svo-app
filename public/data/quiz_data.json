@@ -1,0 +1,146 @@
+[
+    {
+        "id": "page_0",
+        "image": "/images/page_0.png",
+        "sentences": [
+            "It is sunny.",
+            "There is an eraser.",
+            "The eraser is under the chair."
+        ]
+    },
+    {
+        "id": "page_1",
+        "image": "/images/page_1.png",
+        "sentences": [
+            "It is sunny.",
+            "There is an eraser.",
+            "The eraser is running."
+        ]
+    },
+    {
+        "id": "page_2",
+        "image": "/images/page_2.png",
+        "sentences": [
+            "It is sunny.",
+            "There is an eraser.",
+            "The eraser is on the chair."
+        ]
+    },
+    {
+        "id": "page_3",
+        "image": "/images/page_3.png",
+        "sentences": [
+            "It is cloudy.",
+            "There is a giraffe.",
+            "The giraffe is crying."
+        ]
+    },
+    {
+        "id": "page_4",
+        "image": "/images/page_4.png",
+        "sentences": [
+            "It is cloudy.",
+            "There is a giraffe.",
+            "The giraffe is angry."
+        ]
+    },
+    {
+        "id": "page_5",
+        "image": "/images/page_5.png",
+        "sentences": [
+            "It is sunny.",
+            "There is a monkey.",
+            "The monkey is studying."
+        ]
+    },
+    {
+        "id": "page_6",
+        "image": "/images/page_6.png",
+        "sentences": [
+            "It is sunny.",
+            "There is a monkey.",
+            "The monkey is strong."
+        ]
+    },
+    {
+        "id": "page_7",
+        "image": "/images/page_7.png",
+        "sentences": [
+            "It is snowy.",
+            "There is an elephant.",
+            "The elephant is thin."
+        ]
+    },
+    {
+        "id": "page_8",
+        "image": "/images/page_8.png",
+        "sentences": [
+            "It is snowy.",
+            "There are two elephants.",
+            "The elephants are talking."
+        ]
+    },
+    {
+        "id": "page_9",
+        "image": "/images/page_9.png",
+        "sentences": [
+            "It is snowy.",
+            "There is an elephant.",
+            "The elephant is writing."
+        ]
+    },
+    {
+        "id": "page_10",
+        "image": "/images/page_10.png",
+        "sentences": [
+            "It is cloudy.",
+            "There is a bear.",
+            "The bear is eating."
+        ]
+    },
+    {
+        "id": "page_11",
+        "image": "/images/page_11.png",
+        "sentences": [
+            "It is cloudy.",
+            "There is a bear.",
+            "The bear is eating."
+        ]
+    },
+    {
+        "id": "page_12",
+        "image": "/images/page_12.png",
+        "sentences": [
+            "It is cloudy.",
+            "There is a bear.",
+            "The bear is laughing."
+        ]
+    },
+    {
+        "id": "page_13",
+        "image": "/images/page_13.png",
+        "sentences": [
+            "It is cloudy.",
+            "There is a bear.",
+            "The bear is fat."
+        ]
+    },
+    {
+        "id": "page_14",
+        "image": "/images/page_14.png",
+        "sentences": [
+            "It is snowy.",
+            "There is an alligator.",
+            "The alligator is surprised."
+        ]
+    },
+    {
+        "id": "page_15",
+        "image": "/images/page_15.png",
+        "sentences": [
+            "It is snowy.",
+            "There is an alligator.",
+            "The alligator is weak."
+        ]
+    }
+]
