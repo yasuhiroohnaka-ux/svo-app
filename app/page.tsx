@@ -147,6 +147,22 @@ function stripArticles(s: string): string {
   return s.replace(/\b(a|an|the)\b/gi, "").replace(/\s+/g, " ").trim();
 }
 
+/** Strip verb inflection: "washes" -> "wash", "eats" -> "eat" */
+function stemVerb(v: string): string {
+  const w = v.toLowerCase();
+  if (w.endsWith("shes")) return w.slice(0, -2);   // washes -> wash
+  if (w.endsWith("ches")) return w.slice(0, -2);   // catches -> catch
+  if (w.endsWith("xes")) return w.slice(0, -2);    // fixes -> fix
+  if (w.endsWith("ies")) return w.slice(0, -3) + "y"; // carries -> carry
+  if (w.endsWith("s")) return w.slice(0, -1);      // eats -> eat
+  return w;
+}
+
+/** Extract core words from a string, lowercased */
+function extractWords(s: string): string[] {
+  return s.toLowerCase().replace(/[^a-z\s]/g, "").split(/\s+/).filter(Boolean);
+}
+
 export default function Page() {
   const [cards, setCards] = useState<Card[]>([]);
   const [mode, setMode] = useState<Mode>("flash");
@@ -364,16 +380,35 @@ export default function Page() {
   /** Judge spoken text (voice recognition) */
   function judgeVoice(spoken: string) {
     if (!current) return;
-    const correctText = getSentence(current);
-    let normalizedSpoken = normalize(spoken);
-    let normalizedCorrect = normalize(correctText);
+
+    let ok = false;
 
     if (articleMode === "easy") {
-      normalizedSpoken = stripArticles(normalizedSpoken);
-      normalizedCorrect = stripArticles(normalizedCorrect);
-    }
+      // Easy mode: check if the core S, V, O words are present in spoken text
+      // Extract the last word from subject/object (the noun), and stem the verb
+      const subjectWords = extractWords(getSubject(current));
+      const objectWords = extractWords(getObject(current));
+      const verbStemmed = stemVerb(getVerb(current));
 
-    const ok = normalizedSpoken === normalizedCorrect;
+      // The key noun is usually the last word: "A banana" -> "banana"
+      const subjectNoun = subjectWords.filter(w => !["a", "an", "the"].includes(w)).pop() || "";
+      const objectNoun = objectWords.filter(w => !["a", "an", "the"].includes(w)).pop() || "";
+
+      const spokenWords = extractWords(spoken);
+      // Also stem spoken words to catch "wash" vs "washes" etc.
+      const spokenStemmed = spokenWords.map(w => stemVerb(w));
+
+      const hasSubject = spokenWords.includes(subjectNoun) || spokenStemmed.includes(subjectNoun);
+      const hasVerb = spokenWords.includes(verbStemmed) || spokenStemmed.includes(verbStemmed)
+        || spokenWords.includes(getVerb(current).toLowerCase());
+      const hasObject = spokenWords.includes(objectNoun) || spokenStemmed.includes(objectNoun);
+
+      ok = hasSubject && hasVerb && hasObject;
+    } else {
+      // Hard mode: exact match (after normalization)
+      const correctText = getSentence(current);
+      ok = normalize(spoken) === normalize(correctText);
+    }
 
     if (ok) {
       setFeedback({ value: spoken, isCorrect: true });
