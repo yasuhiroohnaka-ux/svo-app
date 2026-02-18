@@ -803,6 +803,9 @@ export default function Page() {
                     </div>
                 )}
             </div>
+            <footer className={styles.copyright}>
+                © 2026 Yasuhiro Ohnaka — All rights reserved
+            </footer>
         </main >
     );
 }

@@ -655,3 +655,14 @@
     opacity: 1;
   }
 }
+
+/* Copyright Footer */
+.copyright {
+  margin-top: 24px;
+  padding: 12px;
+  text-align: center;
+  font-size: 11px;
+  color: #a5d6a7;
+  opacity: 0.7;
+  letter-spacing: 0.5px;
+}

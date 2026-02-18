@@ -78,7 +78,7 @@ export default function PortalPage() {
       </div>
 
       <footer className={styles.footer}>
-        © 2025 Puzzle Grammar
+        © 2026 Yasuhiro Ohnaka — All rights reserved
       </footer>
     </main>
   );
