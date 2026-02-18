@@ -320,7 +320,7 @@ export default function Page() {
                 return shuffle([current, ...others]).map((c) => getTargetText(c));
             }
         }
-    }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, survivalChoices]);
+    }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, survivalChoices, contentLang]);
 
     // AI Logic for VS Mode
     const onSpeakComplete = useCallback(() => {
