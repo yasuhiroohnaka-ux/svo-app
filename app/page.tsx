@@ -187,6 +187,11 @@ export default function Page() {
   const [aiLevel, setAiLevel] = useState<"easy" | "normal" | "hard">("normal");
   const [aiScore, setAiScore] = useState(0);
 
+  // Game Flow State
+  type GameState = "idle" | "countdown" | "playing" | "paused" | "finished";
+  const [gameState, setGameState] = useState<GameState>("idle");
+  const [countdown, setCountdown] = useState<number>(3);
+
   const toggleVsMode = () => {
     setIsVsMode((prev) => {
       const next = !prev;
@@ -196,6 +201,7 @@ export default function Page() {
     setScore(0);
     setAiScore(0);
     setStreak(0);
+    setGameState("idle"); // Reset to idle on toggle
   };
 
   const changeAiLevel = (level: "easy" | "normal" | "hard") => {
@@ -527,15 +533,48 @@ export default function Page() {
 
   // Auto-speak effect
   useEffect(() => {
-    if (!autoSpeak || !current || mode === "flash") return;
+    // Only speak if game is PLAYING
+    if (!autoSpeak || !current || mode === "flash" || gameState !== "playing") return;
 
     // Slight delay to allow UI to settle?
     const timer = setTimeout(() => {
       handleSpeak(onSpeakComplete);
     }, 500);
     return () => clearTimeout(timer);
-  }, [current, autoSpeak, mode, handleSpeak, onSpeakComplete]);
+  }, [current, autoSpeak, mode, handleSpeak, onSpeakComplete, gameState]);
 
+  // Countdown effect
+  useEffect(() => {
+    if (gameState !== "countdown") return;
+
+    if (countdown > 0) {
+      // 3 -> 2 -> 1 -> 0
+      const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0) {
+      // 0 means "GO!" - show it for a moment, then start
+      const timer = setTimeout(() => {
+        setGameState("playing");
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [gameState, countdown]);
+
+  const startGame = () => {
+    setCountdown(3);
+    setGameState("countdown");
+  };
+
+  const togglePause = () => {
+    if (gameState === "playing") {
+      setGameState("paused");
+      window.speechSynthesis.cancel();
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      if (aiTimeoutRef.current) clearTimeout(aiTimeoutRef.current);
+    } else if (gameState === "paused") {
+      setGameState("playing");
+    }
+  };
 
   /** Judge spoken text (voice recognition) */
   function judgeVoice(spoken: string) {
@@ -855,6 +894,31 @@ export default function Page() {
         {mode === "karuta" && (
           <>
             <div className={styles.controlGroup}>
+              {/* Game Flow Controls */}
+              {gameState === "idle" && (
+                <button
+                  onClick={startGame}
+                  className={`${styles.button} ${styles.buttonActive}`}
+                  style={{ background: "#ff7043", borderColor: "#f4511e" }}
+                >
+                  START
+                </button>
+              )}
+              {gameState === "playing" && (
+                <button onClick={togglePause} className={styles.button}>
+                  ⏸ PAUSE
+                </button>
+              )}
+              {gameState === "paused" && (
+                <button
+                  onClick={togglePause}
+                  className={`${styles.button} ${styles.buttonActive}`}
+                  style={{ background: "#42a5f5", borderColor: "#1e88e5" }}
+                >
+                  ▶ RESUME
+                </button>
+              )}
+
               <div style={{ opacity: 0.7 }}>|</div>
 
               <div className={styles.controlGroup}>
@@ -884,8 +948,18 @@ export default function Page() {
                     setScore(0);
                     setStreak(0);
                     setIndex(0);
+                    setGameState("idle"); // Require Start
                   } else {
                     setRemainingCards(cards);
+                    setGameState("playing"); // Basic Karuta (no timer/AI) just plays? Or idle?
+                    // User said "Basic Karuta also Survival behavior".
+                    // If disabling Survival, it becomes Basic Karuta.
+                    // Should Basic Karuta have Start button?
+                    // "Basic Karuta is Survival Mode even that behavior" -> Ambiguous.
+                    // "Basically, even in Survival Mode of Karuta I want that behavior".
+                    // Implies "Karuta (Survival/VS) -> Start Button".
+                    // Normal Karuta -> Maybe not?
+                    // I will leave Normal Karuta as "playing" (auto start) for now to minimize disruption unless requested.
                   }
                 }}
                 className={`${styles.button} ${isSurvival ? styles.buttonSurvival : ""}`}
@@ -1088,6 +1162,27 @@ export default function Page() {
               ))}
             </div>
           </>
+        )}
+        {/* Overlay for Countdown/Pause */}
+        {mode === "karuta" && (gameState === "countdown" || gameState === "paused") && (
+          <div className={styles.overlay}>
+            {gameState === "paused" ? (
+              <>
+                <div className={styles.overlayText}>PAUSED</div>
+                <button
+                  onClick={togglePause}
+                  className={styles.overlaySubText}
+                  style={{ cursor: "pointer", border: "2px solid white" }}
+                >
+                  RESUME
+                </button>
+              </>
+            ) : (
+              <div className={styles.overlayText} key={countdown}>
+                {countdown > 0 ? countdown : "GO!"}
+              </div>
+            )}
+          </div>
         )}
       </div>
     </main >
