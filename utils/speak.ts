@@ -1,23 +1,6 @@
 export function speak(text: string, lang = "en-US", onComplete?: () => void) {
-  if (typeof window === "undefined") return;
-  const synth = window.speechSynthesis;
-  if (!synth) return;
-
-  synth.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang;
-  u.rate = 1.0;
-  u.pitch = 1.0;
-
-  if (onComplete) {
-    u.onend = () => onComplete();
-    u.onerror = (e) => {
-      console.error("Speech error:", e);
-      onComplete();
-    };
-  }
-
-  synth.speak(u);
+  // Use speakQueue for consistency and reliability (callbacks, cancellation)
+  speakQueue([text], 0, lang, onComplete);
 }
 
 export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComplete?: () => void) {

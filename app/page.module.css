@@ -28,6 +28,8 @@
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: center;
+  /* Center content */
   box-shadow: 0 4px 10px rgba(46, 125, 50, 0.1);
 }
 
@@ -36,6 +38,8 @@
   gap: 6px;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: center;
+  /* Center items */
 }
 
 .button {

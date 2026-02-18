@@ -460,6 +460,7 @@ export default function Page() {
 
   // karuta時に自動で読み上げ
   const onSpeakComplete = useCallback(() => {
+    console.log("onSpeakComplete!", { isTrickActive, isVsMode, current, aiLevel });
     // If trick mode & trick sentence (fake), wait 2s then auto-correct
     if (isTrickActive && trickSentence) {
       if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
@@ -471,12 +472,15 @@ export default function Page() {
     } else if (isVsMode && current) {
       // VS AI Logic: if real sentence (or normal mode), AI tries to take it
       let delay = 3000;
-      if (aiLevel === "easy") delay = 4000 + Math.random() * 2000;
-      if (aiLevel === "normal") delay = 2000 + Math.random() * 1000;
-      if (aiLevel === "hard") delay = 500 + Math.random() * 500;
+      if (aiLevel === "easy") delay = 5000 + Math.random() * 3000;   // 5~8s
+      if (aiLevel === "normal") delay = 3000 + Math.random() * 2000; // 3~5s
+      if (aiLevel === "hard") delay = 1500 + Math.random() * 1000;   // 1.5~2.5s
+
+      console.log("Setting AI Timer for delay:", delay);
 
       if (aiTimeoutRef.current) clearTimeout(aiTimeoutRef.current);
       aiTimeoutRef.current = setTimeout(() => {
+        console.log("AI taking card now!");
         handleCorrectAnswer(false, "ai");
       }, delay);
     }
