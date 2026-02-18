@@ -367,15 +367,30 @@ export default function Page() {
     };
 
     // Simplified Voice Recognition (Checks contains)
+
+    // Simplified Voice Recognition (Loose check)
     function judgeVoice(spoken: string) {
         if (!current) return;
-        const correctText = getFullText(current).toLowerCase().replace(/[^a-z0-9 ]/g, "");
-        const spokenClean = spoken.toLowerCase().replace(/[^a-z0-9 ]/g, "");
 
-        // Simple inclusion check or similarity could be added
-        // For now, check if spoken text contains significant parts of the expected text
-        // actually, let's just check length ratio or basic match
-        const ok = correctText === spokenClean || spokenClean.includes(correctText);
+        // Target text depends on mode
+        let correctText = "";
+        if (mode === "flash") {
+            correctText = getTargetText(current).toLowerCase().replace(/[^a-z0-9 ]/g, "");
+        } else {
+            correctText = getFullText(current).toLowerCase().replace(/[^a-z0-9 ]/g, "");
+        }
+
+        const spokenClean = spoken.toLowerCase().replace(/[^a-z0-9 ]/g, "");
+        const correctWords = correctText.split(/\s+/).filter(w => w.length > 0);
+        const spokenWords = spokenClean.split(/\s+/).filter(w => w.length > 0);
+
+        let matchCount = 0;
+        correctWords.forEach(w => {
+            if (spokenWords.includes(w)) matchCount++;
+        });
+
+        // Loose threshold: 50% match
+        const ok = correctWords.length > 0 && (matchCount / correctWords.length >= 0.5);
 
         if (ok) {
             setFeedback({ value: spoken, isCorrect: true });
@@ -409,7 +424,9 @@ export default function Page() {
         recognition.onend = () => setIsListening(false);
         recognitionRef.current = recognition;
         recognition.start();
-    }, [current]);
+    }, [current, mode]); // Added mode dependency
+
+
 
     function handleCorrectAnswer(keepCard = false, winner: "player" | "ai" = "player") {
         if (!current) return;
@@ -519,6 +536,19 @@ export default function Page() {
                     <button onClick={() => setMode("karuta")} className={`${styles.button} ${mode === "karuta" ? styles.buttonActive : ""}`}>
                         {t.karuta}
                     </button>
+                    {mode === "flash" && (
+                        <button
+                            onClick={() => {
+                                const next = !voiceMode;
+                                setVoiceMode(next);
+                                setShowText(!next); // Hide text if voice ON
+                            }}
+                            className={`${styles.button} ${voiceMode ? styles.buttonActive : ""}`}
+                            title={t.voiceMode}
+                        >
+                            🎤
+                        </button>
+                    )}
                 </div>
 
                 <div className={styles.controlGroup}>
@@ -612,8 +642,24 @@ export default function Page() {
                             {voiceMode ? (
                                 <div className={styles.voiceArea}>
                                     <div style={{ marginBottom: 10, fontWeight: "bold" }}>{t.sayTheSentence}</div>
+
+                                    {/* Hint Toggle */}
+                                    <button
+                                        onClick={() => setShowText(!showText)}
+                                        className={styles.button}
+                                        style={{ marginBottom: 10, fontSize: 12, padding: '2px 8px' }}
+                                    >
+                                        {t.text}: {showText ? "ON (Hint)" : "OFF"}
+                                    </button>
+
+                                    {showText && (
+                                        <div style={{ marginBottom: 10, fontSize: 14, color: "#666" }}>
+                                            {getTargetText(current)}
+                                        </div>
+                                    )}
+
                                     <button onClick={startListening} className={`${styles.voiceButton} ${isListening ? styles.voiceButtonListening : ""}`} disabled={isListening}>
-                                        {isListening ? `🔴 ${t.listening}` : "🎤"}
+                                        {isListening ? `🔴 ${t.listening}` : "🎤 Speak"}
                                     </button>
                                     {spokenText && (
                                         <div className={styles.spokenResult} style={{ borderColor: feedback?.isCorrect ? "green" : "red" }}>
