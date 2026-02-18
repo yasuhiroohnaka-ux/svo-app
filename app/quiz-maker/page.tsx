@@ -317,7 +317,10 @@ export default function Page() {
     }, [current, mode]);
 
     useEffect(() => {
-        if (!autoSpeak || !current || gameState !== "playing") return;
+        // In Flash mode, we don't use 'gameState' (Start button), so allow playing if current exists.
+        if (!autoSpeak || !current) return;
+        if (mode === "karuta" && gameState !== "playing") return;
+
         const timer = setTimeout(() => {
             handleSpeak(onSpeakComplete);
         }, 500);
