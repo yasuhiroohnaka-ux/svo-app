@@ -194,7 +194,8 @@ export default function Page() {
     if (isSurvival) {
       // Survival Mode:
       const pool = activePool.filter((c) => c.id !== current.id);
-      const maxChoices = Math.min(11, choiceCount);
+      const effectiveCount = mode === "flash" ? Math.min(5, choiceCount) : choiceCount;
+      const maxChoices = Math.min(11, effectiveCount);
       const takeN = Math.min(pool.length, maxChoices - 1);
 
       const others = shuffle(pool).slice(0, takeN);
@@ -207,7 +208,8 @@ export default function Page() {
     } else {
       // Normal Mode:
       const pool = cards.filter((c) => c.id !== current.id);
-      const n = Math.max(2, Math.min(11, choiceCount));
+      const effectiveN = mode === "flash" ? Math.min(5, choiceCount) : choiceCount;
+      const n = Math.max(2, Math.min(11, effectiveN));
       const others = shuffle(pool).slice(0, n - 1);
 
       if (mode === "flash") {
@@ -405,18 +407,20 @@ export default function Page() {
           </button>
         </div>
 
-        <div className={styles.controlGroup}>
-          <div>{t.choices}</div>
-          {[2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((n) => (
-            <button
-              key={n}
-              onClick={() => setChoiceCount(n)}
-              className={`${styles.choiceButton} ${choiceCount === n ? styles.choiceButtonActive : ""}`}
-            >
-              {n}
-            </button>
-          ))}
-        </div>
+        {mode === "flash" && (
+          <div className={styles.controlGroup}>
+            <div>{t.choices}</div>
+            {[2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                onClick={() => setChoiceCount(n)}
+                className={`${styles.choiceButton} ${choiceCount === n ? styles.choiceButtonActive : ""}`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className={styles.controlGroup}>
           <div style={{ opacity: 0.7 }}>|</div>
@@ -428,48 +432,51 @@ export default function Page() {
           </button>
         </div>
 
-        <div className={styles.controlGroup}>
-          <div style={{ opacity: 0.7 }}>|</div>
-
+        {mode === "karuta" && (
           <div className={styles.controlGroup}>
-            <span style={{ fontSize: 14 }}>{t.deck}:</span>
-            <select
-              value={deckSize}
-              onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
-              className={styles.select}
-              disabled={isSurvival}
+            <div style={{ opacity: 0.7 }}>|</div>
+
+            <div className={styles.controlGroup}>
+              <span style={{ fontSize: 14 }}>{t.deck}:</span>
+              <select
+                value={deckSize}
+                onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
+                className={styles.select}
+                disabled={isSurvival}
+              >
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="35">35</option>
+                <option value="all">All</option>
+              </select>
+            </div>
+
+            <button
+              onClick={() => {
+                const newVal = !isSurvival;
+                setIsSurvival(newVal);
+                if (newVal) {
+                  const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
+                  const shuffled = shuffle(cards);
+                  setRemainingCards(shuffled.slice(0, targetCount));
+                  setScore(0);
+                  setStreak(0);
+                  setIndex(0);
+                } else {
+                  setRemainingCards(cards);
+                }
+              }}
+              className={`${styles.button} ${isSurvival ? styles.buttonSurvival : ""}`}
             >
-              <option value="5">5</option>
-              <option value="10">10</option>
-              <option value="15">15</option>
-              <option value="20">20</option>
-              <option value="30">30</option>
-              <option value="all">All</option>
-            </select>
+              {t.survivalMode}: {isSurvival ? t.on : t.off}
+            </button>
           </div>
+        )}
 
-          <button
-            onClick={() => {
-              const newVal = !isSurvival;
-              setIsSurvival(newVal);
-              if (newVal) {
-                const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
-                const shuffled = shuffle(cards);
-                setRemainingCards(shuffled.slice(0, targetCount));
-                setScore(0);
-                setStreak(0);
-                setIndex(0);
-              } else {
-                setRemainingCards(cards);
-              }
-            }}
-            className={`${styles.button} ${isSurvival ? styles.buttonSurvival : ""}`}
-          >
-            {t.survivalMode}: {isSurvival ? t.on : t.off}
-          </button>
-        </div>
-
-        {isSurvival && remainingCards.length <= 4 && (
+        {mode === "karuta" && isSurvival && remainingCards.length <= 4 && (
           <div className={styles.controlGroup}>
             <div style={{ opacity: 0.7 }}>|</div>
             <button
