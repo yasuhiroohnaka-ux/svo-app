@@ -6,7 +6,7 @@ export function speak(text: string, lang = "en-US", onComplete?: () => void) {
   speakQueue([text], 0, lang, onComplete);
 }
 
-export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComplete?: () => void) {
+export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComplete?: () => void, onProgress?: (idx: number) => void) {
   if (!synth) {
     if (onComplete) onComplete();
     return;
@@ -21,6 +21,7 @@ export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComp
       return;
     }
 
+    if (onProgress) onProgress(idx);
     const txt = texts[idx];
     const u = new SpeechSynthesisUtterance(txt);
     currentUtterance = u; // Keep reference

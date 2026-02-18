@@ -45,6 +45,7 @@ const translations = {
         voiceMode: "voice",
         listening: "Listening...",
         sayTheSentence: "Say the sentences!",
+        text: "text",
     },
     ja: {
         loading: "じゅんびちゅう...",
@@ -75,6 +76,7 @@ const translations = {
         voiceMode: "おんせい",
         listening: "きいてるよ...",
         sayTheSentence: "ぶんを いってね！",
+        text: "テキスト",
     },
     zh: {
         loading: "加载中...",
@@ -105,6 +107,7 @@ const translations = {
         voiceMode: "语音",
         listening: "正在听...",
         sayTheSentence: "请说句子！",
+        text: "文本",
     }
 };
 
@@ -123,6 +126,8 @@ export default function Page() {
     const [uiLang, setUiLang] = useState<UiLang>("en");
     const [choiceCount, setChoiceCount] = useState<number>(4);
     const [autoSpeak, setAutoSpeak] = useState<boolean>(false);
+    const [visibleSentenceCount, setVisibleSentenceCount] = useState<number>(0);
+    const [showText, setShowText] = useState<boolean>(true);
 
     const [index, setIndex] = useState<number>(0);
     const [score, setScore] = useState<number>(0);
@@ -207,6 +212,10 @@ export default function Page() {
             setIndex(0);
         }
     }, [activePool.length, index]);
+
+    useEffect(() => {
+        setVisibleSentenceCount(0);
+    }, [current]);
 
     const karutaChoiceCount = useMemo(() => {
         if (mode !== "karuta") return choiceCount;
@@ -305,6 +314,7 @@ export default function Page() {
 
     const handleSpeak = useCallback((callback?: () => void) => {
         if (!current) return;
+        setVisibleSentenceCount(0);
 
         if (mode === "flash") {
             // Flash mode: Only read the target text (3rd sentence)
@@ -312,15 +322,14 @@ export default function Page() {
             speakQueue([target], 1200, "en-US", callback);
         } else {
             // Read all sentences with pause (1.2s)
-            speakQueue(current.sentences, 1200, "en-US", callback);
+            speakQueue(current.sentences, 1200, "en-US", callback, (idx) => {
+                setVisibleSentenceCount(idx + 1);
+            });
         }
     }, [current, mode]);
 
     useEffect(() => {
-        // In Flash mode, we don't use 'gameState' (Start button), so allow playing if current exists.
-        if (!autoSpeak || !current) return;
-        if (mode === "karuta" && gameState !== "playing") return;
-
+        if (!autoSpeak || !current || gameState !== "playing") return;
         const timer = setTimeout(() => {
             handleSpeak(onSpeakComplete);
         }, 500);
@@ -522,65 +531,63 @@ export default function Page() {
                     </button>
                 </div>
 
-                {mode === "karuta" && (
-                    <>
-                        <div className={styles.controlGroup}>
-                            {gameState === "idle" && (
-                                <button
-                                    onClick={startGame}
-                                    className={`${styles.button} ${styles.buttonActive}`}
-                                    style={{ background: "#ff7043", borderColor: "#f4511e" }}
-                                >
-                                    START
-                                </button>
-                            )}
-                            {gameState === "playing" && (
-                                <button onClick={togglePause} className={styles.button}>
-                                    ⏸ PAUSE
-                                </button>
-                            )}
-                            {gameState === "paused" && (
-                                <button
-                                    onClick={togglePause}
-                                    className={`${styles.button} ${styles.buttonActive}`}
-                                    style={{ background: "#42a5f5", borderColor: "#1e88e5" }}
-                                >
-                                    ▶ RESUME
-                                </button>
-                            )}
 
-                            <div style={{ opacity: 0.7 }}>|</div>
+                <div className={styles.controlGroup}>
+                    {gameState === "idle" && (
+                        <button
+                            onClick={startGame}
+                            className={`${styles.button} ${styles.buttonActive}`}
+                            style={{ background: "#ff7043", borderColor: "#f4511e" }}
+                        >
+                            START
+                        </button>
+                    )}
+                    {gameState === "playing" && (
+                        <button onClick={togglePause} className={styles.button}>
+                            ⏸ PAUSE
+                        </button>
+                    )}
+                    {gameState === "paused" && (
+                        <button
+                            onClick={togglePause}
+                            className={`${styles.button} ${styles.buttonActive}`}
+                            style={{ background: "#42a5f5", borderColor: "#1e88e5" }}
+                        >
+                            ▶ RESUME
+                        </button>
+                    )}
 
-                            <div className={styles.controlGroup}>
-                                <span style={{ fontSize: 14 }}>{t.deck}:</span>
-                                <select
-                                    value={deckSize}
-                                    onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
-                                    className={styles.select}
-                                    disabled={isSurvival}
-                                >
-                                    {[5, 10, 15, 20].filter(n => n <= cards.length).map(n => (
-                                        <option key={n} value={n}>{n}</option>
-                                    ))}
-                                    <option value="all">All ({cards.length})</option>
-                                </select>
-                            </div>
+                    <div style={{ opacity: 0.7 }}>|</div>
 
-                            <button
-                                onClick={() => {
-                                    if (isVsMode) return;
-                                    setIsSurvival(v => !v);
-                                    setRemainingCards(cards);
-                                    setScore(0);
-                                    setGameState("idle");
-                                }}
-                                className={`${styles.button} ${isSurvival ? styles.buttonSurvival : ""}`}
-                            >
-                                {t.survivalMode}: {isSurvival ? t.on : t.off}
-                            </button>
-                        </div>
-                    </>
-                )}
+                    <div className={styles.controlGroup}>
+                        <span style={{ fontSize: 14 }}>{t.deck}:</span>
+                        <select
+                            value={deckSize}
+                            onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
+                            className={styles.select}
+                            disabled={isSurvival}
+                        >
+                            {[5, 10, 15, 20].filter(n => n <= cards.length).map(n => (
+                                <option key={n} value={n}>{n}</option>
+                            ))}
+                            <option value="all">All ({cards.length})</option>
+                        </select>
+                    </div>
+
+                    <button
+                        onClick={() => {
+                            if (isVsMode) return;
+                            setIsSurvival(v => !v);
+                            setRemainingCards(cards);
+                            setScore(0);
+                            setGameState("idle");
+                        }}
+                        className={`${styles.button} ${isSurvival ? styles.buttonSurvival : ""}`}
+                    >
+                        {t.survivalMode}: {isSurvival ? t.on : t.off}
+                    </button>
+                </div>
+
             </div>
 
             <div className={styles.gameArea}>
@@ -644,13 +651,16 @@ export default function Page() {
                         <div className={styles.karutaHeader}>
                             <div className={styles.controlGroup}>
                                 <div style={{ opacity: 0.8 }}>{t.target}:</div>
-                                {/* Show first sentence as hint? Or all? Or hidden? Karuta usually hides text if audio. */
-                                    /* But SVO app showed text. User data implies text is important. */
-                                    /* Let's show all 3 sentences separated by / */
-                                }
-                                <div className={styles.targetSentence} style={{ fontSize: 14 }}>
-                                    {current.sentences.map((s, i) => <div key={i}>{s}</div>)}
-                                </div>
+                                <button
+                                    onClick={() => setShowText(!showText)}
+                                    className={styles.button}
+                                    style={{ marginLeft: 8, padding: '2px 8px', fontSize: 12 }}
+                                >
+                                    {t.text}: {showText ? t.on : t.off}
+                                </button>
+                            </div>
+                            <div className={styles.targetSentence} style={{ fontSize: 14, minHeight: '4.5em' }}>
+                                {showText && current.sentences.slice(0, visibleSentenceCount).map((s, i) => <div key={i}>{s}</div>)}
                             </div>
 
                             <div className={styles.controlGroup}>
@@ -698,6 +708,6 @@ export default function Page() {
                     </div>
                 )}
             </div>
-        </main>
+        </main >
     );
 }
