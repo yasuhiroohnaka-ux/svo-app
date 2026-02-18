@@ -225,6 +225,7 @@
   gap: 8px;
   justify-content: center;
   align-content: start;
+  padding-bottom: 40px;
 }
 
 .karutaCard {

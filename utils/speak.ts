@@ -11,7 +11,7 @@ export function speak(text: string, lang = "en-US") {
   synth.speak(u);
 }
 
-export function speakQueue(texts: string[], interval = 0, lang = "en-US") {
+export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComplete?: () => void) {
   if (typeof window === "undefined") return;
   const synth = window.speechSynthesis;
   if (!synth) return;
@@ -39,7 +39,10 @@ export function speakQueue(texts: string[], interval = 0, lang = "en-US") {
   // This replaces the loop above.
   let idx = 0;
   function playNext() {
-    if (idx >= texts.length) return;
+    if (idx >= texts.length) {
+      if (onComplete) onComplete();
+      return;
+    }
     const txt = texts[idx];
     const u = new SpeechSynthesisUtterance(txt);
     u.lang = lang;
@@ -51,6 +54,10 @@ export function speakQueue(texts: string[], interval = 0, lang = "en-US") {
           idx++;
           playNext();
         }, interval);
+      } else {
+        // Last one finished
+        idx++;
+        playNext(); // to trigger completion
       }
     };
 

@@ -389,17 +389,53 @@ export default function Page() {
     }
   }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, contentLang]);
 
+  // Ref for silence timeout in trick mode
+  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clear timeout on unmount or card change
+  useEffect(() => {
+    return () => {
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+    };
+  }, [current]);
+
   // karuta時に自動で読み上げ
   useEffect(() => {
     if (!current) return;
     if (mode !== "karuta") return;
     if (!autoSpeak) return;
 
+    // Clear any existing silence timer
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+      silenceTimeoutRef.current = null;
+    }
+
+    const onSpeakComplete = () => {
+      // If trick mode & trick sentence (fake), wait 2s then auto-correct
+      if (isTrickActive && trickSentence) {
+        silenceTimeoutRef.current = setTimeout(() => {
+          // If this fires, user hasn't clicked anything for 2s after reading
+          handleCorrectAnswer();
+        }, 2000);
+      }
+    };
+
     if (isTrickActive && trickSentence) {
-      // Trick mode: speak S -> V -> O with 1s intervals
-      speakQueue([trickSentence.s, trickSentence.v, trickSentence.o], 1000, getLangCode());
+      // Trick mode: speak S -> V -> O with 0.7s intervals
+      speakQueue(
+        [trickSentence.s, trickSentence.v, trickSentence.o],
+        700,
+        getLangCode(),
+        onSpeakComplete
+      );
     } else if (isTrickActive) {
-      speakQueue([getSubject(current), getVerb(current), getObject(current)], 1000, getLangCode());
+      speakQueue(
+        [getSubject(current), getVerb(current), getObject(current)],
+        700,
+        getLangCode(),
+        onSpeakComplete // Also callback here? No, correct answer needs clicking
+      );
     } else {
       speak(getSentence(current), getLangCode());
     }
@@ -494,6 +530,13 @@ export default function Page() {
 
   function judgeKaruta(selectedImage: string) {
     if (!current) return;
+
+    // User interacted, so clear silence timer
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+      silenceTimeoutRef.current = null;
+    }
+
     const ok = selectedImage === current.image;
     if (ok) {
       setFeedback({ value: selectedImage, isCorrect: true });
@@ -501,6 +544,8 @@ export default function Page() {
       setTimeout(() => handleCorrectAnswer(), 1000);
     } else {
       setStreak(0);
+      // In trick mode, if it's a trick sentence (fake), ANY card is wrong.
+      // So this logic holds.
       setFeedback({ value: selectedImage, isCorrect: false });
       playBuzz();
     }
