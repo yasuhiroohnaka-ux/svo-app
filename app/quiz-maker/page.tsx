@@ -381,8 +381,12 @@ export default function Page() {
         }
 
         const spokenClean = spoken.toLowerCase().replace(/[^a-z0-9 ]/g, "");
-        const correctWords = correctText.split(/\s+/).filter(w => w.length > 0);
-        const spokenWords = spokenClean.split(/\s+/).filter(w => w.length > 0);
+        const stopWords = ["the", "a", "an", "is", "are", "am", "be", "was", "were"];
+        const filterWords = (text: string) =>
+            text.split(/\s+/).filter(w => w.length > 0 && !stopWords.includes(w));
+
+        const correctWords = filterWords(correctText);
+        const spokenWords = filterWords(spokenClean);
 
         let matchCount = 0;
         correctWords.forEach(w => {
@@ -390,7 +394,8 @@ export default function Page() {
         });
 
         // Loose threshold: 50% match
-        const ok = correctWords.length > 0 && (matchCount / correctWords.length >= 0.5);
+        const baseLength = correctWords.length > 0 ? correctWords.length : 1;
+        const ok = (matchCount / baseLength >= 0.5);
 
         if (ok) {
             setFeedback({ value: spoken, isCorrect: true });
