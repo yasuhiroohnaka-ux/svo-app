@@ -63,7 +63,7 @@ export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComp
       next();
     };
 
-    synth.speak(u);
+    synth?.speak(u);
   }
   playNext();
 }
