@@ -182,12 +182,33 @@ export default function Page() {
   const [trickMode, setTrickMode] = useState<boolean>(false);
   const [deckSize, setDeckSize] = useState<number | "all">("all");
 
+  // VS Mode State
+  const [isVsMode, setIsVsMode] = useState(false);
+  const [aiLevel, setAiLevel] = useState<"easy" | "normal" | "hard">("normal");
+  const [aiScore, setAiScore] = useState(0);
+
+  const toggleVsMode = () => {
+    setIsVsMode((prev) => !prev);
+    setScore(0);
+    setAiScore(0);
+    setStreak(0);
+  };
+
+  const changeAiLevel = (level: "easy" | "normal" | "hard") => {
+    setAiLevel(level);
+  };
+
   // Voice Recognition State
   const [voiceMode, setVoiceMode] = useState<boolean>(false);
   const [articleMode, setArticleMode] = useState<ArticleMode>("easy");
   const [isListening, setIsListening] = useState<boolean>(false);
   const [spokenText, setSpokenText] = useState<string>("");
   const recognitionRef = useRef<any>(null);
+
+  // Refs for timers
+  // silenceTimeoutRef is declared below? Let's check context.
+  // Actually, I should just remove silenceTimeoutRef from here if it exists below.
+  const aiTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const t = translations[uiLang];
 
@@ -437,13 +458,25 @@ export default function Page() {
   const onSpeakComplete = useCallback(() => {
     // If trick mode & trick sentence (fake), wait 2s then auto-correct
     if (isTrickActive && trickSentence) {
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
       silenceTimeoutRef.current = setTimeout(() => {
         // If this fires, user hasn't clicked anything for 2s after reading
         // Pass true to keep the card in the deck (just a "pass")
-        handleCorrectAnswer(true);
+        handleCorrectAnswer(true, "player");
       }, 2000);
+    } else if (isVsMode && current) {
+      // VS AI Logic: if real sentence (or normal mode), AI tries to take it
+      let delay = 3000;
+      if (aiLevel === "easy") delay = 4000 + Math.random() * 2000;
+      if (aiLevel === "normal") delay = 2000 + Math.random() * 1000;
+      if (aiLevel === "hard") delay = 500 + Math.random() * 500;
+
+      if (aiTimeoutRef.current) clearTimeout(aiTimeoutRef.current);
+      aiTimeoutRef.current = setTimeout(() => {
+        handleCorrectAnswer(false, "ai");
+      }, delay);
     }
-  }, [isTrickActive, trickSentence]); // logic implies handleCorrectAnswer is stable/hoisted
+  }, [isTrickActive, trickSentence, isVsMode, current, aiLevel]); // handleCorrectAnswer is stable
 
   // Helper to handle speaking (auto or manual)
   const handleSpeak = useCallback((callback?: () => void) => {
@@ -588,15 +621,26 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, articleMode, contentLang]);
 
-  function handleCorrectAnswer(keepCard = false) {
+  function handleCorrectAnswer(keepCard = false, winner: "player" | "ai" = "player") {
     if (!current) return;
-    setScore((s) => s + 1);
-    setStreak((s) => s + 1);
 
-    // Stop trick silence timer if any
+    if (winner === "player") {
+      setScore((s) => s + 1);
+      setStreak((s) => s + 1);
+    } else {
+      setAiScore((s) => s + 1);
+      setStreak(0); // AI took it, streak broken
+    }
+
+    // Stop silence timer if any
     if (silenceTimeoutRef.current) {
       clearTimeout(silenceTimeoutRef.current);
       silenceTimeoutRef.current = null;
+    }
+    // Stop AI timer if any
+    if (aiTimeoutRef.current) {
+      clearTimeout(aiTimeoutRef.current);
+      aiTimeoutRef.current = null;
     }
 
     if (mode === "karuta" && isSurvival && !keepCard) {
@@ -605,15 +649,33 @@ export default function Page() {
       setRemainingCards(newPool);
 
       if (newPool.length === 0) {
-        playChime();
-        alert(t.gameCleared);
+        if (isVsMode) {
+          // Compare scores
+          // We need latest scores. But state updates are async.
+          // We can use updated values if we track them manually or just rely on prev state + 1.
+          const finalPlayerScore = winner === "player" ? score + 1 : score;
+          const finalAiScore = winner === "ai" ? aiScore + 1 : aiScore;
+
+          let msg = "";
+          if (finalPlayerScore > finalAiScore) msg = "YOU WIN!";
+          else if (finalPlayerScore < finalAiScore) msg = "YOU LOSE!";
+          else msg = "DRAW!";
+
+          playChime();
+          alert(`${msg}\nPlayer: ${finalPlayerScore} - AI: ${finalAiScore}`);
+        } else {
+          playChime();
+          alert(t.gameCleared);
+        }
+
         // Reset with respect to deckSize
         const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
         const shuffled = shuffle(cards);
         setRemainingCards(shuffled.slice(0, targetCount));
         setScore(0);
+        setAiScore(0);
         setStreak(0);
-        setIndex(0); // Also reset index to be safe
+        setIndex(0);
       } else {
         // Pick random next card
         const nextIdx = Math.floor(Math.random() * newPool.length);
@@ -665,11 +727,22 @@ export default function Page() {
     <main className={styles.container}>
       <h1 className={styles.header}>{t.appTitle}</h1>
 
-      {/* 上部コントロール */}
+      {/* Score & Status */}
+      <div className={styles.statusRow}>
+        cards: {isSurvival ? activePool.length : cards.length}
+        {" / "}
+        {isVsMode ? (
+          <>
+            Player: {score} - AI: {aiScore}
+          </>
+        ) : (
+          <>
+            score: {score} / streak: {streak}
+          </>
+        )}
+      </div>
+
       <div className={styles.controls}>
-        <div style={{ whiteSpace: "nowrap" }}>
-          {t.cards}: {activePool.length} / {t.score}: {score} / {t.streak}: {streak}
-        </div>
 
         <div className={styles.controlGroup}>
           <button
@@ -757,6 +830,7 @@ export default function Page() {
               </>
             )}
           </div>
+
         )}
 
         <div className={styles.controlGroup}>
@@ -771,44 +845,78 @@ export default function Page() {
 
         {/* Karuta mode: deck selector + survival */}
         {mode === "karuta" && (
-          <div className={styles.controlGroup}>
-            <div style={{ opacity: 0.7 }}>|</div>
-
+          <>
             <div className={styles.controlGroup}>
-              <span style={{ fontSize: 14 }}>{t.deck}:</span>
-              <select
-                value={deckSize}
-                onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
-                className={styles.select}
-                disabled={isSurvival}
+              <div style={{ opacity: 0.7 }}>|</div>
+
+              <div className={styles.controlGroup}>
+                <span style={{ fontSize: 14 }}>{t.deck}:</span>
+                <select
+                  value={deckSize}
+                  onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
+                  className={styles.select}
+                  disabled={isSurvival}
+                >
+                  {[5, 10, 15, 20, 30, 35].filter(n => n <= cards.length).map(n => (
+                    <option key={n} value={n}>{n}</option>
+                  ))}
+                  <option value="all">All ({cards.length})</option>
+                </select>
+              </div>
+
+              <button
+                onClick={() => {
+                  const newVal = !isSurvival;
+                  setIsSurvival(newVal);
+                  if (newVal) {
+                    const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
+                    const shuffled = shuffle(cards);
+                    setRemainingCards(shuffled.slice(0, targetCount));
+                    setScore(0);
+                    setStreak(0);
+                    setIndex(0);
+                  } else {
+                    setRemainingCards(cards);
+                  }
+                }}
+                className={`${styles.button} ${isSurvival ? styles.buttonSurvival : ""}`}
               >
-                {[5, 10, 15, 20, 30, 35].filter(n => n <= cards.length).map(n => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-                <option value="all">All ({cards.length})</option>
-              </select>
+                {t.survivalMode}: {isSurvival ? t.on : t.off}
+              </button>
             </div>
 
-            <button
-              onClick={() => {
-                const newVal = !isSurvival;
-                setIsSurvival(newVal);
-                if (newVal) {
-                  const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
-                  const shuffled = shuffle(cards);
-                  setRemainingCards(shuffled.slice(0, targetCount));
-                  setScore(0);
-                  setStreak(0);
-                  setIndex(0);
-                } else {
-                  setRemainingCards(cards);
-                }
-              }}
-              className={`${styles.button} ${isSurvival ? styles.buttonSurvival : ""}`}
-            >
-              {t.survivalMode}: {isSurvival ? t.on : t.off}
-            </button>
-          </div>
+            <div className={styles.controlGroup}>
+              <div style={{ opacity: 0.7 }}>|</div>
+              <button
+                onClick={() => {
+                  toggleVsMode(); // resets scores
+                  if (!isVsMode) {
+                    // Turning ON: Reset deck
+                    const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
+                    const shuffled = shuffle(cards);
+                    setRemainingCards(shuffled.slice(0, targetCount));
+                    setIndex(0);
+                  }
+                }}
+                className={`${styles.button} ${isVsMode ? styles.buttonActive : ""}`}
+              >
+                VS AI: {isVsMode ? t.on : t.off}
+              </button>
+
+              {isVsMode && (
+                <select
+                  value={aiLevel}
+                  onChange={(e) => changeAiLevel(e.target.value as any)}
+                  className={styles.select}
+                  style={{ marginLeft: 4 }}
+                >
+                  <option value="easy">Easy</option>
+                  <option value="normal">Normal</option>
+                  <option value="hard">Hard</option>
+                </select>
+              )}
+            </div>
+          </>
         )}
 
         {mode === "karuta" && isSurvival && remainingCards.length <= 10 && (
@@ -972,6 +1080,6 @@ export default function Page() {
           </>
         )}
       </div>
-    </main>
+    </main >
   );
 }
