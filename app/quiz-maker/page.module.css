@@ -247,17 +247,16 @@
     line-height: 1.5;
 }
 
-/* Karuta Grid */
+/* Karuta Grid — compact for overview */
 .karutaGrid {
-    --card-count: 35;
+    --card-count: 16;
     display: grid;
-    grid-template-columns: repeat(auto-fill,
-            minmax(clamp(140px, calc(300px - var(--card-count) * 5px), 280px),
-                1fr));
-    gap: 8px;
+    /* PC: ~6 columns; tablet: 4-5; phone: 3-4 */
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 6px;
     justify-content: center;
     align-content: start;
-    padding-bottom: 40px;
+    padding-bottom: 20px;
 }
 
 .karutaCard {
@@ -284,7 +283,7 @@
 .karutaImage {
     width: 100%;
     height: auto;
-    max-height: clamp(120px, calc(350px - var(--card-count) * 6px), 320px);
+    max-height: 110px;
     object-fit: contain;
     display: block;
 }
