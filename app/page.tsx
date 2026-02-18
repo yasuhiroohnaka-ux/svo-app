@@ -614,7 +614,19 @@ export default function Page() {
         || spokenWords.includes(getVerb(current).toLowerCase());
       const hasObject = spokenWords.includes(objectNoun) || spokenStemmed.includes(objectNoun);
 
-      ok = hasSubject && hasVerb && hasObject;
+      // Check Order: Subject must appear BEFORE Object (if distinct nouns)
+      // Prevents "Fish eats banana" passing for "Banana eats fish"
+      let orderOk = true;
+      if (hasSubject && hasObject && subjectNoun !== objectNoun) {
+        const sIdx = spokenWords.indexOf(subjectNoun) !== -1 ? spokenWords.indexOf(subjectNoun) : spokenStemmed.indexOf(subjectNoun);
+        const oIdx = spokenWords.indexOf(objectNoun) !== -1 ? spokenWords.indexOf(objectNoun) : spokenStemmed.indexOf(objectNoun);
+
+        if (sIdx !== -1 && oIdx !== -1) {
+          orderOk = sIdx < oIdx;
+        }
+      }
+
+      ok = hasSubject && hasVerb && hasObject && orderOk;
     } else {
       // Hard mode: exact match (after normalization)
       ok = normalize(processedSpoken) === normalize(correctText);
