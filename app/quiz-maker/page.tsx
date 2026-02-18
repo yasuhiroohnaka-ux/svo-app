@@ -9,8 +9,11 @@ import styles from "./page.module.css";
 type Card = {
     id: string;
     sentences: string[];
+    sentences_zh?: string[];
     image: string;
 };
+
+type ContentLang = "en" | "zh";
 
 type Mode = "flash" | "karuta";
 type UiLang = "en" | "ja" | "zh";
@@ -46,37 +49,43 @@ const translations = {
         listening: "Listening...",
         sayTheSentence: "Say the sentences!",
         text: "text",
+        contentLang: "Content",
+        contentEn: "English",
+        contentZh: "Chinese",
     },
     ja: {
-        loading: "じゅんびちゅう...",
-        cards: "のこり",
-        score: "てんすう",
-        streak: "れんぞく",
+        loading: "準備中...",
+        cards: "残り",
+        score: "得点",
+        streak: "連続正解",
         mode: "モード",
         flash: "フラッシュ",
         karuta: "かるた",
-        choices: "かず",
-        autoSpeak: "じどうよみあげ",
+        choices: "選択肢",
+        autoSpeak: "自動読み上げ",
         on: "オン",
         off: "オフ",
-        deck: "まいすう",
+        deck: "枚数",
         surprise: "サプライズ",
         survivalMode: "サバイバル",
-        flashInstruction: "フラッシュ: ただしい文を えらんでね",
-        chooseOne: "ひとつ えらぼう",
-        target: "さがしてね",
-        speak: "きく",
+        flashInstruction: "フラッシュ：正しい文を選ぼう",
+        chooseOne: "1つ選ぼう",
+        target: "探してね",
+        speak: "聞く",
         skip: "スキップ",
-        gameCleared: "クリア！ 最初にもどるよ",
-        uiLang: "ひょうじ",
-        english: "えいご",
-        chinese: "ちゅうごくご",
-        japanese: "にほんご",
+        gameCleared: "クリア！最初に戻るよ",
+        uiLang: "表示言語",
+        english: "英語",
+        chinese: "中国語",
+        japanese: "日本語",
         appTitle: "クイズメーカー",
-        voiceMode: "おんせい",
-        listening: "きいてるよ...",
-        sayTheSentence: "ぶんを いってね！",
+        voiceMode: "音声入力",
+        listening: "聞いてるよ...",
+        sayTheSentence: "文を言ってね！",
         text: "テキスト",
+        contentLang: "内容言語",
+        contentEn: "英語",
+        contentZh: "中国語",
     },
     zh: {
         loading: "加载中...",
@@ -108,6 +117,9 @@ const translations = {
         listening: "正在听...",
         sayTheSentence: "请说句子！",
         text: "文本",
+        contentLang: "内容语言",
+        contentEn: "英语",
+        contentZh: "中文",
     }
 };
 
@@ -154,6 +166,7 @@ export default function Page() {
     const [voiceMode, setVoiceMode] = useState<boolean>(false);
     const [isListening, setIsListening] = useState<boolean>(false);
     const [spokenText, setSpokenText] = useState<string>("");
+    const [contentLang, setContentLang] = useState<ContentLang>("en");
 
     const t = translations[uiLang];
 
@@ -170,7 +183,8 @@ export default function Page() {
                 const normalized: Card[] = arr.map((x: any) => ({
                     id: x.id,
                     image: x.image,
-                    sentences: Array.isArray(x.sentences) ? x.sentences : [x.sentence || ""]
+                    sentences: Array.isArray(x.sentences) ? x.sentences : [x.sentence || ""],
+                    sentences_zh: Array.isArray(x.sentences_zh) ? x.sentences_zh : undefined,
                 })).filter(c => c.image && c.sentences.length > 0);
 
                 setCards(normalized);
@@ -196,9 +210,11 @@ export default function Page() {
     const activePool = isSurvival ? remainingCards : cards;
     const current = activePool[index];
 
-    // Helper to get text
-    const getTargetText = (c: Card) => c.sentences[2] || c.sentences[0];
-    const getFullText = (c: Card) => c.sentences.join(" "); // For comparison/display
+    // Helper to get text (content-language aware)
+    const getSentences = (c: Card) =>
+        contentLang === "zh" && c.sentences_zh ? c.sentences_zh : c.sentences;
+    const getTargetText = (c: Card) => { const s = getSentences(c); return s[2] || s[0]; };
+    const getFullText = (c: Card) => getSentences(c).join(" ");
 
     const toggleUiLang = () => {
         setUiLang((prev) => {
@@ -213,6 +229,8 @@ export default function Page() {
         if (uiLang === "ja") return t.japanese;
         return t.chinese;
     };
+
+    const toggleContentLang = () => setContentLang(prev => prev === "en" ? "zh" : "en");
 
     useEffect(() => {
         if (index >= activePool.length && activePool.length > 0) {
@@ -322,18 +340,18 @@ export default function Page() {
     const handleSpeak = useCallback((callback?: () => void) => {
         if (!current) return;
         setVisibleSentenceCount(0);
+        const lang = contentLang === "zh" ? "zh-CN" : "en-US";
+        const sentences = getSentences(current);
 
         if (mode === "flash") {
-            // Flash mode: Only read the target text (3rd sentence)
             const target = getTargetText(current);
-            speakQueue([target], 1200, "en-US", callback);
+            speakQueue([target], 1200, lang, callback);
         } else {
-            // Read all sentences with pause (1.2s)
-            speakQueue(current.sentences, 1200, "en-US", callback, (idx) => {
+            speakQueue(sentences, 1200, lang, callback, (idx) => {
                 setVisibleSentenceCount(idx + 1);
             });
         }
-    }, [current, mode]);
+    }, [current, mode, contentLang]);
 
     useEffect(() => {
         if (!autoSpeak || !current || gameState !== "playing") return;
@@ -551,6 +569,13 @@ export default function Page() {
                     <button onClick={toggleUiLang} className={styles.button} title={t.uiLang}>
                         {t.uiLang}: {getUiLangLabel()}
                     </button>
+                    <button
+                        onClick={toggleContentLang}
+                        className={`${styles.button} ${contentLang === "zh" ? styles.buttonActive : ""}`}
+                        title={t.contentLang}
+                    >
+                        {t.contentLang}: {contentLang === "en" ? t.contentEn : t.contentZh}
+                    </button>
                 </div>
                 <div className={styles.controlGroup}>
                     <div>{t.mode}</div>
@@ -730,7 +755,7 @@ export default function Page() {
                                 </button>
                             </div>
                             <div className={styles.targetSentence} style={{ fontSize: 14, minHeight: '4.5em' }}>
-                                {showText && current.sentences.slice(0, visibleSentenceCount).map((s, i) => <div key={i}>{s}</div>)}
+                                {showText && getSentences(current).slice(0, visibleSentenceCount).map((s, i) => <div key={i}>{s}</div>)}
                             </div>
 
                             <div className={styles.controlGroup}>

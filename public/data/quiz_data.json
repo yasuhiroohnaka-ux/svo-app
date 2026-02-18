@@ -6,6 +6,11 @@
             "It is sunny.",
             "There is an eraser.",
             "The eraser is under the chair."
+        ],
+        "sentences_zh": [
+            "天气晴朗。",
+            "有一块橡皮。",
+            "橡皮在椅子下面。"
         ]
     },
     {
@@ -15,6 +20,11 @@
             "It is sunny.",
             "There is an eraser.",
             "The eraser is running."
+        ],
+        "sentences_zh": [
+            "天气晴朗。",
+            "有一块橡皮。",
+            "橡皮在跑步。"
         ]
     },
     {
@@ -24,6 +34,11 @@
             "It is sunny.",
             "There is an eraser.",
             "The eraser is on the chair."
+        ],
+        "sentences_zh": [
+            "天气晴朗。",
+            "有一块橡皮。",
+            "橡皮在椅子上面。"
         ]
     },
     {
@@ -33,6 +48,11 @@
             "It is cloudy.",
             "There is a giraffe.",
             "The giraffe is crying."
+        ],
+        "sentences_zh": [
+            "天气多云。",
+            "有一只长颈鹿。",
+            "长颈鹿在哭泣。"
         ]
     },
     {
@@ -42,6 +62,11 @@
             "It is cloudy.",
             "There is a giraffe.",
             "The giraffe is angry."
+        ],
+        "sentences_zh": [
+            "天气多云。",
+            "有一只长颈鹿。",
+            "长颈鹿很生气。"
         ]
     },
     {
@@ -51,6 +76,11 @@
             "It is sunny.",
             "There is a monkey.",
             "The monkey is studying."
+        ],
+        "sentences_zh": [
+            "天气晴朗。",
+            "有一只猴子。",
+            "猴子在学习。"
         ]
     },
     {
@@ -60,6 +90,11 @@
             "It is sunny.",
             "There is a monkey.",
             "The monkey is strong."
+        ],
+        "sentences_zh": [
+            "天气晴朗。",
+            "有一只猴子。",
+            "猴子很强壮。"
         ]
     },
     {
@@ -69,6 +104,11 @@
             "It is sunny.",
             "There is a monkey.",
             "The monkey is sleepy."
+        ],
+        "sentences_zh": [
+            "天气晴朗。",
+            "有一只猴子。",
+            "猴子很困。"
         ]
     },
     {
@@ -78,6 +118,11 @@
             "It is snowy.",
             "There is an elephant.",
             "The elephant is thin."
+        ],
+        "sentences_zh": [
+            "天气下雪。",
+            "有一头大象。",
+            "大象很瘦。"
         ]
     },
     {
@@ -87,6 +132,11 @@
             "It is snowy.",
             "There are elephants.",
             "The elephants are talking."
+        ],
+        "sentences_zh": [
+            "天气下雪。",
+            "有几头大象。",
+            "大象们在说话。"
         ]
     },
     {
@@ -96,6 +146,11 @@
             "It is snowy.",
             "There is an elephant.",
             "The elephant is writing."
+        ],
+        "sentences_zh": [
+            "天气下雪。",
+            "有一头大象。",
+            "大象在写字。"
         ]
     },
     {
@@ -105,6 +160,11 @@
             "It is cloudy.",
             "There is a bear.",
             "The bear is eating."
+        ],
+        "sentences_zh": [
+            "天气多云。",
+            "有一只熊。",
+            "熊在吃东西。"
         ]
     },
     {
@@ -114,6 +174,11 @@
             "It is cloudy.",
             "There is a bear.",
             "The bear is laughing."
+        ],
+        "sentences_zh": [
+            "天气多云。",
+            "有一只熊。",
+            "熊在大笑。"
         ]
     },
     {
@@ -123,6 +188,11 @@
             "It is cloudy.",
             "There is a bear.",
             "The bear is fat."
+        ],
+        "sentences_zh": [
+            "天气多云。",
+            "有一只熊。",
+            "熊很胖。"
         ]
     },
     {
@@ -132,6 +202,11 @@
             "It is snowy.",
             "There is an alligator.",
             "The alligator is surprised."
+        ],
+        "sentences_zh": [
+            "天气下雪。",
+            "有一只鳄鱼。",
+            "鳄鱼很惊讶。"
         ]
     },
     {
@@ -141,6 +216,11 @@
             "It is snowy.",
             "There is an alligator.",
             "The alligator is weak."
+        ],
+        "sentences_zh": [
+            "天气下雪。",
+            "有一只鳄鱼。",
+            "鳄鱼很虚弱。"
         ]
     }
 ]
