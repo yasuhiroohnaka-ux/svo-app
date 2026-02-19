@@ -101,11 +101,11 @@ export default function PhonicsPage() {
     };
 
     const checkLevelUp = (currentStreak: number) => {
-        if (level === 1 && currentStreak >= 30) {
+        if (level === 1 && currentStreak >= 3) {
             setLevel(2);
             setStreak(0);
             setShowLecture(true);
-        } else if (level === 2 && currentStreak >= 20) {
+        } else if (level === 2 && currentStreak >= 3) {
             setLevel(3);
             setStreak(0);
             setShowLecture(true);
