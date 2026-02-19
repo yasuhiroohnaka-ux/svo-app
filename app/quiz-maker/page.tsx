@@ -1020,7 +1020,12 @@ export default function Page() {
                             </div>
                         </div>
 
-                        <div className={styles.karutaGrid} style={{ "--card-count": choices.length } as React.CSSProperties}>
+                        <div
+                            className={`${styles.karutaGrid} ${choices.length <= 6 ? styles.gridHuge :
+                                    choices.length <= 12 ? styles.gridBig : ""
+                                }`}
+                            style={{ "--card-count": choices.length } as React.CSSProperties}
+                        >
                             {choices.map((img, i) => (
                                 <button
                                     key={i}

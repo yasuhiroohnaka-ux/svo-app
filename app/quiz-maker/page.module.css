@@ -325,6 +325,33 @@
     mix-blend-mode: multiply;
 }
 
+/* Dynamic Layouts based on Card Count */
+
+/* Huge Layout (<= 6 cards) */
+.gridHuge .karutaCard {
+    width: 30%;
+    /* 3 cards per row comfortably */
+    min-width: 260px;
+    /* Force large size */
+}
+
+.gridHuge .karutaImage {
+    max-height: 280px;
+    /* Huge image */
+}
+
+/* Big Layout (<= 12 cards) */
+.gridBig .karutaCard {
+    width: 23%;
+    /* 4 cards per row */
+    min-width: 200px;
+}
+
+.gridBig .karutaImage {
+    max-height: 220px;
+    /* Big image */
+}
+
 /* Voice Recognition Styles */
 .voiceArea {
     display: flex;
