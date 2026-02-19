@@ -27,6 +27,15 @@ const apps = [
     soon: false,
   },
   {
+    href: "/phonics",
+    className: styles.cardPhonics,
+    icon: "🗣️",
+    title: "Phonics\nBuilder",
+    desc: "音を組み合わせて単語を作ろう！口の形をマネして発音練習。",
+    tags: ["SOUND", "PUZZLE", "SPEAK"],
+    soon: false,
+  },
+  {
     href: "#",
     className: styles.cardSoon,
     icon: "🔒",
