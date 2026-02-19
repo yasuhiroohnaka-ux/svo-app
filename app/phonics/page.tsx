@@ -56,7 +56,13 @@ export default function PhonicsPage() {
         setHand(pool);
     };
 
-    const playSound = (text: string) => {
+    const playSound = (text: string, audioPath?: string) => {
+        if (audioPath) {
+            const audio = new Audio(audioPath);
+            audio.play().catch(e => console.error("Audio play failed", e));
+            return;
+        }
+
         const u = new SpeechSynthesisUtterance(text);
         u.lang = 'en-US';
         speechSynthesis.speak(u);
@@ -64,7 +70,7 @@ export default function PhonicsPage() {
 
     const handleSelectPhonic = (p: Phonic) => {
         // Play Sound immediately
-        playSound(p.pronunciation || p.symbol);
+        playSound(p.pronunciation || p.symbol, p.audio);
 
         if (showHanamaru || !currentWord) return;
 
