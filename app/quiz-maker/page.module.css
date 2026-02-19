@@ -286,6 +286,8 @@
     max-height: 130px;
     object-fit: contain;
     display: block;
+    /* Enhance line visibility: increase contrast and add slight stroke effect via drop-shadow */
+    filter: contrast(1.2) drop-shadow(0 0 0.5px rgba(0, 0, 0, 0.6));
 }
 
 /* Voice Recognition Styles */
