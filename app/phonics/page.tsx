@@ -79,7 +79,7 @@ export default function PhonicsPage() {
 
     return (
         <main className={styles.container}>
-            <h1 className={styles.header}>Phonics Builder</h1>
+            <h1 className={styles.header}>oto-man</h1>
 
             <div className={styles.gameArea}>
                 {/* Target Area */}
