@@ -210,6 +210,8 @@ export default function Page() {
     const [streak, setStreak] = useState<number>(0);
     const [feedback, setFeedback] = useState<{ value: string; isCorrect: boolean } | null>(null);
 
+    const [error, setError] = useState<string | null>(null);
+
     // Survival Mode State
     const [isSurvival, setIsSurvival] = useState<boolean>(false);
     const [remainingCards, setRemainingCards] = useState<Card[]>([]);
@@ -253,8 +255,10 @@ export default function Page() {
     useEffect(() => {
         (async () => {
             try {
-                const res = await fetch("/data/quiz_data.json", { cache: "no-store" });
-                if (!res.ok) throw new Error("Failed to fetch data");
+                // cache: "no-store" might fail on some older Android WebViews / browsers?
+                // Using timestamp query param instead for cache busting compatibility.
+                const res = await fetch(`/data/quiz_data.json?t=${Date.now()}`);
+                if (!res.ok) throw new Error(`Failed to fetch data: ${res.status} ${res.statusText}`);
                 const data = await res.json();
 
                 // Validate and normalize
@@ -266,13 +270,18 @@ export default function Page() {
                     sentences_zh: Array.isArray(x.sentences_zh) ? x.sentences_zh : undefined,
                 })).filter(c => c.image && c.sentences.length > 0);
 
+                if (normalized.length === 0) {
+                    throw new Error("No valid cards found in data.");
+                }
+
                 setCards(normalized);
                 setRemainingCards(normalized);
                 setIndex(0);
                 setScore(0);
                 setStreak(0);
-            } catch (e) {
+            } catch (e: any) {
                 console.error(e);
+                setError(e.message || "Unknown error occurred during loading.");
                 setCards([]);
             }
         })();
@@ -726,6 +735,21 @@ export default function Page() {
             setFeedback({ value: selectedImage, isCorrect: false });
             playBuzz();
         }
+    }
+
+    if (error) {
+        return (
+            <main className={styles.container}>
+                <h1 className={styles.header}>{t.appTitle}</h1>
+                <p style={{ marginTop: 12, color: "red", fontWeight: "bold" }}>Error: {error}</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    style={{ marginTop: 16, padding: "8px 16px", background: "#333", color: "#fff", borderRadius: 4 }}
+                >
+                    Reload
+                </button>
+            </main>
+        );
     }
 
     if (!current) {

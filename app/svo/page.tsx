@@ -220,6 +220,8 @@ export default function Page() {
   const [streak, setStreak] = useState<number>(0);
   const [feedback, setFeedback] = useState<{ value: string; isCorrect: boolean } | null>(null);
 
+  const [error, setError] = useState<string | null>(null);
+
   // Survival Mode State
   const [isSurvival, setIsSurvival] = useState<boolean>(false);
   const [remainingCards, setRemainingCards] = useState<Card[]>([]);
@@ -282,37 +284,47 @@ export default function Page() {
   const t = translations[uiLang];
 
   // データ読み込み（public/data/svo_cards.json を想定）
+  // cache: "no-store" might fail on some older Android WebViews / browsers?
+  // Using timestamp query param instead for cache busting compatibility.
   useEffect(() => {
     (async () => {
-      const res = await fetch("/data/svo_cards.json", { cache: "no-store" });
-      const data = await res.json();
+      try {
+        const res = await fetch(`/data/svo_cards.json?t=${Date.now()}`);
+        if (!res.ok) throw new Error(`Failed to fetch data: ${res.status} ${res.statusText}`);
+        const data = await res.json();
 
-      // よくある形に寄せて吸収（配列 or {cards:[...]}）
-      const arr: any[] = Array.isArray(data) ? data : data?.cards ?? data?.items ?? [];
-      const normalized: Card[] = arr
-        .map((x, i) => ({
-          id: x.id ?? x.cardId ?? i,
-          subject: x.subject ?? "",
-          verb: x.verb ?? "",
-          object: x.object ?? "",
-          sentence: x.sentence ?? x.text ?? "",
-          subject_zh: x.subject_zh ?? "",
-          verb_zh: x.verb_zh ?? "",
-          object_zh: x.object_zh ?? "",
-          sentence_zh: x.sentence_zh ?? "",
-          image: x.image ?? x.img ?? x.imagePath ?? (x.imageFile ? `/images/${x.imageFile}` : ""),
-        }))
-        .filter((x) => x.sentence && x.image);
+        // よくある形に寄せて吸収（配列 or {cards:[...]}）
+        const arr: any[] = Array.isArray(data) ? data : data?.cards ?? data?.items ?? [];
+        const normalized: Card[] = arr
+          .map((x, i) => ({
+            id: x.id ?? x.cardId ?? i,
+            subject: x.subject ?? "",
+            verb: x.verb ?? "",
+            object: x.object ?? "",
+            sentence: x.sentence ?? x.text ?? "",
+            subject_zh: x.subject_zh ?? "",
+            verb_zh: x.verb_zh ?? "",
+            object_zh: x.object_zh ?? "",
+            sentence_zh: x.sentence_zh ?? "",
+            image: x.image ?? x.img ?? x.imagePath ?? (x.imageFile ? `/images/${x.imageFile}` : ""),
+          }))
+          .filter((x) => x.sentence && x.image);
 
-      setCards(normalized);
-      setRemainingCards(normalized);
-      setIndex(0);
-      setScore(0);
-      setStreak(0);
-    })().catch((e) => {
-      console.error(e);
-      setCards([]);
-    });
+        if (normalized.length === 0) {
+          throw new Error("No valid cards found in data.");
+        }
+
+        setCards(normalized);
+        setRemainingCards(normalized);
+        setIndex(0);
+        setScore(0);
+        setStreak(0);
+      } catch (e: any) {
+        console.error(e);
+        setError(e.message || "Unknown error occurred during loading.");
+        setCards([]);
+      }
+    })();
   }, []);
 
   // Cleanup speech on unmount
@@ -910,6 +922,21 @@ export default function Page() {
       setFeedback({ value: selectedImage, isCorrect: false });
       playBuzz();
     }
+  }
+
+  if (error) {
+    return (
+      <main className={styles.container}>
+        <h1 className={styles.header}>{t.appTitle}</h1>
+        <p style={{ marginTop: 12, color: "red", fontWeight: "bold" }}>Error: {error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          style={{ marginTop: 16, padding: "8px 16px", background: "#333", color: "#fff", borderRadius: 4 }}
+        >
+          Reload
+        </button>
+      </main>
+    );
   }
 
   if (!current) {
