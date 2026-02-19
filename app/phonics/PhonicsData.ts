@@ -3,6 +3,7 @@ export type Phonic = {
     symbol: string;
     image: string; // Path to mouth/char image
     audio?: string;
+    pronunciation?: string; // Text for TTS (e.g. "k" for "c")
 };
 
 export type Word = {
@@ -15,23 +16,23 @@ export type Word = {
 
 // Initial Phonics Set (using placeholders where needed)
 export const PHONICS_DATA: Phonic[] = [
-    { id: "a", symbol: "a", image: "/images/phonics/media__1771519031745.png" },
-    { id: "o", symbol: "o", image: "/images/phonics/media__1771519165248.png" },
-    { id: "u", symbol: "u", image: "/images/phonics/media__1771519175425.png" },
-    { id: "c", symbol: "c", image: "/images/phonics/media__1771519186730.png" },
-    { id: "t", symbol: "t", image: "/images/phonics/media__1771519186811.png" },
+    { id: "a", symbol: "a", image: "/images/phonics/media__1771519031745.png", pronunciation: "apple" }, // specific word for short a? or just "a"
+    { id: "o", symbol: "o", image: "/images/phonics/media__1771519165248.png", pronunciation: "hot" },
+    { id: "u", symbol: "u", image: "/images/phonics/media__1771519175425.png", pronunciation: "up" },
+    { id: "c", symbol: "c", image: "/images/phonics/media__1771519186730.png", pronunciation: "k" },
+    { id: "t", symbol: "t", image: "/images/phonics/media__1771519186811.png", pronunciation: "t" },
     // Placeholders for expanded vocab
-    { id: "b", symbol: "b", image: "/images/phonics/placeholder.png" },
-    { id: "d", symbol: "d", image: "/images/phonics/placeholder.png" },
-    { id: "g", symbol: "g", image: "/images/phonics/placeholder.png" },
-    { id: "e", symbol: "e", image: "/images/phonics/placeholder.png" },
-    { id: "i", symbol: "i", image: "/images/phonics/placeholder.png" },
-    { id: "k", symbol: "k", image: "/images/phonics/placeholder.png" },
-    { id: "n", symbol: "n", image: "/images/phonics/placeholder.png" },
-    { id: "p", symbol: "p", image: "/images/phonics/placeholder.png" },
-    { id: "l", symbol: "l", image: "/images/phonics/placeholder.png" },
-    { id: "r", symbol: "r", image: "/images/phonics/placeholder.png" },
-    { id: "m", symbol: "m", image: "/images/phonics/placeholder.png" },
+    { id: "b", symbol: "b", image: "/images/phonics/placeholder.png", pronunciation: "b" },
+    { id: "d", symbol: "d", image: "/images/phonics/placeholder.png", pronunciation: "d" },
+    { id: "g", symbol: "g", image: "/images/phonics/placeholder.png", pronunciation: "g" },
+    { id: "e", symbol: "e", image: "/images/phonics/placeholder.png", pronunciation: "e" },
+    { id: "i", symbol: "i", image: "/images/phonics/placeholder.png", pronunciation: "i" },
+    { id: "k", symbol: "k", image: "/images/phonics/placeholder.png", pronunciation: "k" },
+    { id: "n", symbol: "n", image: "/images/phonics/placeholder.png", pronunciation: "n" },
+    { id: "p", symbol: "p", image: "/images/phonics/placeholder.png", pronunciation: "p" },
+    { id: "l", symbol: "l", image: "/images/phonics/placeholder.png", pronunciation: "l" },
+    { id: "r", symbol: "r", image: "/images/phonics/placeholder.png", pronunciation: "r" },
+    { id: "m", symbol: "m", image: "/images/phonics/placeholder.png", pronunciation: "m" },
 ];
 
 export const WORDS_DATA: Word[] = [

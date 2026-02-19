@@ -64,7 +64,7 @@ export default function PhonicsPage() {
 
     const handleSelectPhonic = (p: Phonic) => {
         // Play Sound immediately
-        playSound(p.symbol);
+        playSound(p.pronunciation || p.symbol);
 
         if (showHanamaru || !currentWord) return;
 
