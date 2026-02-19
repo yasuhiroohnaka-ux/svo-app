@@ -1,6 +1,7 @@
 const synth = typeof window !== "undefined" ? window.speechSynthesis : null;
 let currentUtterance: SpeechSynthesisUtterance | null = null; // Prevent GC
 let currentTimeout: NodeJS.Timeout | null = null; // Prevent race conditions
+let activeQueueId = 0; // Track active queue generation
 
 export function speak(text: string, lang = "en-US", onComplete?: () => void) {
   // Use speakQueue for consistency and reliability (callbacks, cancellation)
@@ -8,15 +9,25 @@ export function speak(text: string, lang = "en-US", onComplete?: () => void) {
 }
 
 export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComplete?: () => void, onProgress?: (idx: number) => void) {
+  activeQueueId++; // Invalidate previous queues
+  const myQueueId = activeQueueId;
+
   if (!synth) {
     if (onComplete) onComplete();
     return;
   }
 
   synth.cancel();
+  if (currentTimeout) {
+    clearTimeout(currentTimeout);
+    currentTimeout = null;
+  }
 
   let idx = 0;
   function playNext() {
+    // Check if this queue is still active
+    if (myQueueId !== activeQueueId) return;
+
     if (idx >= texts.length) {
       if (onComplete) onComplete();
       return;
@@ -36,7 +47,7 @@ export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComp
     const estimatedDuration = Math.max(1000, txt.length * 100);
     const safetyTimer = setTimeout(() => {
       console.warn("Speech timeout, forcing next");
-      next();
+      if (myQueueId === activeQueueId) next();
     }, estimatedDuration + 2000); // +2s buffer
 
     let finished = false;
@@ -49,10 +60,15 @@ export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComp
         currentTimeout = null;
       }
 
+      // Check ID again before scheduling next
+      if (myQueueId !== activeQueueId) return;
+
       if (interval > 0 && idx < texts.length - 1) {
         currentTimeout = setTimeout(() => {
-          idx++;
-          playNext();
+          if (myQueueId === activeQueueId) {
+            idx++;
+            playNext();
+          }
         }, interval);
       } else {
         idx++;
@@ -78,6 +94,9 @@ export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComp
 
 /** Cancel any speech and timeouts */
 export function cancelSpeech() {
+  // Increment ID to invalidate any running queues
+  activeQueueId++;
+
   if (currentTimeout) {
     clearTimeout(currentTimeout);
     currentTimeout = null;
@@ -99,3 +118,4 @@ export function unlockSpeech() {
     synth.speak(u);
   }
 }
+

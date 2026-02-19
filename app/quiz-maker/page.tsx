@@ -401,49 +401,72 @@ export default function Page() {
         }
     }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, survivalChoices, contentLang]);
 
-    // AI Logic for VS Mode
-    const onSpeakComplete = useCallback(() => {
-        if (isVsMode && current) {
-            let delay = 3000;
-            if (aiLevel === "easy") delay = 5000 + Math.random() * 3000;
-            if (aiLevel === "normal") delay = 3000 + Math.random() * 2000;
-            if (aiLevel === "hard") delay = 1500 + Math.random() * 1000;
+    // AI Logic for VS Mode (Updated to hook into speech progress)
+    const checkAiTrigger = useCallback((idx: number) => {
+        if (!isVsMode || !current || gameState !== "playing") return;
 
-            if (aiTimeoutRef.current) clearTimeout(aiTimeoutRef.current);
-            aiTimeoutRef.current = setTimeout(() => {
-                handleCorrectAnswer(false, "ai");
-            }, delay);
+        // Clear existing timeout
+        if (aiTimeoutRef.current) clearTimeout(aiTimeoutRef.current);
+
+        const totalSentences = getSentences(current).length;
+
+        // AI Strategy
+        if (aiLevel === "hard") {
+            // Hard: Wait for 1st sentence to finish (trigger at start of 2nd sentence or if only 1 sentence)
+            // If idx 1 starts, it means S1 finished.
+            if (idx === 1 || (totalSentences === 1 && idx === 0)) {
+                // Fast reaction after reading S1
+                const delay = 400 + Math.random() * 800; // 0.4s - 1.2s delay
+                aiTimeoutRef.current = setTimeout(() => {
+                    handleCorrectAnswer(false, "ai");
+                }, delay);
+            }
+        } else {
+            // Normal/Easy: Trigger at start (idx=0) with long delay
+            if (idx === 0) {
+                let delay = 3000;
+                if (aiLevel === "easy") delay = 5000 + Math.random() * 3000;
+                if (aiLevel === "normal") delay = 3500 + Math.random() * 2000;
+
+                aiTimeoutRef.current = setTimeout(() => {
+                    handleCorrectAnswer(false, "ai");
+                }, delay);
+            }
         }
-    }, [isVsMode, current, aiLevel]);
+    }, [isVsMode, current, aiLevel, gameState]);
 
-    const handleSpeak = useCallback((callback?: () => void) => {
+    const handleSpeak = useCallback((callback?: () => void, progressCallback?: (idx: number) => void) => {
         if (!current) return;
         setVisibleSentenceCount(0);
         const lang = contentLang === "zh" ? "zh-CN" : "en-US";
         const sentences = getSentences(current);
 
+        // Progress wrapper
+        const onProgress = (idx: number) => {
+            setVisibleSentenceCount(idx + 1);
+            if (progressCallback) progressCallback(idx);
+        };
+
         if (mode === "flash") {
             if (isSurvival) {
                 // Time Trial: Speak all sentences with minimal interval
-                speakQueue(sentences, 200, lang, callback);
+                speakQueue(sentences, 200, lang, callback, onProgress);
             } else {
                 const target = getTargetText(current);
                 speakQueue([target], 1200, lang, callback);
             }
         } else {
-            speakQueue(sentences, 1200, lang, callback, (idx) => {
-                setVisibleSentenceCount(idx + 1);
-            });
+            speakQueue(sentences, 1200, lang, callback, onProgress);
         }
     }, [current, mode, contentLang, isSurvival]);
 
     useEffect(() => {
         if (!autoSpeak || !current || gameState !== "playing") return;
         const timer = setTimeout(() => {
-            handleSpeak(onSpeakComplete);
+            handleSpeak(undefined, checkAiTrigger);
         }, 500);
         return () => clearTimeout(timer);
-    }, [current, autoSpeak, mode, handleSpeak, onSpeakComplete, gameState]);
+    }, [current, autoSpeak, mode, handleSpeak, checkAiTrigger, gameState]);
 
     useEffect(() => {
         if (gameState !== "countdown") return;
@@ -634,6 +657,7 @@ export default function Page() {
 
     function handleCorrectAnswer(keepCard = false, winner: "player" | "ai" = "player") {
         if (!current) return;
+        cancelSpeech(); // Stop any reading immediately
 
         if (winner === "player") {
             setScore((s) => s + 1);
