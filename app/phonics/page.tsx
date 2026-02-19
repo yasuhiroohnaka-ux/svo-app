@@ -37,21 +37,35 @@ export default function PhonicsPage() {
         // Reset Slots
         setSlots(new Array(randomWord.phonics.length).fill(null));
 
-        // Prepare Hand (Target Phonics + Random Distractors = 5 Total)
+        // Prepare Hand (Target Phonics + Random Distractors)
+        // Ensure we find the phonic, fallback to first if missing
         const targetPhonics = randomWord.phonics.map(id => PHONICS_DATA.find(p => p.id === id) || PHONICS_DATA[0]);
+
+        // Calculate needed hand size: mostly 5, but must cover word length (e.g. "letter" = 6)
+        const handSize = Math.max(5, targetPhonics.length);
+
         const distractors = PHONICS_DATA.filter(p => !randomWord.phonics.includes(p.id));
 
         let pool = [...targetPhonics];
-        while (pool.length < 5) {
+        while (pool.length < handSize) {
             const random = distractors[Math.floor(Math.random() * distractors.length)];
             pool.push(random || PHONICS_DATA[0]);
         }
         // Shuffle
-        pool = pool.sort(() => Math.random() - 0.5).slice(0, 5);
+        pool = pool.sort(() => Math.random() - 0.5).slice(0, handSize);
         setHand(pool);
     };
 
+    const playSound = (text: string) => {
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        speechSynthesis.speak(u);
+    };
+
     const handleSelectPhonic = (p: Phonic) => {
+        // Play Sound immediately
+        playSound(p.symbol);
+
         if (showHanamaru || !currentWord) return;
 
         // Find first empty slot
@@ -71,6 +85,9 @@ export default function PhonicsPage() {
                 const newStreak = streak + 1;
                 setStreak(newStreak);
 
+                // Play Word Sound on complete
+                setTimeout(() => playSound(currentWord.text), 200);
+
                 // Check Level Up
                 checkLevelUp(newStreak);
 
@@ -78,24 +95,14 @@ export default function PhonicsPage() {
                     setShowHanamaru(true);
                     // Next Round Delay
                     setTimeout(() => {
-                        // Check if we leveled up (state might have changed in checkLevelUp but we need to wait for render)
-                        // For simplicity, just call nextRound which picks from *current* level state
-                        // If level changed, useEffect will trigger? No, level state change triggers re-render, 
-                        // but we need to pick a word from the NEW level if it changed.
-                        // Actually, let's just rely on nextRound picking from current level state.
-                        // But we need to make sure 'level' state is updated before nextRound is called if we want new level words.
-                        // React state updates are batched. 
-
-                        // We'll let the effect handle the initial load of a new level if it changes?
-                        // Better: straightforward logic here.
                         nextRound();
                     }, 2000);
-                }, 500);
+                }, 800);
             }
         } else {
             // Incorrect!
             setShakeCardId(p.id);
-            setStreak(0); // Reset streak on error? Or keep it? "Consecutive correct answers" implies reset.
+            setStreak(0);
             setTimeout(() => setShakeCardId(null), 500);
         }
     };
@@ -132,8 +139,12 @@ export default function PhonicsPage() {
             <div className={styles.gameArea}>
                 {/* Target Area */}
                 <div className={styles.targetArea}>
-                    {/* Audio Button Placeholder */}
-                    <button className={styles.button} style={{ fontSize: '2rem', borderRadius: '50%', width: 60, height: 60, border: 'none', background: '#e67e22', color: 'white', cursor: 'pointer' }}>
+                    {/* Audio Button */}
+                    <button
+                        className={styles.button}
+                        style={{ fontSize: '2rem', borderRadius: '50%', width: 60, height: 60, border: 'none', background: '#e67e22', color: 'white', cursor: 'pointer' }}
+                        onClick={() => playSound(currentWord.text)}
+                    >
                         🔊
                     </button>
 
