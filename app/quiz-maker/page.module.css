@@ -320,8 +320,8 @@
     /* Larger max height */
     object-fit: contain;
     display: block;
-    /* Enhance line visibility: significantly increase contrast to "thicken" greys, and add slight stroke effect */
-    filter: contrast(1.4) brightness(0.95) drop-shadow(0 0 0.25px #000);
+    /* Enhance line visibility: Use high contrast only. removed brightness reduction to avoid grey background. */
+    filter: contrast(1.5);
 }
 
 /* Voice Recognition Styles */
