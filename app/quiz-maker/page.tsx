@@ -67,6 +67,13 @@ const translations = {
         noRecords: "No records yet!",
         newRecord: "🎉 New Record!",
         yourTime: "Your time",
+        vsAi: "VS AI",
+        easy: "Easy",
+        normal: "Normal",
+        hard: "Hard",
+        youWin: "YOU WIN!",
+        youLose: "YOU LOSE!",
+        draw: "DRAW!",
     },
     ja: {
         loading: "準備中...",
@@ -115,6 +122,13 @@ const translations = {
         noRecords: "まだ きろくが ないよ！",
         newRecord: "🎉 しんきろく！",
         yourTime: "きみの タイム",
+        vsAi: "たいせんモード",
+        easy: "やさしい",
+        normal: "ふつう",
+        hard: "むずかしい",
+        youWin: "かち！",
+        youLose: "まけ...",
+        draw: "ひきわけ！",
     },
     zh: {
         loading: "加载中...",
@@ -163,6 +177,13 @@ const translations = {
         noRecords: "暂无记录！",
         newRecord: "🎉 新纪录！",
         yourTime: "你的时间",
+        vsAi: "对战模式",
+        easy: "简单",
+        normal: "普通",
+        hard: "困难",
+        youWin: "你赢了！",
+        youLose: "你输了...",
+        draw: "平局！",
     }
 };
 
@@ -489,6 +510,28 @@ export default function Page() {
         }
     };
 
+    const toggleVsMode = () => {
+        setIsVsMode((prev) => {
+            const next = !prev;
+            if (next) {
+                // Determine deck size (if 'all' or specific)
+                const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
+                const shuffled = shuffle(cards);
+                setRemainingCards(shuffled.slice(0, targetCount));
+                setScore(0);
+                setAiScore(0);
+                setStreak(0);
+                setIndex(0);
+                setGameState("idle");
+                setIsSurvival(true); // VS implies Survival (limited deck)
+            } else {
+                // Turning OFF VS Mode
+                resetGame();
+            }
+            return next;
+        });
+    };
+
     const resetGame = () => {
         const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
         setRemainingCards(shuffle(cards).slice(0, targetCount));
@@ -613,7 +656,7 @@ export default function Page() {
                 if (isVsMode) {
                     const finalPlayerScore = winner === "player" ? score + 1 : score;
                     const finalAiScore = winner === "ai" ? aiScore + 1 : aiScore;
-                    let msg = finalPlayerScore > finalAiScore ? "YOU WIN!" : finalPlayerScore < finalAiScore ? "YOU LOSE!" : "DRAW!";
+                    let msg = finalPlayerScore > finalAiScore ? t.youWin : finalPlayerScore < finalAiScore ? t.youLose : t.draw;
                     playChime();
                     alert(`${msg}\nPlayer: ${finalPlayerScore} - AI: ${finalAiScore}`);
                     resetGame();
@@ -795,6 +838,29 @@ export default function Page() {
                     >
                         {t.survivalMode}: {isSurvival ? t.on : t.off}
                     </button>
+                </div>
+
+                <div className={styles.controlGroup}>
+                    <div style={{ opacity: 0.7 }}>|</div>
+                    <button
+                        onClick={toggleVsMode}
+                        className={`${styles.button} ${isVsMode ? styles.buttonActive : ""}`}
+                    >
+                        {t.vsAi}: {isVsMode ? t.on : t.off}
+                    </button>
+
+                    {isVsMode && (
+                        <select
+                            value={aiLevel}
+                            onChange={(e) => setAiLevel(e.target.value as any)}
+                            className={styles.select}
+                            style={{ marginLeft: 4 }}
+                        >
+                            <option value="easy">{t.easy}</option>
+                            <option value="normal">{t.normal}</option>
+                            <option value="hard">{t.hard}</option>
+                        </select>
+                    )}
                 </div>
 
             </div>
