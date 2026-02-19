@@ -16,11 +16,12 @@ export type Word = {
 
 // Initial Phonics Set (using placeholders where needed)
 export const PHONICS_DATA: Phonic[] = [
-    { id: "a", symbol: "a", image: "/images/phonics/media__1771519031745.png", pronunciation: "apple" }, // specific word for short a? or just "a"
-    { id: "o", symbol: "o", image: "/images/phonics/media__1771519165248.png", pronunciation: "hot" },
-    { id: "u", symbol: "u", image: "/images/phonics/media__1771519175425.png", pronunciation: "up" },
+    { id: "a", symbol: "a", image: "/images/phonics/media__1771519031745.png", pronunciation: "ah" }, // Trying "ah" for short a
+    { id: "o", symbol: "o", image: "/images/phonics/media__1771519165248.png", pronunciation: "aw" }, // Trying "aw" for short o
+    { id: "u", symbol: "u", image: "/images/phonics/media__1771519175425.png", pronunciation: "uh" }, // Trying "uh" for short u
     { id: "c", symbol: "c", image: "/images/phonics/media__1771519186730.png", pronunciation: "k" },
-    { id: "t", symbol: "t", image: "/images/phonics/media__1771519186811.png", pronunciation: "t" },
+    { id: "t", symbol: "t", image: "/images/phonics/media__1771519186811.png", pronunciation: "t" }, // "t" usually works, or "tuh"
+
     // Placeholders for expanded vocab
     { id: "b", symbol: "b", image: "/images/phonics/placeholder.png", pronunciation: "b" },
     { id: "d", symbol: "d", image: "/images/phonics/placeholder.png", pronunciation: "d" },
