@@ -252,8 +252,8 @@
     --card-count: 16;
     display: grid;
     /* PC: ~6 columns; tablet: 4-5; phone: 3-4 */
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 6px;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 8px;
     justify-content: center;
     align-content: start;
     padding-bottom: 20px;
@@ -283,7 +283,7 @@
 .karutaImage {
     width: 100%;
     height: auto;
-    max-height: 110px;
+    max-height: 130px;
     object-fit: contain;
     display: block;
 }
@@ -361,12 +361,12 @@
     }
 
     .karutaGrid {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 6px;
+        grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
+        gap: 8px;
     }
 
     .karutaImage {
-        max-height: 100px;
+        max-height: 115px;
     }
 
     .flashGrid {
@@ -414,18 +414,18 @@
     }
 
     .karutaGrid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 5px;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: 6px;
     }
 
     .karutaCard {
-        padding: 4px;
-        border-radius: 8px;
+        padding: 5px;
+        border-radius: 10px;
         border-width: 2px;
     }
 
     .karutaImage {
-        max-height: 80px;
+        max-height: 95px;
     }
 
     .karutaHeader {
@@ -487,17 +487,17 @@
     }
 
     .karutaGrid {
-        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-        gap: 3px;
+        grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+        gap: 4px;
     }
 
     .karutaCard {
-        padding: 3px;
-        border-radius: 6px;
+        padding: 4px;
+        border-radius: 8px;
     }
 
     .karutaImage {
-        max-height: 60px;
+        max-height: 75px;
     }
 
     .flashImageContainer {
@@ -521,16 +521,16 @@
 
 @media (max-width: 360px) {
     .karutaGrid {
-        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-        gap: 2px;
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 3px;
     }
 
     .karutaCard {
-        padding: 2px;
+        padding: 3px;
     }
 
     .karutaImage {
-        max-height: 50px;
+        max-height: 60px;
     }
 }
 
