@@ -752,7 +752,7 @@ export default function Page() {
         );
     }
 
-    if (!current) {
+    if (cards.length === 0) {
         return (
             <main className={styles.container}>
                 <h1 className={styles.header}>{t.appTitle}</h1>
@@ -914,150 +914,165 @@ export default function Page() {
             </div>
 
             <div className={styles.gameArea}>
-                {mode === "flash" ? (
-                    <div className={styles.flashGrid}>
-                        <div>
-                            {isSurvival ? (
-                                <div className={styles.survivalText}>
-                                    {getSentences(current).map((s, i) => (
-                                        <div key={i}>{s}</div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div style={{ marginBottom: 10, opacity: 0.8 }}>{t.flashInstruction}</div>
-                            )}
-                            <div
-                                className={styles.flashImageContainer}
-                                onClick={() => {
-                                    unlockAudio();
-                                    handleSpeak();
-                                }}
-                                style={{ cursor: "pointer" }}
-                            >
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={current.image} alt="card" className={styles.flashImage} />
-                            </div>
-                        </div>
-
-                        <div>
-                            {voiceMode ? (
-                                <div className={styles.voiceArea}>
-                                    <div style={{ marginBottom: 10, fontWeight: "bold" }}>{t.sayTheSentence}</div>
-
-                                    {/* Hint Toggle */}
-                                    <button
-                                        onClick={() => setShowText(!showText)}
-                                        className={styles.button}
-                                        style={{ marginBottom: 10, fontSize: 12, padding: '2px 8px' }}
-                                    >
-                                        {t.text}: {showText ? "ON (Hint)" : "OFF"}
-                                    </button>
-
-                                    {showText && (
-                                        <div style={{ marginBottom: 10, fontSize: 14, color: "#666" }}>
-                                            {getTargetText(current)}
-                                        </div>
-                                    )}
-
-                                    <button onClick={startListening} className={`${styles.voiceButton} ${isListening ? styles.voiceButtonListening : ""}`} disabled={isListening}>
-                                        {isListening ? `🔴 ${t.listening}` : "🎤 Speak"}
-                                    </button>
-                                    {spokenText && (
-                                        <div className={styles.spokenResult} style={{ borderColor: feedback?.isCorrect ? "green" : "red" }}>
-                                            &quot;{spokenText}&quot;
-                                        </div>
-                                    )}
-                                    <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-                                        <button onClick={() => handleSpeak()} className={styles.button}>🔊 {t.speak}</button>
-                                        <button onClick={nextCard} className={styles.button}>{t.skip}</button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <>
-                                    <div style={{ marginBottom: 10 }}>{t.chooseOne}</div>
-                                    <div className={styles.sentenceList}>
-                                        {choices.map((s, i) => (
-                                            <button
-                                                key={i}
-                                                onClick={() => judgeFlash(String(s))}
-                                                className={styles.sentenceButton}
-                                                style={{
-                                                    border: feedback?.value === String(s) ? `2px solid ${feedback.isCorrect ? "green" : "red"}` : "1px solid #222",
-                                                }}
-                                            >
-                                                {String(s)}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-                        </div>
+                {!current ? (
+                    <div style={{ textAlign: "center", padding: "40px" }}>
+                        <h2>{t.gameCleared}</h2>
+                        <button
+                            onClick={resetGame}
+                            className={`${styles.button} ${styles.buttonActive}`}
+                            style={{ marginTop: 20 }}
+                        >
+                            Restart Game
+                        </button>
                     </div>
                 ) : (
                     <>
-                        <div className={styles.karutaHeader}>
-                            <div className={styles.controlGroup}>
-                                <div style={{ opacity: 0.8 }}>{t.target}:</div>
-                                <button
-                                    onClick={() => setShowText(!showText)}
-                                    className={styles.button}
-                                    style={{ marginLeft: 8, padding: '2px 8px', fontSize: 12 }}
-                                >
-                                    {t.text}: {showText ? t.on : t.off}
-                                </button>
-                            </div>
-                            <div className={styles.targetSentence} style={{ fontSize: 14, minHeight: '4.5em' }}>
-                                {showText && getSentences(current).slice(0, visibleSentenceCount).map((s, i) => <div key={i}>{s}</div>)}
-                            </div>
+                        {mode === "flash" ? (
+                            <div className={styles.flashGrid}>
+                                <div>
+                                    {isSurvival ? (
+                                        <div className={styles.survivalText}>
+                                            {getSentences(current).map((s, i) => (
+                                                <div key={i}>{s}</div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div style={{ marginBottom: 10, opacity: 0.8 }}>{t.flashInstruction}</div>
+                                    )}
+                                    <div
+                                        className={styles.flashImageContainer}
+                                        onClick={() => {
+                                            unlockAudio();
+                                            handleSpeak();
+                                        }}
+                                        style={{ cursor: "pointer" }}
+                                    >
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={current.image} alt="card" className={styles.flashImage} />
+                                    </div>
+                                </div>
 
-                            <div className={styles.controlGroup}>
-                                <button onClick={() => handleSpeak()} className={styles.button} title={t.speak}>
-                                    🔊 {t.speak}
-                                </button>
-                                <button onClick={nextCard} className={styles.button}>
-                                    {t.skip}
-                                </button>
+                                <div>
+                                    {voiceMode ? (
+                                        <div className={styles.voiceArea}>
+                                            <div style={{ marginBottom: 10, fontWeight: "bold" }}>{t.sayTheSentence}</div>
+
+                                            {/* Hint Toggle */}
+                                            <button
+                                                onClick={() => setShowText(!showText)}
+                                                className={styles.button}
+                                                style={{ marginBottom: 10, fontSize: 12, padding: '2px 8px' }}
+                                            >
+                                                {t.text}: {showText ? "ON (Hint)" : "OFF"}
+                                            </button>
+
+                                            {showText && (
+                                                <div style={{ marginBottom: 10, fontSize: 14, color: "#666" }}>
+                                                    {getTargetText(current)}
+                                                </div>
+                                            )}
+
+                                            <button onClick={startListening} className={`${styles.voiceButton} ${isListening ? styles.voiceButtonListening : ""}`} disabled={isListening}>
+                                                {isListening ? `🔴 ${t.listening}` : "🎤 Speak"}
+                                            </button>
+                                            {spokenText && (
+                                                <div className={styles.spokenResult} style={{ borderColor: feedback?.isCorrect ? "green" : "red" }}>
+                                                    &quot;{spokenText}&quot;
+                                                </div>
+                                            )}
+                                            <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
+                                                <button onClick={() => handleSpeak()} className={styles.button}>🔊 {t.speak}</button>
+                                                <button onClick={nextCard} className={styles.button}>{t.skip}</button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div style={{ marginBottom: 10 }}>{t.chooseOne}</div>
+                                            <div className={styles.sentenceList}>
+                                                {choices.map((s, i) => (
+                                                    <button
+                                                        key={i}
+                                                        onClick={() => judgeFlash(String(s))}
+                                                        className={styles.sentenceButton}
+                                                        style={{
+                                                            border: feedback?.value === String(s) ? `2px solid ${feedback.isCorrect ? "green" : "red"}` : "1px solid #222",
+                                                        }}
+                                                    >
+                                                        {String(s)}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-
-                        <div
-                            className={`${styles.karutaGrid} ${choices.length <= 6 ? styles.gridHuge :
-                                    choices.length <= 12 ? styles.gridBig : ""
-                                }`}
-                            style={{ "--card-count": choices.length } as React.CSSProperties}
-                        >
-                            {choices.map((img, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => judgeKaruta(String(img))}
-                                    className={styles.karutaCard}
-                                    style={{
-                                        border: feedback?.value === String(img) ? `2px solid ${feedback.isCorrect ? "green" : "red"}` : "1px solid #222",
-                                    }}
-                                >
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img src={String(img)} alt={`choice-${i}`} className={styles.karutaImage} />
-                                </button>
-                            ))}
-                        </div>
-                    </>
-                )}
-
-                {mode === "karuta" && (gameState === "countdown" || gameState === "paused") && (
-                    <div className={styles.overlay}>
-                        {gameState === "paused" ? (
-                            <>
-                                <div className={styles.overlayText}>PAUSED</div>
-                                <button onClick={togglePause} className={styles.overlaySubText} style={{ cursor: "pointer", border: "2px solid white" }}>
-                                    RESUME
-                                </button>
-                            </>
                         ) : (
-                            <div className={styles.overlayText} key={countdown}>
-                                {countdown > 0 ? countdown : "GO!"}
+                            <>
+                                <div className={styles.karutaHeader}>
+                                    <div className={styles.controlGroup}>
+                                        <div style={{ opacity: 0.8 }}>{t.target}:</div>
+                                        <button
+                                            onClick={() => setShowText(!showText)}
+                                            className={styles.button}
+                                            style={{ marginLeft: 8, padding: '2px 8px', fontSize: 12 }}
+                                        >
+                                            {t.text}: {showText ? t.on : t.off}
+                                        </button>
+                                    </div>
+                                    <div className={styles.targetSentence} style={{ fontSize: 14, minHeight: '4.5em' }}>
+                                        {showText && getSentences(current).slice(0, visibleSentenceCount).map((s, i) => <div key={i}>{s}</div>)}
+                                    </div>
+
+                                    <div className={styles.controlGroup}>
+                                        <button onClick={() => handleSpeak()} className={styles.button} title={t.speak}>
+                                            🔊 {t.speak}
+                                        </button>
+                                        <button onClick={nextCard} className={styles.button}>
+                                            {t.skip}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div
+                                    className={`${styles.karutaGrid} ${choices.length <= 6 ? styles.gridHuge :
+                                            choices.length <= 12 ? styles.gridBig : ""
+                                        }`}
+                                    style={{ "--card-count": choices.length } as React.CSSProperties}
+                                >
+                                    {choices.map((img, i) => (
+                                        <button
+                                            key={i}
+                                            onClick={() => judgeKaruta(String(img))}
+                                            className={styles.karutaCard}
+                                            style={{
+                                                border: feedback?.value === String(img) ? `2px solid ${feedback.isCorrect ? "green" : "red"}` : "1px solid #222",
+                                            }}
+                                        >
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img src={String(img)} alt={`choice-${i}`} className={styles.karutaImage} />
+                                        </button>
+                                    ))}
+                                </div>
+                            </>
+                        )}
+
+                        {mode === "karuta" && (gameState === "countdown" || gameState === "paused") && (
+                            <div className={styles.overlay}>
+                                {gameState === "paused" ? (
+                                    <>
+                                        <div className={styles.overlayText}>PAUSED</div>
+                                        <button onClick={togglePause} className={styles.overlaySubText} style={{ cursor: "pointer", border: "2px solid white" }}>
+                                            RESUME
+                                        </button>
+                                    </>
+                                ) : (
+                                    <div className={styles.overlayText} key={countdown}>
+                                        {countdown > 0 ? countdown : "GO!"}
+                                    </div>
+                                )}
                             </div>
                         )}
-                    </div>
+                    </>
                 )}
             </div>
 
