@@ -24,23 +24,23 @@ export default function LectureOverlay({ level, onClose }: LectureOverlayProps) 
 
                 {level === 1 && (
                     <div className={styles.lectureScene}>
-                        <h2>Level 1: Short vs Long</h2>
+                        <h2 className={styles.pixelTitle}>Level 1: Short vs Long</h2>
                         <div className={styles.animationStage}>
-                            <div className={styles.word}>
-                                <span className={styles.char}>c</span>
-                                <span className={`${styles.char} ${styles.vowelShort}`}>a</span>
-                                <span className={styles.char}>t</span>
+                            <div className={styles.wordRow}>
+                                <div className={styles.word}>
+                                    <span>c</span>
+                                    <span className={`${styles.char} ${styles.vowelShort}`}>a</span>
+                                    <span>t</span>
+                                </div>
+                                <div className={styles.pixelBubble}>Short! /æ/</div>
                             </div>
-                            <div className={styles.explanation}>
-                                "a" says /æ/ (apple)
-                            </div>
-                            <br />
-                            <div className={styles.word}>
-                                <span className={styles.char}>g</span>
-                                <span className={`${styles.char} ${styles.vowelLong}`}>o</span>
-                            </div>
-                            <div className={styles.explanation}>
-                                "o" says /oʊ/ (go)
+                            <div className={styles.divider}>VS</div>
+                            <div className={styles.wordRow}>
+                                <div className={styles.word}>
+                                    <span>g</span>
+                                    <span className={`${styles.char} ${styles.vowelLong}`}>o</span>
+                                </div>
+                                <div className={`${styles.pixelBubble} ${styles.bubbleLong}`}>Long! /foʊ/</div>
                             </div>
                         </div>
                     </div>
@@ -48,16 +48,20 @@ export default function LectureOverlay({ level, onClose }: LectureOverlayProps) 
 
                 {level === 2 && (
                     <div className={styles.lectureScene}>
-                        <h2>Level 2: Magic 'e'</h2>
+                        <h2 className={styles.pixelTitle}>Level 2: Magic 'e'</h2>
                         <div className={styles.animationStage}>
                             <div className={styles.word}>
-                                <span className={styles.char}>c</span>
-                                <span className={`${styles.char} ${styles.vowelTarget}`}>a</span>
-                                <span className={styles.char}>k</span>
-                                <span className={`${styles.char} ${styles.magicE} ${step % 2 === 1 ? styles.magicEActive : ""}`}>e</span>
+                                <span>c</span>
+                                <span className={`${styles.char} ${styles.vowelTarget} ${step % 2 === 1 ? styles.vowelZap : ""}`}>a</span>
+                                <span>k</span>
+                                <span className={`${styles.char} ${styles.magicE} ${step % 2 === 1 ? styles.magicEActive : ""}`}>
+                                    e
+                                    <div className={styles.wand}>🪄</div>
+                                    {step % 2 === 1 && <div className={styles.lightning}>⚡</div>}
+                                </span>
                             </div>
-                            <div className={styles.explanation}>
-                                {step % 2 === 0 ? "..." : "Zap! 'a' says its name!"}
+                            <div className={styles.pixelBubble}>
+                                {step % 2 === 0 ? "Silent..." : "Say your name!"}
                             </div>
                         </div>
                     </div>
@@ -65,18 +69,22 @@ export default function LectureOverlay({ level, onClose }: LectureOverlayProps) 
 
                 {level === 3 && (
                     <div className={styles.lectureScene}>
-                        <h2>Level 3: Double Consonants</h2>
+                        <h2 className={styles.pixelTitle}>Level 3: Double Consonants</h2>
                         <div className={styles.animationStage}>
                             <div className={styles.word}>
-                                <span className={styles.char}>a</span>
-                                <span className={`${styles.char} ${styles.consonantLock}`}>p</span>
-                                <span className={styles.separator}>|</span>
-                                <span className={`${styles.char} ${styles.consonantLock}`}>p</span>
-                                <span className={styles.char}>l</span>
-                                <span className={styles.char}>e</span>
+                                <span>a</span>
+                                <div className={styles.charGroup}>
+                                    <span className={styles.consonantLock}>p</span>
+                                    <div className={styles.lockIcon}>🔒</div>
+                                </div>
+                                <div className={styles.charGroup}>
+                                    <span className={styles.consonantLock}>p</span>
+                                </div>
+                                <span>l</span>
+                                <span>e</span>
                             </div>
-                            <div className={styles.explanation}>
-                                Double 'p' locks the short 'a'!
+                            <div className={styles.pixelBubble}>
+                                Locked! Short Sound!
                             </div>
                         </div>
                     </div>
