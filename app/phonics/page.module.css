@@ -112,20 +112,100 @@
 }
 
 .checkButton {
-    padding: 12px 32px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: white;
-    background: #4CAF50;
-    border: none;
-    border-radius: 50px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
-    transition: all 0.2s;
+    display: none;
+    /* Auto-check now */
 }
 
-.checkButton:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    box-shadow: none;
+/* Slots Feedback */
+.slotCorrect {
+    border: 3px solid #4CAF50;
+    background: #e8f5e9;
+    position: relative;
+}
+
+.slotCorrect::after {
+    content: "〇";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color: rgba(76, 175, 80, 0.5);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.slotError {
+    animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both;
+    border-color: #f44336;
+}
+
+@keyframes shake {
+
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(4px, 0, 0);
+    }
+}
+
+/* Hanamaru Animation */
+.hanamaruOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 100;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.hanamaru {
+    width: 300px;
+    height: 300px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 10 C30 10 10 30 10 50 C10 70 30 90 50 90 C70 90 90 70 90 50 C90 30 70 10 50 10 Z M50 20 C65 20 80 35 80 50 C80 65 65 80 50 80 C35 80 20 65 20 50 C20 35 35 20 50 20 Z' fill='%23ff5252' /%3E%3Cpath d='M30 40 L45 60 L70 30' stroke='%23ff5252' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round' /%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
