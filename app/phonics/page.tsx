@@ -2,68 +2,57 @@
 
 import { useState, useEffect } from "react";
 import styles from "./page.module.css";
-
-type Phonic = {
-    id: string;
-    symbol: string;
-    image: string; // Path to mouth/char image
-    audio?: string;
-};
-
-type Word = {
-    id: string;
-    text: string;
-    phonics: string[]; // sequence of phonic IDs
-    image?: string;
-};
-
-// Mock Data (To be moved to JSON later)
-const MOCK_PHONICS: Phonic[] = [
-    { id: "a", symbol: "a", image: "/images/phonics/media__1771519031745.png" }, // 700KB (Big one?)
-    { id: "o", symbol: "o", image: "/images/phonics/media__1771519165248.png" },
-    { id: "u", symbol: "u", image: "/images/phonics/media__1771519175425.png" },
-    { id: "c", symbol: "c", image: "/images/phonics/media__1771519186730.png" }, // Using remaining for others
-    { id: "t", symbol: "t", image: "/images/phonics/media__1771519186811.png" },
-];
-
-const MOCK_WORDS: Word[] = [
-    { id: "cat", text: "cat", phonics: ["c", "a", "t"] },
-    { id: "bat", text: "bat", phonics: ["c", "a", "t"] }, // Placeholder using available phonics
-];
+import { PHONICS_DATA, WORDS_DATA, Word, Phonic } from "./PhonicsData";
+import LectureOverlay from "./LectureOverlay";
 
 export default function PhonicsPage() {
-    const [currentWordIndex, setCurrentWordIndex] = useState(0);
+    // Game State
+    const [level, setLevel] = useState<1 | 2 | 3>(1);
+    const [streak, setStreak] = useState(0);
+    const [showLecture, setShowLecture] = useState(true); // Show intro lecture on load
+
+    // Current Round State
+    const [currentWord, setCurrentWord] = useState<Word | null>(null);
     const [slots, setSlots] = useState<(Phonic | null)[]>([]);
     const [hand, setHand] = useState<Phonic[]>([]);
     const [showHanamaru, setShowHanamaru] = useState(false);
     const [shakeCardId, setShakeCardId] = useState<string | null>(null);
 
-    const currentWord = MOCK_WORDS[currentWordIndex];
+    // Filter words by current Level
+    const levelWords = WORDS_DATA.filter(w => w.level === level);
 
-    // Initialize Round
+    // Start New Round
     useEffect(() => {
-        // 1. Reset Slots
-        setSlots(new Array(currentWord.phonics.length).fill(null));
-        setShowHanamaru(false);
+        if (!currentWord && levelWords.length > 0) {
+            nextRound(); // Initial load
+        }
+    }, [level]);
 
-        // 2. Prepare Hand (Target Phonics + Random Distractors = 5 Total)
-        // Ensure we find the phonic, fallback to first if missing
-        const targetPhonics = currentWord.phonics.map(id => MOCK_PHONICS.find(p => p.id === id) || MOCK_PHONICS[0]);
-        const distractors = MOCK_PHONICS.filter(p => !currentWord.phonics.includes(p.id));
+    const nextRound = () => {
+        setShowHanamaru(false);
+        // Pick random word from current level
+        const randomWord = levelWords[Math.floor(Math.random() * levelWords.length)];
+        setCurrentWord(randomWord);
+
+        // Reset Slots
+        setSlots(new Array(randomWord.phonics.length).fill(null));
+
+        // Prepare Hand (Target Phonics + Random Distractors = 5 Total)
+        const targetPhonics = randomWord.phonics.map(id => PHONICS_DATA.find(p => p.id === id) || PHONICS_DATA[0]);
+        const distractors = PHONICS_DATA.filter(p => !randomWord.phonics.includes(p.id));
 
         let pool = [...targetPhonics];
-        // Fill up to 5 with distractors
         while (pool.length < 5) {
             const random = distractors[Math.floor(Math.random() * distractors.length)];
-            pool.push(random || MOCK_PHONICS[0]); // Fallback if no distractors
+            pool.push(random || PHONICS_DATA[0]);
         }
         // Shuffle
         pool = pool.sort(() => Math.random() - 0.5).slice(0, 5);
         setHand(pool);
-    }, [currentWordIndex, currentWord]);
+    };
 
     const handleSelectPhonic = (p: Phonic) => {
-        if (showHanamaru) return;
+        if (showHanamaru || !currentWord) return;
 
         // Find first empty slot
         const emptyIndex = slots.findIndex(s => s === null);
@@ -79,24 +68,66 @@ export default function PhonicsPage() {
 
             // Check Win Condition
             if (emptyIndex === slots.length - 1) {
+                const newStreak = streak + 1;
+                setStreak(newStreak);
+
+                // Check Level Up
+                checkLevelUp(newStreak);
+
                 setTimeout(() => {
                     setShowHanamaru(true);
-                    // Next Level Delay
+                    // Next Round Delay
                     setTimeout(() => {
-                        setCurrentWordIndex((prev) => (prev + 1) % MOCK_WORDS.length);
-                    }, 3000);
+                        // Check if we leveled up (state might have changed in checkLevelUp but we need to wait for render)
+                        // For simplicity, just call nextRound which picks from *current* level state
+                        // If level changed, useEffect will trigger? No, level state change triggers re-render, 
+                        // but we need to pick a word from the NEW level if it changed.
+                        // Actually, let's just rely on nextRound picking from current level state.
+                        // But we need to make sure 'level' state is updated before nextRound is called if we want new level words.
+                        // React state updates are batched. 
+
+                        // We'll let the effect handle the initial load of a new level if it changes?
+                        // Better: straightforward logic here.
+                        nextRound();
+                    }, 2000);
                 }, 500);
             }
         } else {
             // Incorrect!
             setShakeCardId(p.id);
+            setStreak(0); // Reset streak on error? Or keep it? "Consecutive correct answers" implies reset.
             setTimeout(() => setShakeCardId(null), 500);
         }
     };
 
+    const checkLevelUp = (currentStreak: number) => {
+        if (level === 1 && currentStreak >= 30) {
+            setLevel(2);
+            setStreak(0);
+            setShowLecture(true);
+        } else if (level === 2 && currentStreak >= 20) {
+            setLevel(3);
+            setStreak(0);
+            setShowLecture(true);
+        }
+    };
+
+    if (!currentWord) return <div className={styles.container}>Loading...</div>;
+
     return (
         <main className={styles.container}>
-            <h1 className={styles.header}>oto-man</h1>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', maxWidth: 800, alignItems: 'center' }}>
+                <h1 className={styles.header} style={{ margin: 0 }}>oto-man</h1>
+                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                    <div style={{ fontWeight: 'bold', color: '#ff7043' }}>Level {level}</div>
+                    <div style={{ background: '#333', color: 'white', padding: '4px 12px', borderRadius: 12 }}>
+                        Streak: {streak}
+                    </div>
+                    <button onClick={() => setShowLecture(true)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>
+                        ℹ️
+                    </button>
+                </div>
+            </div>
 
             <div className={styles.gameArea}>
                 {/* Target Area */}
@@ -107,7 +138,6 @@ export default function PhonicsPage() {
                     </button>
 
                     <div style={{ fontSize: '3rem', fontWeight: 'bold', marginTop: 10, marginBottom: 20 }}>
-                        {/* Hide text in real app, show image? For now showing text for debugging logic */}
                         {currentWord.text.toUpperCase()}
                     </div>
 
@@ -146,11 +176,18 @@ export default function PhonicsPage() {
                 </div>
             </div>
 
-            {/* Hanamaru Overlay */}
+            {/* Overlays */}
             {showHanamaru && (
                 <div className={styles.hanamaruOverlay}>
                     <div className={styles.hanamaru}></div>
                 </div>
+            )}
+
+            {showLecture && (
+                <LectureOverlay
+                    level={level}
+                    onClose={() => setShowLecture(false)}
+                />
             )}
         </main>
     );

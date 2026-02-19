@@ -209,3 +209,125 @@
         opacity: 1;
     }
 }
+
+/* Lecture Overlay */
+.lectureOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    animation: fadeIn 0.3s;
+}
+
+.lectureContent {
+    background: white;
+    padding: 2rem;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.closeLecture {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.lectureScene h2 {
+    color: #ff7043;
+    margin-bottom: 1rem;
+}
+
+.animationStage {
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #f0f8ff;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.word {
+    display: flex;
+    gap: 4px;
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.char {
+    position: relative;
+    transition: all 0.5s;
+}
+
+/* Level 1 Anims */
+.vowelShort {
+    color: #2196F3;
+}
+
+.vowelLong {
+    color: #FF5722;
+    text-decoration: overline;
+}
+
+/* Level 2 Anims */
+.vowelTarget {
+    transition: color 0.3s;
+}
+
+.magicE {
+    opacity: 0.5;
+    transform: translateX(10px);
+    transition: all 0.5s;
+}
+
+.magicEActive {
+    opacity: 1;
+    transform: translateX(0) scale(1.2);
+    color: #9C27B0;
+    text-shadow: 0 0 10px #E1BEE7;
+}
+
+/* Level 3 Anims */
+.consonantLock {
+    color: #5d4037;
+    border-bottom: 3px solid #3e2723;
+}
+
+.separator {
+    color: #ccc;
+    margin: 0 4px;
+}
+
+.startLevel {
+    background: #ff7043;
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    font-size: 1.2rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.startLevel:hover {
+    transform: scale(1.05);
+}
