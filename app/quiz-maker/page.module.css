@@ -322,6 +322,8 @@
     display: block;
     /* Enhance line visibility: Use high contrast only. removed brightness reduction to avoid grey background. */
     filter: contrast(1.5);
+    /* Ensure the white background of the image matches the card background perfectly */
+    mix-blend-mode: multiply;
 }
 
 /* Voice Recognition Styles */
