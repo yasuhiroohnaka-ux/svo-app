@@ -286,15 +286,31 @@ export default function Page() {
   // データ読み込み（public/data/svo_cards.json を想定）
   // cache: "no-store" might fail on some older Android WebViews / browsers?
   // Using timestamp query param instead for cache busting compatibility.
+  // Debug State
+  const [step, setStep] = useState<string>("boot");
+  const [initError, setInitError] = useState<string | null>(null);
+
+  // データ読み込み（public/data/svo_cards.json を想定）
   useEffect(() => {
-    (async () => {
+    const run = async () => {
       try {
-        const res = await fetch(`/data/svo_cards.json?t=${Date.now()}`);
-        if (!res.ok) throw new Error(`Failed to fetch data: ${res.status} ${res.statusText}`);
+        setStep("step1: start init");
+
+        // Anti-cache param
+        const url = `/data/svo_cards.json?t=${Date.now()}`;
+        setStep(`step2: fetching ${url}`);
+
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
+
+        setStep("step3: parsing json");
         const data = await res.json();
 
         // よくある形に寄せて吸収（配列 or {cards:[...]}）
         const arr: any[] = Array.isArray(data) ? data : data?.cards ?? data?.items ?? [];
+
+        setStep(`step4: normalizing ${arr.length} items`);
+
         const normalized: Card[] = arr
           .map((x, i) => ({
             id: x.id ?? x.cardId ?? i,
@@ -319,13 +335,46 @@ export default function Page() {
         setIndex(0);
         setScore(0);
         setStreak(0);
+
+        setStep("step5: ready");
       } catch (e: any) {
-        console.error(e);
-        setError(e.message || "Unknown error occurred during loading.");
-        setCards([]);
+        console.error("Init Error:", e);
+        setInitError(e.message || String(e));
+        setStep("failed");
       }
-    })();
+    };
+
+    // Timeout watchdog (15s)
+    const timer = setTimeout(() => {
+      setInitError((prev) => prev ?? "Timeout: Initialization took too long (15s). Check network or device restrictions.");
+      setStep("timeout");
+    }, 15000);
+
+    run().finally(() => clearTimeout(timer));
   }, []);
+
+  if (initError) {
+    return (
+      <div style={{ padding: 20, color: "red", background: "#ffebee", height: "100vh" }}>
+        <h2>Initialization Failed</h2>
+        <p><strong>Error:</strong> {initError}</p>
+        <p><strong>Last Step:</strong> {step}</p>
+        <button onClick={() => window.location.reload()} style={{ padding: "10px 20px", marginTop: 20 }}>
+          Reload Page
+        </button>
+      </div>
+    );
+  }
+
+  // Show loading with steps if not ready
+  if (cards.length === 0) {
+    return (
+      <div style={{ padding: 20, textAlign: "center", paddingTop: "20vh" }}>
+        <h2>Loading...</h2>
+        <p>{step}</p>
+      </div>
+    );
+  }
 
   // Cleanup speech on unmount
   useEffect(() => {
