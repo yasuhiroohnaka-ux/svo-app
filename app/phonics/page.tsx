@@ -125,7 +125,28 @@ export default function PhonicsPage() {
         }
     };
 
-    if (!currentWord) return <div className={styles.container}>Loading...</div>;
+    // Debug logging for Phonics
+    const [debugStep, setDebugStep] = useState("init");
+    useEffect(() => {
+        if (!currentWord && levelWords.length > 0) {
+            setDebugStep("starting round...");
+            try {
+                nextRound();
+                setDebugStep("ready");
+            } catch (e: any) {
+                setDebugStep(`Error: ${e.message}`);
+            }
+        } else if (levelWords.length === 0) {
+            setDebugStep("Error: No words for this level");
+        }
+    }, [level]);
+
+    if (!currentWord) return (
+        <div className={styles.container} style={{ padding: 20, textAlign: 'center' }}>
+            <h1>Loading Phonics...</h1>
+            <p style={{ color: 'red', fontSize: '1.5rem' }}>{debugStep}</p>
+        </div>
+    );
 
     return (
         <main className={styles.container}>

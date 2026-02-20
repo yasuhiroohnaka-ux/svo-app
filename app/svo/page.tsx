@@ -366,12 +366,36 @@ export default function Page() {
     );
   }
 
-  // Show loading with steps if not ready
   if (cards.length === 0) {
     return (
-      <div style={{ padding: 20, textAlign: "center", paddingTop: "20vh" }}>
-        <h2>Loading...</h2>
-        <p>{step}</p>
+      <div style={{
+        padding: 40,
+        textAlign: "center",
+        paddingTop: "10vh",
+        backgroundColor: "white",
+        height: "100vh",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 9999
+      }}>
+        <h1 style={{ color: "red", fontSize: "3rem" }}>DEBUG MODE v2</h1>
+        <h2 style={{ fontSize: "2rem" }}>Loading...</h2>
+        <div style={{
+          fontSize: "1.5rem",
+          padding: 20,
+          border: "2px solid red",
+          margin: 20,
+          background: "#ffebee"
+        }}>
+          <strong>STATUS:</strong> {step}<br />
+          <small>{new Date().toLocaleTimeString()}</small>
+        </div>
+        <p>If this screen stays for >10 seconds, please report the STATUS above.</p>
+        <button onClick={() => window.location.reload()} style={{ fontSize: "2rem", padding: "10px 30px" }}>
+          RELOAD
+        </button>
       </div>
     );
   }
