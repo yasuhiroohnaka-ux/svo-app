@@ -392,7 +392,7 @@ export default function Page() {
           <strong>STATUS:</strong> {step}<br />
           <small>{new Date().toLocaleTimeString()}</small>
         </div>
-        <p>If this screen stays for >10 seconds, please report the STATUS above.</p>
+        <p>If this screen stays for &gt;10 seconds, please report the STATUS above.</p>
         <button onClick={() => window.location.reload()} style={{ fontSize: "2rem", padding: "10px 30px" }}>
           RELOAD
         </button>
