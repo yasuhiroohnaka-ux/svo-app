@@ -313,21 +313,6 @@ export default function Page() {
         };
     }, []);
 
-    if (isAuthorized === null) return null;
-
-    if (!isAuthorized) {
-        return (
-            <main className={styles.container} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', textAlign: 'center', gap: '20px' }}>
-                <div style={{ fontSize: '5rem' }}>🚧</div>
-                <h1 style={{ fontSize: '2rem', margin: 0 }}>Under Maintenance</h1>
-                <p style={{ color: '#666' }}>This page is currently restricted.<br />Please contact the administrator for access.</p>
-                <button onClick={() => window.location.href = "/"} style={{ padding: '10px 20px', borderRadius: '20px', border: 'none', background: '#333', color: 'white', cursor: 'pointer' }}>
-                    Back to Portal
-                </button>
-            </main>
-        );
-    }
-
     // Determine current pool based on mode
     const activePool = isSurvival ? remainingCards : cards;
     const current = activePool[index];
@@ -769,6 +754,21 @@ export default function Page() {
             setFeedback({ value: selectedImage, isCorrect: false });
             playBuzz();
         }
+    }
+
+    if (isAuthorized === null) return null;
+
+    if (!isAuthorized) {
+        return (
+            <main className={styles.container} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', textAlign: 'center', gap: '20px' }}>
+                <div style={{ fontSize: '5rem' }}>🚧</div>
+                <h1 style={{ fontSize: '2rem', margin: 0 }}>Under Maintenance</h1>
+                <p style={{ color: '#666' }}>This page is currently restricted.<br />Please contact the administrator for access.</p>
+                <button onClick={() => window.location.href = "/"} style={{ padding: '10px 20px', borderRadius: '20px', border: 'none', background: '#333', color: 'white', cursor: 'pointer' }}>
+                    Back to Portal
+                </button>
+            </main>
+        );
     }
 
     if (error) {
