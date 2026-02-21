@@ -6,6 +6,24 @@ import { PHONICS_DATA, WORDS_DATA, Word, Phonic } from "./PhonicsData";
 import LectureOverlay from "./LectureOverlay";
 
 export default function PhonicsPage() {
+    const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        const checkAuth = () => {
+            const params = new URLSearchParams(window.location.search);
+            const secret = params.get("p");
+            const stored = localStorage.getItem("auth_phonics");
+
+            if (secret === "sound" || stored === "true") {
+                localStorage.setItem("auth_phonics", "true");
+                setIsAuthorized(true);
+            } else {
+                setIsAuthorized(false);
+            }
+        };
+        checkAuth();
+    }, []);
+
     // Game State
     const [level, setLevel] = useState<1 | 2 | 3>(1);
     const [streak, setStreak] = useState(0);
@@ -140,6 +158,21 @@ export default function PhonicsPage() {
             setDebugStep("Error: No words for this level");
         }
     }, [level]);
+
+    if (isAuthorized === null) return null; // Wait for auth check
+
+    if (!isAuthorized) {
+        return (
+            <main className={styles.container} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', textAlign: 'center', gap: '20px' }}>
+                <div style={{ fontSize: '5rem' }}>🚧</div>
+                <h1 style={{ fontSize: '2rem', margin: 0 }}>Under Maintenance</h1>
+                <p style={{ color: '#666' }}>This page is currently restricted.<br />Please contact the administrator for access.</p>
+                <button onClick={() => window.location.href = "/"} style={{ padding: '10px 20px', borderRadius: '20px', border: 'none', background: '#333', color: 'white', cursor: 'pointer' }}>
+                    Back to Portal
+                </button>
+            </main>
+        );
+    }
 
     if (!currentWord) return (
         <div className={styles.container} style={{ padding: 20, textAlign: 'center' }}>

@@ -197,6 +197,24 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export default function Page() {
+    const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
+    useEffect(() => {
+        const checkAuth = () => {
+            const params = new URLSearchParams(window.location.search);
+            const secret = params.get("p");
+            const stored = localStorage.getItem("auth_quiz");
+
+            if (secret === "quiz" || stored === "true") {
+                localStorage.setItem("auth_quiz", "true");
+                setIsAuthorized(true);
+            } else {
+                setIsAuthorized(false);
+            }
+        };
+        checkAuth();
+    }, []);
+
     const [cards, setCards] = useState<Card[]>([]);
     const [mode, setMode] = useState<Mode>("flash");
     const [uiLang, setUiLang] = useState<UiLang>("en");
@@ -250,6 +268,21 @@ export default function Page() {
     const APP_KEY = "quiz";
 
     const t = translations[uiLang];
+
+    if (isAuthorized === null) return null;
+
+    if (!isAuthorized) {
+        return (
+            <main className={styles.container} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', textAlign: 'center', gap: '20px' }}>
+                <div style={{ fontSize: '5rem' }}>🚧</div>
+                <h1 style={{ fontSize: '2rem', margin: 0 }}>Under Maintenance</h1>
+                <p style={{ color: '#666' }}>This page is currently restricted.<br />Please contact the administrator for access.</p>
+                <button onClick={() => window.location.href = "/"} style={{ padding: '10px 20px', borderRadius: '20px', border: 'none', background: '#333', color: 'white', cursor: 'pointer' }}>
+                    Back to Portal
+                </button>
+            </main>
+        );
+    }
 
     // データ読み込み
     useEffect(() => {
@@ -1035,7 +1068,7 @@ export default function Page() {
 
                                 <div
                                     className={`${styles.karutaGrid} ${choices.length <= 6 ? styles.gridHuge :
-                                            choices.length <= 12 ? styles.gridBig : ""
+                                        choices.length <= 12 ? styles.gridBig : ""
                                         }`}
                                     style={{ "--card-count": choices.length } as React.CSSProperties}
                                 >
