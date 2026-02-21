@@ -328,13 +328,6 @@ export default function Page() {
         );
     }
 
-    // Cleanup speech on unmount
-    useEffect(() => {
-        return () => {
-            cancelSpeech();
-        };
-    }, []);
-
     // Determine current pool based on mode
     const activePool = isSurvival ? remainingCards : cards;
     const current = activePool[index];

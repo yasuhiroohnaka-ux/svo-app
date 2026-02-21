@@ -353,59 +353,13 @@ export default function Page() {
     run().finally(() => clearTimeout(timer));
   }, []);
 
-  if (initError) {
-    return (
-      <div style={{ padding: 20, color: "red", background: "#ffebee", height: "100vh" }}>
-        <h2>Initialization Failed</h2>
-        <p><strong>Error:</strong> {initError}</p>
-        <p><strong>Last Step:</strong> {step}</p>
-        <button onClick={() => window.location.reload()} style={{ padding: "10px 20px", marginTop: 20 }}>
-          Reload Page
-        </button>
-      </div>
-    );
-  }
-
-  if (cards.length === 0) {
-    return (
-      <div style={{
-        padding: 40,
-        textAlign: "center",
-        paddingTop: "10vh",
-        backgroundColor: "white",
-        height: "100vh",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 9999
-      }}>
-        <h1 style={{ color: "red", fontSize: "3rem" }}>DEBUG MODE v2</h1>
-        <h2 style={{ fontSize: "2rem" }}>Loading...</h2>
-        <div style={{
-          fontSize: "1.5rem",
-          padding: 20,
-          border: "2px solid red",
-          margin: 20,
-          background: "#ffebee"
-        }}>
-          <strong>STATUS:</strong> {step}<br />
-          <small>{new Date().toLocaleTimeString()}</small>
-        </div>
-        <p>If this screen stays for &gt;10 seconds, please report the STATUS above.</p>
-        <button onClick={() => window.location.reload()} style={{ fontSize: "2rem", padding: "10px 30px" }}>
-          RELOAD
-        </button>
-      </div>
-    );
-  }
-
   // Cleanup speech on unmount
   useEffect(() => {
     return () => {
       cancelSpeech();
     };
   }, []);
+
 
   // Determine current pool based on mode
   const activePool = isSurvival ? remainingCards : cards;
@@ -995,6 +949,53 @@ export default function Page() {
       setFeedback({ value: selectedImage, isCorrect: false });
       playBuzz();
     }
+  }
+
+  if (initError) {
+    return (
+      <div style={{ padding: 20, color: "red", background: "#ffebee", height: "100vh" }}>
+        <h2>Initialization Failed</h2>
+        <p><strong>Error:</strong> {initError}</p>
+        <p><strong>Last Step:</strong> {step}</p>
+        <button onClick={() => window.location.reload()} style={{ padding: "10px 20px", marginTop: 20 }}>
+          Reload Page
+        </button>
+      </div>
+    );
+  }
+
+  if (cards.length === 0) {
+    return (
+      <div style={{
+        padding: 40,
+        textAlign: "center",
+        paddingTop: "10vh",
+        backgroundColor: "white",
+        height: "100vh",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 9999
+      }}>
+        <h1 style={{ color: "red", fontSize: "3rem" }}>DEBUG MODE v2</h1>
+        <h2 style={{ fontSize: "2rem" }}>Loading...</h2>
+        <div style={{
+          fontSize: "1.5rem",
+          padding: 20,
+          border: "2px solid red",
+          margin: 20,
+          background: "#ffebee"
+        }}>
+          <strong>STATUS:</strong> {step}<br />
+          <small>{new Date().toLocaleTimeString()}</small>
+        </div>
+        <p>If this screen stays for &gt;10 seconds, please report the STATUS above.</p>
+        <button onClick={() => window.location.reload()} style={{ fontSize: "2rem", padding: "10px 30px" }}>
+          RELOAD
+        </button>
+      </div>
+    );
   }
 
   if (error) {
