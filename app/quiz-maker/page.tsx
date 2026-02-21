@@ -788,9 +788,9 @@ export default function Page() {
 
     if (cards.length === 0) {
         return (
-            <main className={styles.container}>
-                <h1 className={styles.header}>{t.appTitle}</h1>
-                <p style={{ marginTop: 12 }}>{t.loading}</p>
+            <main className={styles.container} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f5f5f5', color: '#333', textAlign: 'center' }}>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🃏</div>
+                <h1 style={{ fontSize: '1.5rem', fontWeight: 'normal' }}>{t.loading || "Preparing cards..."}</h1>
             </main>
         );
     }

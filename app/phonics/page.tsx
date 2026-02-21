@@ -175,10 +175,13 @@ export default function PhonicsPage() {
     }
 
     if (!currentWord) return (
-        <div className={styles.container} style={{ padding: 20, textAlign: 'center' }}>
-            <h1>Loading Phonics...</h1>
-            <p style={{ color: 'red', fontSize: '1.5rem' }}>{debugStep}</p>
-        </div>
+        <main className={styles.container} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f5f5f5', color: '#333', textAlign: 'center' }}>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🗣️</div>
+            <h1 style={{ fontSize: '1.5rem', fontWeight: 'normal' }}>Warming up voices...</h1>
+            <div style={{ marginTop: '1rem', color: '#666', fontSize: '0.9rem' }}>
+                Status: {debugStep}
+            </div>
+        </main>
     );
 
     return (
