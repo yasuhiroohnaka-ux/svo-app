@@ -217,7 +217,7 @@ export default function Page() {
 
     const [cards, setCards] = useState<Card[]>([]);
     const [mode, setMode] = useState<Mode>("flash");
-    const [uiLang, setUiLang] = useState<UiLang>("en");
+    const [uiLang, setUiLang] = useState<UiLang>("ja");
     const [choiceCount, setChoiceCount] = useState<number>(4);
     const [autoSpeak, setAutoSpeak] = useState<boolean>(false);
     const [visibleSentenceCount, setVisibleSentenceCount] = useState<number>(0);
