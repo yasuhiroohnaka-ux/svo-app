@@ -42,7 +42,7 @@ export function runFeatureCheck(): FeatureCheckResult {
     URLSearchParams: typeof URLSearchParams !== "undefined",
     localStorage: hasLocalStorageAccess(),
     speechSynthesis: typeof w.speechSynthesis !== "undefined",
-    AudioContext: typeof w.AudioContext === "function" || typeof w.webkitAudioContext === "function",
+    AudioContext: typeof (w as any).AudioContext === "function" || typeof (w as any).webkitAudioContext === "function",
     bootFlag: w.__BOOT_OK__ === true,
   };
 }
