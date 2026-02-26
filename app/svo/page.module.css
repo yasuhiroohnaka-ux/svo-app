@@ -55,6 +55,15 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+
+.tapTarget {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .button:hover {
   background: #e8f5e9;
   transform: translateY(-1px);
@@ -110,8 +119,8 @@
 }
 
 .choiceButton {
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   border: 2px solid #a5d6a7;
   border-radius: 50%;
   background: #ffffff;
@@ -784,4 +793,109 @@
     transform: translateY(0);
     opacity: 1;
   }
+}
+
+/* =============================================
+   Portal Theme Overrides (Pixel)
+   ============================================= */
+.container {
+  background-color: #f1f8e9;
+  color: #1b5e20;
+  font-family: 'Nunito', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, system-ui, sans-serif;
+}
+
+.header {
+  font-family: 'Press Start 2P', monospace;
+  color: #2e7d32;
+  text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.9);
+  letter-spacing: 2px;
+}
+
+.controls,
+.gameArea {
+  background: #ffffff;
+  border: 2px solid #a5d6a7;
+  border-radius: 0;
+  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.1);
+}
+
+.button,
+.select,
+.choiceButton,
+.sentenceButton,
+.spokenResult,
+.nameInput {
+  border-radius: 0;
+  background: #ffffff;
+  color: #2e7d32;
+  border-color: #81c784;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.buttonActive,
+.choiceButtonActive {
+  background: #4caf50;
+  color: #ffffff;
+  border-color: #388e3c;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.sentenceButton,
+.flashImageContainer,
+.karutaHeader {
+  background: #f1f8e9;
+  border-color: #c8e6c9;
+  border-radius: 0;
+}
+
+.karutaCard {
+  background: #ffffff;
+  border: 2.5px solid #c8e6c9;
+  border-radius: 0;
+  box-shadow: 0 2px 6px rgba(46, 125, 50, 0.08);
+}
+
+.karutaCard:hover {
+  border-color: #66bb6a;
+}
+
+.overlay,
+.rankingOverlay {
+  background: rgba(27, 94, 32, 0.5);
+}
+
+.overlayText,
+.rankingHeader,
+.timer {
+  font-family: 'Press Start 2P', monospace;
+  color: #2e7d32;
+  text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.9);
+}
+
+.overlaySubText {
+  border-radius: 0;
+  background: #ffffff;
+  border: 2px solid #a5d6a7;
+  color: #2e7d32;
+}
+
+.rankingTable th,
+.rankingTable td {
+  border-bottom-color: #e8f5e9;
+}
+
+.rankingTable th {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.rankingTable tr:nth-child(1) td {
+  background: #fff8e1;
+  color: #e65100;
+}
+
+.copyright {
+  font-family: 'Press Start 2P', monospace;
+  color: #66bb6a;
+  letter-spacing: 1px;
 }

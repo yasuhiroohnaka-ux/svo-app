@@ -1,21 +1,58 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { PHONICS_DATA, WORDS_DATA, Word, Phonic } from "./PhonicsData";
 import LectureOverlay from "./LectureOverlay";
+import BootDebugOverlay from "@/app/components/BootDebugOverlay";
+import { hasFatalFeatureGap, runFeatureCheck, type BootStep } from "@/utils/bootDiagnostics";
 
 export default function PhonicsPage() {
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+    const [bootStep, setBootStep] = useState<BootStep>("boot");
+    const [fallbackMode, setFallbackMode] = useState(false);
+    const [debugEnabled, setDebugEnabled] = useState(false);
+    const [storageError, setStorageError] = useState<string | null>(null);
+
+    const safeGetLocalStorage = (key: string): string | null => {
+        try {
+            return localStorage.getItem(key);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "storage_access_failed";
+            setStorageError(message);
+            return null;
+        }
+    };
+
+    const safeSetLocalStorage = (key: string, value: string): void => {
+        try {
+            localStorage.setItem(key, value);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "storage_access_failed";
+            setStorageError(message);
+        }
+    };
 
     useEffect(() => {
-        const checkAuth = () => {
-            const params = new URLSearchParams(window.location.search);
-            const secret = params.get("p");
-            const stored = localStorage.getItem("auth_phonics");
+        const params = new URLSearchParams(window.location.search);
+        setDebugEnabled(params.get("debug") === "1");
 
-            if (secret === "sound" || stored === "true") {
-                localStorage.setItem("auth_phonics", "true");
+        const features = runFeatureCheck();
+        if (hasFatalFeatureGap(features)) {
+            setFallbackMode(true);
+            setBootStep("error");
+            setIsAuthorized(false);
+            return;
+        }
+
+        setBootStep("auth");
+        const checkAuth = () => {
+            const secret = params.get("p");
+            const stored = safeGetLocalStorage("auth_phonics");
+
+            // Allow access without query param; keep storage-based allow for compatibility.
+            if (secret === "sound" || secret === null || stored === "true") {
+                safeSetLocalStorage("auth_phonics", "true");
                 setIsAuthorized(true);
             } else {
                 setIsAuthorized(false);
@@ -147,40 +184,75 @@ export default function PhonicsPage() {
     const [debugStep, setDebugStep] = useState("init");
     useEffect(() => {
         if (!currentWord && levelWords.length > 0) {
+            setBootStep("fetch");
             setDebugStep("starting round...");
             try {
                 nextRound();
                 setDebugStep("ready");
+                setBootStep("ready");
             } catch (e: any) {
                 setDebugStep(`Error: ${e.message}`);
+                setBootStep("error");
             }
         } else if (levelWords.length === 0) {
             setDebugStep("Error: No words for this level");
+            setBootStep("error");
         }
     }, [level]);
 
-    if (isAuthorized === null) return null; // Wait for auth check
+    useEffect(() => {
+        if (fallbackMode) return;
+        if (isAuthorized !== null && bootStep !== "error") {
+            setBootStep("ready");
+        }
+    }, [fallbackMode, isAuthorized, bootStep]);
+
+    if (fallbackMode) {
+        return (
+            <main className={styles.container} style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh", textAlign: "center", gap: 12 }}>
+                <h1 style={{ margin: 0 }}>Lightweight Mode</h1>
+                <p style={{ margin: 0 }}>Some features are not available on this device. Starting in lightweight mode.</p>
+                <p style={{ margin: 0, color: "#666" }}>Please open this app on a newer browser for full features.</p>
+                <button onClick={() => (window.location.href = "/")} style={{ padding: "10px 20px", borderRadius: 20, border: "none", background: "#333", color: "white", cursor: "pointer" }}>
+                    Back to Portal
+                </button>
+                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
+            </main>
+        );
+    }
+
+    if (isAuthorized === null) {
+        return (
+            <main className={styles.container} style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh", textAlign: "center", gap: 8 }}>
+                <h1 style={{ fontSize: "1.2rem", margin: 0 }}>Checking access...</h1>
+                <p style={{ margin: 0, color: "#666" }}>step: {bootStep}</p>
+                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
+            </main>
+        );
+    }
 
     if (!isAuthorized) {
         return (
             <main className={styles.container} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', textAlign: 'center', gap: '20px' }}>
-                <div style={{ fontSize: '5rem' }}>🚧</div>
+                <div style={{ fontSize: '5rem' }}>⚠</div>
                 <h1 style={{ fontSize: '2rem', margin: 0 }}>Under Maintenance</h1>
                 <p style={{ color: '#666' }}>This page is currently restricted.<br />Please contact the administrator for access.</p>
                 <button onClick={() => window.location.href = "/"} style={{ padding: '10px 20px', borderRadius: '20px', border: 'none', background: '#333', color: 'white', cursor: 'pointer' }}>
                     Back to Portal
                 </button>
+                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
             </main>
         );
     }
 
     if (!currentWord) return (
         <main className={styles.container} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f5f5f5', color: '#333', textAlign: 'center' }}>
-            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🗣️</div>
+            <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>* </div>
             <h1 style={{ fontSize: '1.5rem', fontWeight: 'normal' }}>Warming up voices...</h1>
             <div style={{ marginTop: '1rem', color: '#666', fontSize: '0.9rem' }}>
                 Status: {debugStep}
             </div>
+            <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
         </main>
     );
 
@@ -194,7 +266,7 @@ export default function PhonicsPage() {
                         Streak: {streak}
                     </div>
                     <button onClick={() => setShowLecture(true)} style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer' }}>
-                        ℹ️
+                        講義
                     </button>
                 </div>
             </div>
@@ -263,6 +335,7 @@ export default function PhonicsPage() {
                     onClose={() => setShowLecture(false)}
                 />
             )}
+            <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
         </main>
     );
 }

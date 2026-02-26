@@ -34,3 +34,12 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## UI Check (SVO / Quiz Maker)
+
+1. Start dev server: `npm run dev`
+2. Open `http://localhost:3000/svo` and `http://localhost:3000/quiz-maker`
+3. Confirm:
+   - Main controls are easy to tap (minimum touch target intent: 44x44)
+   - Top settings show only basic controls first
+   - `詳細を表示` toggles advanced controls

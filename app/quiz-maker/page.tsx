@@ -1,9 +1,11 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { speak, speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { getRanking, saveRanking, clearRanking, formatTime, type RankEntry } from "@/utils/ranking";
+import BootDebugOverlay from "@/app/components/BootDebugOverlay";
+import { hasFatalFeatureGap, runFeatureCheck, type BootStep } from "@/utils/bootDiagnostics";
 
 import styles from "./page.module.css";
 
@@ -56,7 +58,7 @@ const translations = {
         timeTrial: "Time Trial",
         timer: "Time",
         ranking: "Ranking",
-        rankingTitle: "🏆 Time Trial Ranking",
+        rankingTitle: "Time Trial Ranking",
         enterName: "Enter your name:",
         clearRanking: "Clear Ranking",
         close: "Close",
@@ -65,7 +67,7 @@ const translations = {
         time: "Time",
         date: "Date",
         noRecords: "No records yet!",
-        newRecord: "🎉 New Record!",
+        newRecord: "New Record!",
         yourTime: "Your time",
         vsAi: "VS AI",
         easy: "Easy",
@@ -77,8 +79,8 @@ const translations = {
     },
     ja: {
         loading: "準備中...",
-        cards: "残り",
-        score: "得点",
+        cards: "カード",
+        score: "スコア",
         streak: "連続正解",
         mode: "モード",
         flash: "フラッシュ",
@@ -87,52 +89,52 @@ const translations = {
         autoSpeak: "自動読み上げ",
         on: "オン",
         off: "オフ",
-        deck: "枚数",
+        deck: "デッキ",
         surprise: "サプライズ",
         survivalMode: "タイムトライアル",
-        flashInstruction: "フラッシュ：正しい文を選ぼう",
-        chooseOne: "1つ選ぼう",
-        target: "探してね",
-        speak: "聞く",
+        flashInstruction: "フラッシュ: 正しい答えを選ぶ",
+        chooseOne: "1つ選ぶ",
+        target: "ターゲット",
+        speak: "読み上げ",
         skip: "スキップ",
-        gameCleared: "クリア！最初に戻るよ",
-        uiLang: "表示言語",
+        gameCleared: "ゲームクリア！再スタートします...",
+        uiLang: "UI言語",
         english: "英語",
         chinese: "中国語",
         japanese: "日本語",
         appTitle: "クイズメーカー",
-        voiceMode: "音声入力",
-        listening: "聞いてるよ...",
-        sayTheSentence: "文を言ってね！",
+        voiceMode: "音声",
+        listening: "聞き取り中...",
+        sayTheSentence: "文章を言ってみよう！",
         text: "テキスト",
-        contentLang: "内容言語",
+        contentLang: "コンテンツ",
         contentEn: "英語",
         contentZh: "中国語",
         timeTrial: "タイムトライアル",
-        timer: "タイム",
+        timer: "タイマー",
         ranking: "ランキング",
-        rankingTitle: "🏆 タイムトライアル ランキング",
-        enterName: "なまえを いれてね：",
-        clearRanking: "ランキング クリア",
-        close: "とじる",
-        rank: "じゅんい",
-        name: "なまえ",
-        time: "タイム",
-        date: "にち",
-        noRecords: "まだ きろくが ないよ！",
-        newRecord: "🎉 しんきろく！",
-        yourTime: "きみの タイム",
-        vsAi: "たいせんモード",
-        easy: "やさしい",
+        rankingTitle: "タイムトライアル ランキング",
+        enterName: "名前を入力してください:",
+        clearRanking: "ランキングをクリア",
+        close: "閉じる",
+        rank: "順位",
+        name: "名前",
+        time: "時間",
+        date: "日付",
+        noRecords: "記録はまだありません！",
+        newRecord: "新記録！",
+        yourTime: "あなたのタイム",
+        vsAi: "VS AI",
+        easy: "かんたん",
         normal: "ふつう",
         hard: "むずかしい",
-        youWin: "かち！",
-        youLose: "まけ...",
-        draw: "ひきわけ！",
+        youWin: "あなたの勝ち！",
+        youLose: "あなたの負け...",
+        draw: "引き分け",
     },
     zh: {
-        loading: "加载中...",
-        cards: "剩余",
+        loading: "准备中...",
+        cards: "卡片",
         score: "分数",
         streak: "连胜",
         mode: "模式",
@@ -142,48 +144,48 @@ const translations = {
         autoSpeak: "自动朗读",
         on: "开",
         off: "关",
-        deck: "卡片数",
+        deck: "牌组",
         surprise: "惊喜",
-        survivalMode: "生存模式",
-        flashInstruction: "闪卡：选择正确的句子",
+        survivalMode: "计时挑战",
+        flashInstruction: "闪卡：选择正确答案",
         chooseOne: "选择一个",
         target: "目标",
         speak: "朗读",
         skip: "跳过",
-        gameCleared: "通关！重新开始...",
+        gameCleared: "通关！正在重新开始...",
         uiLang: "界面语言",
         english: "英语",
         chinese: "中文",
         japanese: "日语",
         appTitle: "测验制作器",
         voiceMode: "语音",
-        listening: "正在听...",
-        sayTheSentence: "请说句子！",
+        listening: "正在聆听...",
+        sayTheSentence: "说出句子！",
         text: "文本",
-        contentLang: "内容语言",
+        contentLang: "内容",
         contentEn: "英语",
         contentZh: "中文",
         timeTrial: "计时挑战",
-        timer: "时间",
+        timer: "计时器",
         ranking: "排行榜",
-        rankingTitle: "🏆 计时挑战排行榜",
-        enterName: "请输入您的名字：",
-        clearRanking: "清除排行榜",
+        rankingTitle: "计时挑战 排行榜",
+        enterName: "请输入姓名：",
+        clearRanking: "清空排行榜",
         close: "关闭",
         rank: "排名",
-        name: "名字",
+        name: "姓名",
         time: "时间",
         date: "日期",
-        noRecords: "暂无记录！",
-        newRecord: "🎉 新纪录！",
+        noRecords: "还没有记录！",
+        newRecord: "新纪录！",
         yourTime: "你的时间",
-        vsAi: "对战模式",
+        vsAi: "对战 AI",
         easy: "简单",
         normal: "普通",
         hard: "困难",
         youWin: "你赢了！",
         youLose: "你输了...",
-        draw: "平局！",
+        draw: "平局",
     }
 };
 
@@ -198,15 +200,50 @@ function shuffle<T>(arr: T[]): T[] {
 
 export default function Page() {
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+    const [bootStep, setBootStep] = useState<BootStep>("boot");
+    const [fallbackMode, setFallbackMode] = useState(false);
+    const [debugEnabled, setDebugEnabled] = useState(false);
+    const [storageError, setStorageError] = useState<string | null>(null);
+
+    const safeGetLocalStorage = (key: string): string | null => {
+        try {
+            return localStorage.getItem(key);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "storage_access_failed";
+            setStorageError(message);
+            return null;
+        }
+    };
+
+    const safeSetLocalStorage = (key: string, value: string): void => {
+        try {
+            localStorage.setItem(key, value);
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "storage_access_failed";
+            setStorageError(message);
+        }
+    };
 
     useEffect(() => {
-        const checkAuth = () => {
-            const params = new URLSearchParams(window.location.search);
-            const secret = params.get("p");
-            const stored = localStorage.getItem("auth_quiz");
+        const params = new URLSearchParams(window.location.search);
+        setDebugEnabled(params.get("debug") === "1");
 
-            if (secret === "quiz" || stored === "true") {
-                localStorage.setItem("auth_quiz", "true");
+        const features = runFeatureCheck();
+        if (hasFatalFeatureGap(features)) {
+            setFallbackMode(true);
+            setBootStep("error");
+            setIsAuthorized(false);
+            return;
+        }
+
+        setBootStep("auth");
+        const checkAuth = () => {
+            const secret = params.get("p");
+            const stored = safeGetLocalStorage("auth_quiz");
+
+            // Allow access without query param; keep storage-based allow for compatibility.
+            if (secret === "quiz" || secret === null || stored === "true") {
+                safeSetLocalStorage("auth_quiz", "true");
                 setIsAuthorized(true);
             } else {
                 setIsAuthorized(false);
@@ -222,6 +259,7 @@ export default function Page() {
     const [autoSpeak, setAutoSpeak] = useState<boolean>(false);
     const [visibleSentenceCount, setVisibleSentenceCount] = useState<number>(0);
     const [showText, setShowText] = useState<boolean>(true);
+    const [showAdvancedControls, setShowAdvancedControls] = useState(false);
 
     const [index, setIndex] = useState<number>(0);
     const [score, setScore] = useState<number>(0);
@@ -269,9 +307,10 @@ export default function Page() {
 
     const t = translations[uiLang];
 
-    // データ読み込み
+    // 繝・・繧ｿ隱ｭ縺ｿ霎ｼ縺ｿ
     useEffect(() => {
         if (isAuthorized === false) return; // Skip fetch if not authorized
+        setBootStep("fetch");
         (async () => {
             try {
                 // cache: "no-store" might fail on some older Android WebViews / browsers?
@@ -298,10 +337,12 @@ export default function Page() {
                 setIndex(0);
                 setScore(0);
                 setStreak(0);
+                setBootStep("ready");
             } catch (e: any) {
                 console.error(e);
                 setError(e.message || "Unknown error occurred during loading.");
                 setCards([]);
+                setBootStep("error");
             }
         })();
     }, [isAuthorized]);
@@ -756,17 +797,40 @@ export default function Page() {
         }
     }
 
-    if (isAuthorized === null) return null;
+    if (fallbackMode) {
+        return (
+            <main className={styles.container} style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh", textAlign: "center", gap: 12 }}>
+                <h1 style={{ margin: 0 }}>Lightweight Mode</h1>
+                <p style={{ margin: 0 }}>Some features are not available on this device. Starting in lightweight mode.</p>
+                <p style={{ margin: 0, color: "#666" }}>Please open this app on a newer browser for full features.</p>
+                <button onClick={() => (window.location.href = "/")} style={{ minWidth: 44, minHeight: 44, padding: "10px 20px", borderRadius: 20, border: "none", background: "#333", color: "white", cursor: "pointer" }}>
+                    Back to Portal
+                </button>
+                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
+            </main>
+        );
+    }
+
+    if (isAuthorized === null) {
+        return (
+            <main className={styles.container} style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh", textAlign: "center", gap: 8 }}>
+                <h1 style={{ fontSize: "1.2rem", margin: 0 }}>Checking access...</h1>
+                <p style={{ margin: 0, color: "#666" }}>step: {bootStep}</p>
+                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
+            </main>
+        );
+    }
 
     if (!isAuthorized) {
         return (
             <main className={styles.container} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', textAlign: 'center', gap: '20px' }}>
-                <div style={{ fontSize: '5rem' }}>🚧</div>
+                <div style={{ fontSize: '5rem' }}>⚠</div>
                 <h1 style={{ fontSize: '2rem', margin: 0 }}>Under Maintenance</h1>
                 <p style={{ color: '#666' }}>This page is currently restricted.<br />Please contact the administrator for access.</p>
-                <button onClick={() => window.location.href = "/"} style={{ padding: '10px 20px', borderRadius: '20px', border: 'none', background: '#333', color: 'white', cursor: 'pointer' }}>
+                <button onClick={() => window.location.href = "/"} style={{ minWidth: 44, minHeight: 44, padding: '10px 20px', borderRadius: '20px', border: 'none', background: '#333', color: 'white', cursor: 'pointer' }}>
                     Back to Portal
                 </button>
+                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
             </main>
         );
     }
@@ -778,10 +842,11 @@ export default function Page() {
                 <p style={{ marginTop: 12, color: "red", fontWeight: "bold" }}>Error: {error}</p>
                 <button
                     onClick={() => window.location.reload()}
-                    style={{ marginTop: 16, padding: "8px 16px", background: "#333", color: "#fff", borderRadius: 4 }}
+                    style={{ minWidth: 44, minHeight: 44, marginTop: 16, padding: "8px 16px", background: "#333", color: "#fff", borderRadius: 4 }}
                 >
                     Reload
                 </button>
+                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
             </main>
         );
     }
@@ -789,8 +854,10 @@ export default function Page() {
     if (cards.length === 0) {
         return (
             <main className={styles.container} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f5f5f5', color: '#333', textAlign: 'center' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🃏</div>
+                <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✨</div>
                 <h1 style={{ fontSize: '1.5rem', fontWeight: 'normal' }}>{t.loading || "Preparing cards..."}</h1>
+                <p style={{ marginTop: 8, color: "#666" }}>step: {bootStep}</p>
+                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
             </main>
         );
     }
@@ -821,12 +888,12 @@ export default function Page() {
 
             <div className={styles.controls}>
                 <div className={styles.controlGroup}>
-                    <button onClick={toggleUiLang} className={styles.button} title={t.uiLang}>
+                    <button onClick={toggleUiLang} className={`${styles.button} ${styles.tapTarget}`} title={t.uiLang}>
                         {t.uiLang}: {getUiLangLabel()}
                     </button>
                     <button
                         onClick={toggleContentLang}
-                        className={`${styles.button} ${contentLang === "zh" ? styles.buttonActive : ""}`}
+                        className={`${styles.button} ${styles.tapTarget} ${contentLang === "zh" ? styles.buttonActive : ""}`}
                         title={t.contentLang}
                     >
                         {t.contentLang}: {contentLang === "en" ? t.contentEn : t.contentZh}
@@ -834,20 +901,20 @@ export default function Page() {
                 </div>
                 <div className={styles.controlGroup}>
                     <div>{t.mode}</div>
-                    <button onClick={() => setMode("flash")} className={`${styles.button} ${mode === "flash" ? styles.buttonActive : ""}`}>
+                    <button onClick={() => setMode("flash")} className={`${styles.button} ${styles.tapTarget} ${mode === "flash" ? styles.buttonActive : ""}`}>
                         {t.flash}
                     </button>
-                    <button onClick={() => setMode("karuta")} className={`${styles.button} ${mode === "karuta" ? styles.buttonActive : ""}`}>
+                    <button onClick={() => setMode("karuta")} className={`${styles.button} ${styles.tapTarget} ${mode === "karuta" ? styles.buttonActive : ""}`}>
                         {t.karuta}
                     </button>
-                    {mode === "flash" && (
+                    {showAdvancedControls && mode === "flash" && (
                         <button
                             onClick={() => {
                                 const next = !voiceMode;
                                 setVoiceMode(next);
                                 setShowText(!next); // Hide text if voice ON
                             }}
-                            className={`${styles.button} ${voiceMode ? styles.buttonActive : ""}`}
+                            className={`${styles.button} ${styles.tapTarget} ${voiceMode ? styles.buttonActive : ""}`}
                             title={t.voiceMode}
                         >
                             🎤
@@ -856,94 +923,111 @@ export default function Page() {
                 </div>
 
                 <div className={styles.controlGroup}>
-                    <div style={{ opacity: 0.7 }}>|</div>
                     <button
-                        onClick={() => setAutoSpeak((v) => !v)}
-                        className={`${styles.button} ${autoSpeak ? styles.buttonActive : ""}`}
+                        onClick={() => setShowAdvancedControls((v) => !v)}
+                        className={`${styles.button} ${styles.tapTarget}`}
                     >
-                        {t.autoSpeak}: {autoSpeak ? t.on : t.off}
+                        {showAdvancedControls ? "詳細を隠す" : "詳細を表示"}
                     </button>
                 </div>
+
+                {showAdvancedControls && (
+                    <div className={styles.controlGroup}>
+                        <div style={{ opacity: 0.7 }}>|</div>
+                        <button
+                            onClick={() => setAutoSpeak((v) => !v)}
+                            className={`${styles.button} ${styles.tapTarget} ${autoSpeak ? styles.buttonActive : ""}`}
+                        >
+                            {t.autoSpeak}: {autoSpeak ? t.on : t.off}
+                        </button>
+                    </div>
+                )}
 
 
                 <div className={styles.controlGroup}>
                     {gameState === "idle" && (
                         <button
                             onClick={startGame}
-                            className={`${styles.button} ${styles.buttonActive}`}
+                            className={`${styles.button} ${styles.tapTarget} ${styles.buttonActive}`}
                             style={{ background: "#ff7043", borderColor: "#f4511e" }}
                         >
                             START
                         </button>
                     )}
                     {gameState === "playing" && (
-                        <button onClick={togglePause} className={styles.button}>
-                            ⏸ PAUSE
+                        <button onClick={togglePause} className={`${styles.button} ${styles.tapTarget}`}>
+                            竢ｸ PAUSE
                         </button>
                     )}
                     {gameState === "paused" && (
                         <button
                             onClick={togglePause}
-                            className={`${styles.button} ${styles.buttonActive}`}
+                            className={`${styles.button} ${styles.tapTarget} ${styles.buttonActive}`}
                             style={{ background: "#42a5f5", borderColor: "#1e88e5" }}
                         >
-                            ▶ RESUME
+                            笆ｶ RESUME
                         </button>
                     )}
-
-                    <div style={{ opacity: 0.7 }}>|</div>
-
-                    <div className={styles.controlGroup}>
-                        <span style={{ fontSize: 14 }}>{t.deck}:</span>
-                        <select
-                            value={deckSize}
-                            onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
-                            className={styles.select}
-                            disabled={isSurvival}
-                        >
-                            {[5, 10, 15, 20].filter(n => n <= cards.length).map(n => (
-                                <option key={n} value={n}>{n}</option>
-                            ))}
-                            <option value="all">All ({cards.length})</option>
-                        </select>
-                    </div>
-
-                    <button
-                        onClick={() => {
-                            if (isVsMode) return;
-                            setIsSurvival(v => !v);
-                            setRemainingCards(cards);
-                            setScore(0);
-                            setGameState("idle");
-                        }}
-                        className={`${styles.button} ${isSurvival ? styles.buttonSurvival : ""}`}
-                    >
-                        {t.survivalMode}: {isSurvival ? t.on : t.off}
-                    </button>
                 </div>
 
-                <div className={styles.controlGroup}>
-                    <div style={{ opacity: 0.7 }}>|</div>
-                    <button
-                        onClick={toggleVsMode}
-                        className={`${styles.button} ${isVsMode ? styles.buttonActive : ""}`}
-                    >
-                        {t.vsAi}: {isVsMode ? t.on : t.off}
-                    </button>
+                {showAdvancedControls && (
+                    <>
+                        <div className={styles.controlGroup}>
+                            <div style={{ opacity: 0.7 }}>|</div>
 
-                    {isVsMode && (
-                        <select
-                            value={aiLevel}
-                            onChange={(e) => setAiLevel(e.target.value as any)}
-                            className={styles.select}
-                            style={{ marginLeft: 4 }}
-                        >
-                            <option value="easy">{t.easy}</option>
-                            <option value="normal">{t.normal}</option>
-                            <option value="hard">{t.hard}</option>
-                        </select>
-                    )}
-                </div>
+                            <div className={styles.controlGroup}>
+                                <span style={{ fontSize: 14 }}>{t.deck}:</span>
+                                <select
+                                    value={deckSize}
+                                    onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
+                                    className={styles.select}
+                                    disabled={isSurvival}
+                                >
+                                    {[5, 10, 15, 20].filter(n => n <= cards.length).map(n => (
+                                        <option key={n} value={n}>{n}</option>
+                                    ))}
+                                    <option value="all">All ({cards.length})</option>
+                                </select>
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    if (isVsMode) return;
+                                    setIsSurvival(v => !v);
+                                    setRemainingCards(cards);
+                                    setScore(0);
+                                    setGameState("idle");
+                                }}
+                                className={`${styles.button} ${styles.tapTarget} ${isSurvival ? styles.buttonSurvival : ""}`}
+                            >
+                                {t.survivalMode}: {isSurvival ? t.on : t.off}
+                            </button>
+                        </div>
+
+                        <div className={styles.controlGroup}>
+                            <div style={{ opacity: 0.7 }}>|</div>
+                            <button
+                                onClick={toggleVsMode}
+                                className={`${styles.button} ${styles.tapTarget} ${isVsMode ? styles.buttonActive : ""}`}
+                            >
+                                {t.vsAi}: {isVsMode ? t.on : t.off}
+                            </button>
+
+                            {isVsMode && (
+                                <select
+                                    value={aiLevel}
+                                    onChange={(e) => setAiLevel(e.target.value as any)}
+                                    className={styles.select}
+                                    style={{ marginLeft: 4 }}
+                                >
+                                    <option value="easy">{t.easy}</option>
+                                    <option value="normal">{t.normal}</option>
+                                    <option value="hard">{t.hard}</option>
+                                </select>
+                            )}
+                        </div>
+                    </>
+                )}
 
             </div>
 
@@ -953,7 +1037,7 @@ export default function Page() {
                         <h2>{t.gameCleared}</h2>
                         <button
                             onClick={resetGame}
-                            className={`${styles.button} ${styles.buttonActive}`}
+                            className={`${styles.button} ${styles.tapTarget} ${styles.buttonActive}`}
                             style={{ marginTop: 20 }}
                         >
                             Restart Game
@@ -1007,7 +1091,7 @@ export default function Page() {
                                             )}
 
                                             <button onClick={startListening} className={`${styles.voiceButton} ${isListening ? styles.voiceButtonListening : ""}`} disabled={isListening}>
-                                                {isListening ? `🔴 ${t.listening}` : "🎤 Speak"}
+                                                {isListening ? `🎤 ${t.listening}` : "🎤 Speak"}
                                             </button>
                                             {spokenText && (
                                                 <div className={styles.spokenResult} style={{ borderColor: feedback?.isCorrect ? "green" : "red" }}>
@@ -1015,8 +1099,8 @@ export default function Page() {
                                                 </div>
                                             )}
                                             <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-                                                <button onClick={() => handleSpeak()} className={styles.button}>🔊 {t.speak}</button>
-                                                <button onClick={nextCard} className={styles.button}>{t.skip}</button>
+                                            <button onClick={() => handleSpeak()} className={`${styles.button} ${styles.tapTarget}`}>🔊 {t.speak}</button>
+                                            <button onClick={nextCard} className={`${styles.button} ${styles.tapTarget}`}>{t.skip}</button>
                                             </div>
                                         </div>
                                     ) : (
@@ -1058,10 +1142,10 @@ export default function Page() {
                                     </div>
 
                                     <div className={styles.controlGroup}>
-                                        <button onClick={() => handleSpeak()} className={styles.button} title={t.speak}>
+                                        <button onClick={() => handleSpeak()} className={`${styles.button} ${styles.tapTarget}`} title={t.speak}>
                                             🔊 {t.speak}
                                         </button>
-                                        <button onClick={nextCard} className={styles.button}>
+                                        <button onClick={nextCard} className={`${styles.button} ${styles.tapTarget}`}>
                                             {t.skip}
                                         </button>
                                     </div>
@@ -1183,8 +1267,9 @@ export default function Page() {
             )}
 
             <footer className={styles.copyright}>
-                © 2026 Yasuhiro Ohnaka — All rights reserved
+                ﾂｩ 2026 Yasuhiro Ohnaka 窶・All rights reserved
             </footer>
+            <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
         </main >
     );
 }

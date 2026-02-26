@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { speak, speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
@@ -12,12 +12,12 @@ type Card = {
   subject: string;
   verb: string;
   object: string;
-  sentence: string;      // 英文
+  sentence: string;
   subject_zh: string;
   verb_zh: string;
   object_zh: string;
-  sentence_zh: string;   // 中文
-  image: string;         // 画像パス（例: /images/page_0.png）
+  sentence_zh: string;
+  image: string;
 };
 
 type Mode = "flash" | "karuta";
@@ -62,7 +62,7 @@ const translations = {
     timeTrial: "Time Trial",
     timer: "Time",
     ranking: "Ranking",
-    rankingTitle: "🏆 Time Trial Ranking",
+    rankingTitle: "Time Trial Ranking",
     enterName: "Enter your name:",
     clearRanking: "Clear Ranking",
     close: "Close",
@@ -71,103 +71,103 @@ const translations = {
     time: "Time",
     date: "Date",
     noRecords: "No records yet!",
-    newRecord: "🎉 New Record!",
+    newRecord: "New Record!",
     yourTime: "Your time",
   },
   ja: {
     loading: "じゅんびちゅう...",
-    cards: "のこり",
-    score: "てんすう",
+    cards: "カード",
+    score: "スコア",
     streak: "れんぞく",
     mode: "モード",
     flash: "フラッシュ",
     karuta: "かるた",
-    choices: "かず",
-    autoSpeak: "じどうよみあげ",
+    choices: "えらぶ数",
+    autoSpeak: "自動読み上げ",
     on: "オン",
     off: "オフ",
-    deck: "まいすう",
+    deck: "デッキ",
     surprise: "サプライズ",
     survivalMode: "タイムトライアル",
     trickMode: "トリック",
-    flashInstruction: "フラッシュ: ただしい文を えらんでね",
-    chooseOne: "ひとつ えらぼう",
-    target: "さがしてね",
-    speak: "きく",
+    flashInstruction: "ただしい文をえらんでね",
+    chooseOne: "ひとつえらんでね",
+    target: "おだい",
+    speak: "よむ",
     skip: "スキップ",
-    gameCleared: "クリア！ 最初にもどるよ",
-    uiLang: "ひょうじ",
-    contentLang: "カード",
-    english: "えいご",
-    chinese: "ちゅうごくご",
-    japanese: "にほんご",
+    gameCleared: "クリア！",
+    uiLang: "表示言語",
+    contentLang: "学習言語",
+    english: "英語",
+    chinese: "中国語",
+    japanese: "日本語",
     appTitle: "パズルグラマー",
-    voiceMode: "おんせい",
+    voiceMode: "音声",
     articleEasy: "かんたん",
     articleHard: "むずかしい",
-    listening: "きいてるよ...",
-    sayTheSentence: "ぶんを いってね！",
+    listening: "きいています...",
+    sayTheSentence: "文を言ってみよう",
     timeTrial: "タイムトライアル",
     timer: "タイム",
     ranking: "ランキング",
-    rankingTitle: "🏆 タイムトライアル ランキング",
-    enterName: "なまえを いれてね：",
-    clearRanking: "ランキング クリア",
+    rankingTitle: "タイムトライアル ランキング",
+    enterName: "なまえを入力してね",
+    clearRanking: "ランキングを消す",
     close: "とじる",
-    rank: "じゅんい",
-    name: "なまえ",
-    time: "タイム",
-    date: "にち",
-    noRecords: "まだ きろくが ないよ！",
-    newRecord: "🎉 しんきろく！",
-    yourTime: "きみの タイム",
+    rank: "順位",
+    name: "名前",
+    time: "時間",
+    date: "日付",
+    noRecords: "まだ記録がありません",
+    newRecord: "新記録！",
+    yourTime: "あなたのタイム",
   },
   zh: {
     loading: "加载中...",
-    cards: "剩余",
+    cards: "卡片",
     score: "分数",
-    streak: "连胜",
+    streak: "连击",
     mode: "模式",
     flash: "闪卡",
-    karuta: "歌牌",
-    choices: "选项",
+    karuta: "图卡",
+    choices: "选项数",
     autoSpeak: "自动朗读",
     on: "开",
     off: "关",
-    deck: "卡片数",
+    deck: "牌组",
     surprise: "惊喜",
     survivalMode: "计时挑战",
     trickMode: "陷阱模式",
-    flashInstruction: "闪卡：选择正确的句子",
-    chooseOne: "选择一个",
+    flashInstruction: "请选择正确句子",
+    chooseOne: "请选择一个",
     target: "目标",
     speak: "朗读",
     skip: "跳过",
-    gameCleared: "通关！重新开始...",
+    gameCleared: "通关！",
     uiLang: "界面语言",
-    contentLang: "内容语言",
+    contentLang: "学习语言",
     english: "英语",
     chinese: "中文",
     japanese: "日语",
-    appTitle: "拼图语法",
+    appTitle: "Puzzle Grammar",
     voiceMode: "语音",
     articleEasy: "简单",
     articleHard: "困难",
-    listening: "正在听...",
-    sayTheSentence: "请说句子！",
+    listening: "正在聆听...",
+    sayTheSentence: "请说出句子",
     timeTrial: "计时挑战",
     timer: "时间",
     ranking: "排行榜",
-    rankingTitle: "🏆 计时挑战排行榜",
-    enterName: "请输入您的名字：",
-    clearRanking: "清除排行榜",
+    rankingTitle: "计时挑战排行榜",
+    enterName: "请输入名字",
+    clearRanking: "清空排行榜",
     close: "关闭",
     rank: "排名",
-    name: "名字",
+    name: "姓名",
     time: "时间",
     date: "日期",
-    noRecords: "暂无记录！",
-    newRecord: "🎉 新纪录！",
+    noRecords: "暂无记录",
+    newRecord: "新纪录！",
     yourTime: "你的时间",
   }
 };
@@ -214,6 +214,7 @@ export default function Page() {
   const [uiLang, setUiLang] = useState<UiLang>("ja");
   const [choiceCount, setChoiceCount] = useState<number>(4);
   const [autoSpeak, setAutoSpeak] = useState<boolean>(false);
+  const [showAdvancedControls, setShowAdvancedControls] = useState(false);
 
   const [index, setIndex] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
@@ -283,14 +284,12 @@ export default function Page() {
 
   const t = translations[uiLang];
 
-  // データ読み込み（public/data/svo_cards.json を想定）
-  // cache: "no-store" might fail on some older Android WebViews / browsers?
+  // 繝・・繧ｿ隱ｭ縺ｿ霎ｼ縺ｿ・・ublic/data/svo_cards.json 繧呈Φ螳夲ｼ・  // cache: "no-store" might fail on some older Android WebViews / browsers?
   // Using timestamp query param instead for cache busting compatibility.
   // Debug State
   const [step, setStep] = useState<string>("boot");
   const [initError, setInitError] = useState<string | null>(null);
 
-  // データ読み込み（public/data/svo_cards.json を想定）
   useEffect(() => {
     const run = async () => {
       try {
@@ -306,7 +305,7 @@ export default function Page() {
         setStep("step3: parsing json");
         const data = await res.json();
 
-        // よくある形に寄せて吸収（配列 or {cards:[...]}）
+        // 柔軟に配列 or {cards:[...]} / {items:[...]} を受け入れる
         const arr: any[] = Array.isArray(data) ? data : data?.cards ?? data?.items ?? [];
 
         setStep(`step4: normalizing ${arr.length} items`);
@@ -493,8 +492,8 @@ export default function Page() {
       const o = objects[Math.floor(Math.random() * objects.length)];
 
       // Safety filter: prevent "eats" + "boy"/"girl"/"dog"
-      if (v.toLowerCase().includes("eats") || v.includes("吃")) {
-        const forbidden = ["boy", "girl", "dog", "男孩", "女孩", "狗"];
+      if (v.toLowerCase().includes("eats")) {
+        const forbidden = ["boy", "girl", "dog"];
         if (forbidden.some(word => o.toLowerCase().includes(word))) {
           continue;
         }
@@ -528,7 +527,7 @@ export default function Page() {
     return shuffle(activePool).map((c) => c.image);
   }, [activePool, isSurvival]);
 
-  // 選択肢生成（flash: 文、karuta: 画像）
+  // Build choices: flash uses sentences, karuta uses images.
   const choices = useMemo(() => {
     if (!current || activePool.length === 0) return [];
 
@@ -571,7 +570,7 @@ export default function Page() {
     };
   }, [current]);
 
-  // karuta時に自動で読み上げ
+  // karuta譎ゅ↓閾ｪ蜍輔〒隱ｭ縺ｿ荳翫￡
   const onSpeakComplete = useCallback(() => {
     console.log("onSpeakComplete!", { isTrickActive, isVsMode, current, aiLevel });
     // If trick mode & trick sentence (fake), wait 2s then auto-correct
@@ -957,7 +956,7 @@ export default function Page() {
         <h2>Initialization Failed</h2>
         <p><strong>Error:</strong> {initError}</p>
         <p><strong>Last Step:</strong> {step}</p>
-        <button onClick={() => window.location.reload()} style={{ padding: "10px 20px", marginTop: 20 }}>
+        <button onClick={() => window.location.reload()} style={{ minWidth: 44, minHeight: 44, padding: "10px 20px", marginTop: 20 }}>
           Reload Page
         </button>
       </div>
@@ -976,7 +975,7 @@ export default function Page() {
         color: "#333",
         textAlign: "center"
       }}>
-        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🧩</div>
+        <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>✨</div>
         <h2 style={{ fontSize: "1.5rem", fontWeight: "normal" }}>Connecting pieces...</h2>
         <div style={{ marginTop: "1rem", color: "#666", fontSize: "0.9rem" }}>
           Status: {step}
@@ -992,7 +991,7 @@ export default function Page() {
         <p style={{ marginTop: 12, color: "red", fontWeight: "bold" }}>Error: {error}</p>
         <button
           onClick={() => window.location.reload()}
-          style={{ marginTop: 16, padding: "8px 16px", background: "#333", color: "#fff", borderRadius: 4 }}
+          style={{ minWidth: 44, minHeight: 44, marginTop: 16, padding: "8px 16px", background: "#333", color: "#fff", borderRadius: 4 }}
         >
           Reload
         </button>
@@ -1032,11 +1031,10 @@ export default function Page() {
       </div>
 
       <div className={styles.controls}>
-
         <div className={styles.controlGroup}>
           <button
             onClick={toggleUiLang}
-            className={styles.button}
+            className={`${styles.button} ${styles.tapTarget}`}
             title={t.uiLang}
           >
             {t.uiLang}: {getUiLangLabel()}
@@ -1046,7 +1044,7 @@ export default function Page() {
 
           <button
             onClick={() => setContentLang(contentLang === "en" ? "zh" : "en")}
-            className={styles.button}
+            className={`${styles.button} ${styles.tapTarget}`}
             title={t.contentLang}
           >
             {t.contentLang}: {getContentLangLabel()}
@@ -1057,20 +1055,29 @@ export default function Page() {
           <div>{t.mode}</div>
           <button
             onClick={() => setMode("flash")}
-            className={`${styles.button} ${mode === "flash" ? styles.buttonActive : ""}`}
+            className={`${styles.button} ${styles.tapTarget} ${mode === "flash" ? styles.buttonActive : ""}`}
           >
             {t.flash}
           </button>
           <button
             onClick={() => setMode("karuta")}
-            className={`${styles.button} ${mode === "karuta" ? styles.buttonActive : ""}`}
+            className={`${styles.button} ${styles.tapTarget} ${mode === "karuta" ? styles.buttonActive : ""}`}
           >
             {t.karuta}
           </button>
         </div>
 
+        <div className={styles.controlGroup}>
+          <button
+            onClick={() => setShowAdvancedControls((v) => !v)}
+            className={`${styles.button} ${styles.tapTarget}`}
+          >
+            {showAdvancedControls ? "詳細を隠す" : "詳細を表示"}
+          </button>
+        </div>
+
         {/* Flash mode: choices (max 5) */}
-        {mode === "flash" && !voiceMode && (
+        {showAdvancedControls && mode === "flash" && !voiceMode && (
           <div className={styles.controlGroup}>
             <div>{t.choices}</div>
             {[2, 3, 4, 5].map((n) => (
@@ -1086,7 +1093,7 @@ export default function Page() {
         )}
 
         {/* Flash mode: voice recognition toggle + easy/hard */}
-        {mode === "flash" && (
+        {showAdvancedControls && mode === "flash" && (
           <div className={styles.controlGroup}>
             <div style={{ opacity: 0.7 }}>|</div>
             <button
@@ -1099,7 +1106,7 @@ export default function Page() {
               }}
               className={`${styles.button} ${voiceMode ? styles.buttonActive : ""}`}
             >
-              🎤 {t.voiceMode}: {voiceMode ? t.on : t.off}
+              {t.voiceMode}: {voiceMode ? t.on : t.off}
             </button>
 
             {voiceMode && (
@@ -1122,147 +1129,144 @@ export default function Page() {
 
         )}
 
-        <div className={styles.controlGroup}>
-          <div style={{ opacity: 0.7 }}>|</div>
-          <button
-            onClick={() => setAutoSpeak((v) => !v)}
-            className={`${styles.button} ${autoSpeak ? styles.buttonActive : ""}`}
-          >
-            {t.autoSpeak}: {autoSpeak ? t.on : t.off}
-          </button>
-        </div>
+        {showAdvancedControls && (
+          <div className={styles.controlGroup}>
+            <div style={{ opacity: 0.7 }}>|</div>
+            <button
+              onClick={() => setAutoSpeak((v) => !v)}
+              className={`${styles.button} ${styles.tapTarget} ${autoSpeak ? styles.buttonActive : ""}`}
+            >
+              {t.autoSpeak}: {autoSpeak ? t.on : t.off}
+            </button>
+          </div>
+        )}
 
         {/* Karuta mode: deck selector + survival */}
         {mode === "karuta" && (
           <>
             <div className={styles.controlGroup}>
-              {/* Game Flow Controls */}
               {gameState === "idle" && (
                 <button
                   onClick={startGame}
-                  className={`${styles.button} ${styles.buttonActive}`}
+                  className={`${styles.button} ${styles.tapTarget} ${styles.buttonActive}`}
                   style={{ background: "#ff7043", borderColor: "#f4511e" }}
                 >
                   START
                 </button>
               )}
               {gameState === "playing" && (
-                <button onClick={togglePause} className={styles.button}>
+                <button onClick={togglePause} className={`${styles.button} ${styles.tapTarget}`}>
                   ⏸ PAUSE
                 </button>
               )}
               {gameState === "paused" && (
                 <button
                   onClick={togglePause}
-                  className={`${styles.button} ${styles.buttonActive}`}
+                  className={`${styles.button} ${styles.tapTarget} ${styles.buttonActive}`}
                   style={{ background: "#42a5f5", borderColor: "#1e88e5" }}
                 >
                   ▶ RESUME
                 </button>
               )}
-
-              <div style={{ opacity: 0.7 }}>|</div>
-
-              <div className={styles.controlGroup}>
-                <span style={{ fontSize: 14 }}>{t.deck}:</span>
-                <select
-                  value={deckSize}
-                  onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
-                  className={styles.select}
-                  disabled={isSurvival}
-                >
-                  {[5, 10, 15, 20, 30, 35].filter(n => n <= cards.length).map(n => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
-                  <option value="all">All ({cards.length})</option>
-                </select>
-              </div>
-
-              <button
-                onClick={() => {
-                  if (isVsMode) return;
-                  const newVal = !isSurvival;
-                  setIsSurvival(newVal);
-                  if (newVal) {
-                    const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
-                    const shuffled = shuffle(cards);
-                    setRemainingCards(shuffled.slice(0, targetCount));
-                    setScore(0);
-                    setStreak(0);
-                    setIndex(0);
-                    setGameState("idle"); // Require Start
-                  } else {
-                    setRemainingCards(cards);
-                    setGameState("playing"); // Basic Karuta (no timer/AI) just plays? Or idle?
-                    // User said "Basic Karuta also Survival behavior".
-                    // If disabling Survival, it becomes Basic Karuta.
-                    // Should Basic Karuta have Start button?
-                    // "Basic Karuta is Survival Mode even that behavior" -> Ambiguous.
-                    // "Basically, even in Survival Mode of Karuta I want that behavior".
-                    // Implies "Karuta (Survival/VS) -> Start Button".
-                    // Normal Karuta -> Maybe not?
-                    // I will leave Normal Karuta as "playing" (auto start) for now to minimize disruption unless requested.
-                  }
-                }}
-                className={`${styles.button} ${isSurvival ? styles.buttonSurvival : ""}`}
-                style={{ opacity: isVsMode ? 0.5 : 1, cursor: isVsMode ? "not-allowed" : "pointer" }}
-              >
-                {t.survivalMode}: {isSurvival ? t.on : t.off}
-              </button>
             </div>
 
-            <div className={styles.controlGroup}>
-              <div style={{ opacity: 0.7 }}>|</div>
-              <button
-                onClick={() => {
-                  toggleVsMode(); // resets scores
-                  if (!isVsMode) {
-                    // Turning ON: Reset deck
-                    const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
-                    const shuffled = shuffle(cards);
-                    setRemainingCards(shuffled.slice(0, targetCount));
-                    setIndex(0);
-                  }
-                }}
-                className={`${styles.button} ${isVsMode ? styles.buttonActive : ""}`}
-              >
-                VS AI: {isVsMode ? t.on : t.off}
-              </button>
+            {showAdvancedControls && (
+              <>
+                <div className={styles.controlGroup}>
+                  <div style={{ opacity: 0.7 }}>|</div>
+                  <div className={styles.controlGroup}>
+                    <span style={{ fontSize: 14 }}>{t.deck}:</span>
+                    <select
+                      value={deckSize}
+                      onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
+                      className={styles.select}
+                      disabled={isSurvival}
+                    >
+                      {[5, 10, 15, 20, 30, 35].filter(n => n <= cards.length).map(n => (
+                        <option key={n} value={n}>{n}</option>
+                      ))}
+                      <option value="all">All ({cards.length})</option>
+                    </select>
+                  </div>
 
-              {isVsMode && (
-                <select
-                  value={aiLevel}
-                  onChange={(e) => changeAiLevel(e.target.value as any)}
-                  className={styles.select}
-                  style={{ marginLeft: 4 }}
-                >
-                  <option value="easy">Easy</option>
-                  <option value="normal">Normal</option>
-                  <option value="hard">Hard</option>
-                </select>
-              )}
-            </div>
+                  <button
+                    onClick={() => {
+                      if (isVsMode) return;
+                      const newVal = !isSurvival;
+                      setIsSurvival(newVal);
+                      if (newVal) {
+                        const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
+                        const shuffled = shuffle(cards);
+                        setRemainingCards(shuffled.slice(0, targetCount));
+                        setScore(0);
+                        setStreak(0);
+                        setIndex(0);
+                        setGameState("idle");
+                      } else {
+                        setRemainingCards(cards);
+                        setGameState("playing");
+                      }
+                    }}
+                    className={`${styles.button} ${styles.tapTarget} ${isSurvival ? styles.buttonSurvival : ""}`}
+                    style={{ opacity: isVsMode ? 0.5 : 1, cursor: isVsMode ? "not-allowed" : "pointer" }}
+                  >
+                    {t.survivalMode}: {isSurvival ? t.on : t.off}
+                  </button>
+                </div>
+
+                <div className={styles.controlGroup}>
+                  <div style={{ opacity: 0.7 }}>|</div>
+                  <button
+                    onClick={() => {
+                      toggleVsMode();
+                      if (!isVsMode) {
+                        const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
+                        const shuffled = shuffle(cards);
+                        setRemainingCards(shuffled.slice(0, targetCount));
+                        setIndex(0);
+                      }
+                    }}
+                    className={`${styles.button} ${styles.tapTarget} ${isVsMode ? styles.buttonActive : ""}`}
+                  >
+                    VS AI: {isVsMode ? t.on : t.off}
+                  </button>
+
+                  {isVsMode && (
+                    <select
+                      value={aiLevel}
+                      onChange={(e) => changeAiLevel(e.target.value as any)}
+                      className={styles.select}
+                      style={{ marginLeft: 4 }}
+                    >
+                      <option value="easy">Easy</option>
+                      <option value="normal">Normal</option>
+                      <option value="hard">Hard</option>
+                    </select>
+                  )}
+                </div>
+              </>
+            )}
           </>
         )}
 
-        {mode === "karuta" && isSurvival && remainingCards.length <= 10 && (
+	        {showAdvancedControls && mode === "karuta" && isSurvival && remainingCards.length <= 10 && (
           <div className={styles.controlGroup}>
             <div style={{ opacity: 0.7 }}>|</div>
-            <button
-              onClick={() => setTrickMode(!trickMode)}
-              className={`${styles.button} ${trickMode ? styles.buttonTrick : ""}`}
-            >
+	            <button
+	              onClick={() => setTrickMode(!trickMode)}
+	              className={`${styles.button} ${styles.tapTarget} ${trickMode ? styles.buttonTrick : ""}`}
+	            >
               {t.trickMode}: {trickMode ? t.on : t.off}
             </button>
           </div>
         )}
       </div>
 
-      {/* 問題エリア */}
+      {/* 蝠城｡後お繝ｪ繧｢ */}
       <div className={styles.gameArea}>
         {mode === "flash" ? (
           <div className={styles.flashGrid}>
-            {/* 左: 画像 */}
+            {/* 蟾ｦ: 逕ｻ蜒・*/}
             <div>
               <div style={{ marginBottom: 10, opacity: 0.8 }}>
                 {t.flashInstruction} ({contentLang === "en" ? t.english : t.chinese})
@@ -1284,7 +1288,7 @@ export default function Page() {
               </div>
             </div>
 
-            {/* 右: 選択肢 or 音声認識 */}
+            {/* 蜿ｳ: 驕ｸ謚櫁い or 髻ｳ螢ｰ隱崎ｭ・*/}
             <div>
               {voiceMode ? (
                 /* Voice recognition mode */
@@ -1298,7 +1302,7 @@ export default function Page() {
                     className={`${styles.voiceButton} ${isListening ? styles.voiceButtonListening : ""}`}
                     disabled={isListening}
                   >
-                    {isListening ? `🔴 ${t.listening}` : "🎤"}
+                    {isListening ? `🎤 ${t.listening}` : "🎤"}
                   </button>
 
                   {spokenText && (
@@ -1315,10 +1319,10 @@ export default function Page() {
                   )}
 
                   <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-                    <button onClick={() => speak(getSentence(current), getLangCode())} className={styles.button}>
-                      🔊 {t.speak}
+                    <button onClick={() => speak(getSentence(current), getLangCode())} className={`${styles.button} ${styles.tapTarget}`}>
+                      {t.speak}
                     </button>
-                    <button onClick={nextCard} className={styles.button}>
+                    <button onClick={nextCard} className={`${styles.button} ${styles.tapTarget}`}>
                       {t.skip}
                     </button>
                   </div>
@@ -1349,7 +1353,7 @@ export default function Page() {
           </div>
         ) : (
           <>
-            {/* karuta: ターゲット文を常に表示 + 🔊 */}
+            {/* karuta: show target sentence + speaker icon */}
             <div className={styles.karutaHeader}>
               <div className={styles.controlGroup}>
                 <div style={{ opacity: 0.8 }}>{t.target}:</div>
@@ -1367,21 +1371,21 @@ export default function Page() {
                       speak(getSentence(current), getLangCode());
                     }
                   }}
-                  className={styles.button}
+                  className={`${styles.button} ${styles.tapTarget}`}
                   title={t.speak}
                 >
-                  🔊 {t.speak}
+                  {t.speak}
                 </button>
                 <button
                   onClick={nextCard}
-                  className={styles.button}
+                  className={`${styles.button} ${styles.tapTarget}`}
                 >
                   {t.skip}
                 </button>
               </div>
             </div>
 
-            {/* 画像候補 — dynamic sizing via CSS variable */}
+            {/* 逕ｻ蜒丞呵｣・窶・dynamic sizing via CSS variable */}
             <div
               className={styles.karutaGrid}
               style={{ "--card-count": choices.length } as React.CSSProperties}
@@ -1495,7 +1499,7 @@ export default function Page() {
       )}
 
       <footer className={styles.copyright}>
-        © 2026 Yasuhiro Ohnaka — All rights reserved
+        ﾂｩ 2026 Yasuhiro Ohnaka 窶・All rights reserved
       </footer>
     </main >
   );

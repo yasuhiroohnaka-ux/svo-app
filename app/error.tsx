@@ -1,0 +1,36 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useMemo } from "react";
+import { makeDiagnosticId } from "@/utils/diagnostics";
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  const diagnosticId = useMemo(() => makeDiagnosticId("E_GLOBAL"), []);
+
+  useEffect(() => {
+    console.error(`[${diagnosticId}] route-error`, error);
+  }, [diagnosticId, error]);
+
+  return (
+    <main style={{ minHeight: "100vh", padding: 24, display: "grid", placeItems: "center", background: "#fff8e1" }}>
+      <div style={{ maxWidth: 560, width: "100%", background: "#fff", border: "1px solid #ffcc80", borderRadius: 12, padding: 20 }}>
+        <h1 style={{ marginTop: 0 }}>Something went wrong</h1>
+        <p>診断ID: <strong>{diagnosticId}</strong></p>
+        <p style={{ color: "#666" }}>画面の復帰を試してください。</p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <button onClick={() => reset()} style={{ padding: "10px 14px" }}>再試行</button>
+          <button onClick={() => window.location.reload()} style={{ padding: "10px 14px" }}>再読み込み</button>
+          <Link href="/" style={{ padding: "10px 14px", border: "1px solid #999", borderRadius: 4, textDecoration: "none" }}>
+            ホームへ
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+}

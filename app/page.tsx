@@ -3,7 +3,7 @@ import styles from "./portal.module.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Puzzle Grammar — English Learning Games",
+  title: "Puzzle Grammar - English Learning Games",
   description: "Fun English learning games for kids. Practice grammar with SVO puzzles and quiz cards!",
 };
 
@@ -13,7 +13,7 @@ const apps = [
     className: styles.cardSvo,
     icon: "🧩",
     title: "Puzzle\nGrammar",
-    desc: "英語の文の仕組みを学ぼう！主語・動詞・目的語をカードで練習。",
+    desc: "主語・動詞・目的語のカードを組み合わせて、英語の文を楽しく学びます。",
     tags: ["SVO", "FLASH", "KARUTA"],
     soon: false,
   },
@@ -21,26 +21,26 @@ const apps = [
     href: "/quiz-maker",
     className: styles.cardQuiz,
     icon: "🃏",
-    title: "Quiz\nMaker 🔒",
-    desc: "絵を見て英語の文を選ぼう！かるたモードで楽しく練習。",
+    title: "Quiz\nMaker",
+    desc: "絵を見て英語の文を選ぶ、カード型クイズゲームです。",
     tags: ["FLASH", "KARUTA", "VOICE"],
     soon: true,
   },
   {
     href: "/phonics",
     className: styles.cardPhonics,
-    icon: "🗣️",
-    title: "oto-man 🔒",
-    desc: "音を組み合わせて単語を作ろう！口の形をマネして発音練習。",
+    icon: "🔊",
+    title: "oto-man",
+    desc: "音を聞いて文字を選び、フォニックスを遊びながら学べます。",
     tags: ["SOUND", "PUZZLE", "SPEAK"],
     soon: true,
   },
   {
     href: "#",
     className: styles.cardSoon,
-    icon: "🔒",
+    icon: "✨",
     title: "Coming\nSoon",
-    desc: "新しいゲームが近日公開予定！お楽しみに。",
+    desc: "新しいゲームを準備中です。お楽しみに！",
     tags: ["SOON"],
     soon: true,
   },
@@ -50,7 +50,7 @@ export default function PortalPage() {
   return (
     <main className={styles.portal}>
       <header className={styles.header}>
-        <div className={styles.stars}>⭐ ✨ ⭐ ✨ ⭐</div>
+        <div className={styles.stars}>★ ★ ★</div>
         <h1 className={styles.logo}>
           PUZZLE<br />GRAMMAR
         </h1>
@@ -80,14 +80,14 @@ export default function PortalPage() {
                   <span key={tag} className={styles.cardTag}>{tag}</span>
                 ))}
               </div>
-              <span className={styles.cardArrow}>▶▶</span>
+              <span className={styles.cardArrow}>→→</span>
             </Link>
           )
         )}
       </div>
 
       <footer className={styles.footer}>
-        © 2026 Yasuhiro Ohnaka — All rights reserved
+        © 2026 Yasuhiro Ohnaka - All rights reserved
       </footer>
     </main>
   );

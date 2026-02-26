@@ -15,3 +15,9 @@ export interface GameStats {
   streak: number;
   startTime: number;
 }
+
+declare global {
+  interface Window {
+    __BOOT_OK__?: boolean;
+  }
+}

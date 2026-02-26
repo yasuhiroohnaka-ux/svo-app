@@ -1,4 +1,4 @@
-.container {
+﻿.container {
     min-height: 100vh;
     padding: 20px;
     background: linear-gradient(135deg, #fdfbf7 0%, #fff 100%);
@@ -124,7 +124,7 @@
 }
 
 .slotCorrect::after {
-    content: "〇";
+    content: "★";
     position: absolute;
     top: 50%;
     left: 50%;
@@ -162,6 +162,61 @@
     60% {
         transform: translate3d(4px, 0, 0);
     }
+}
+
+/* =============================================
+   Portal Theme Overrides (Pixel)
+   ============================================= */
+.container {
+    background-color: #1a1a2e;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 32px 32px;
+    color: #dbe7ff;
+    font-family: 'Nunito', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, system-ui, sans-serif;
+}
+
+.header {
+    font-family: 'Press Start 2P', monospace;
+    color: #ffe066;
+    text-shadow: 4px 4px 0 #b8860b;
+    letter-spacing: 2px;
+}
+
+.targetArea,
+.slots,
+.phonicsCard {
+    background: #16213e;
+    border: 4px solid #0f3460;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 #0f3460, 8px 8px 0 rgba(0, 0, 0, 0.3);
+}
+
+.slot {
+    border-radius: 0;
+    border: 3px dashed #0f3460;
+    background: #111b34;
+    color: #dbe7ff;
+}
+
+.slotFilled,
+.slotCorrect {
+    border-color: #4ecdc4;
+    background: #142238;
+}
+
+.slotCorrect::after {
+    content: "★";
+    color: rgba(255, 224, 102, 0.5);
+}
+
+.phonicsCard {
+    border-color: #e67e22;
+}
+
+.phonicsCardLabel {
+    color: #e9f2ff;
 }
 
 /* Hanamaru Animation */
@@ -457,3 +512,4 @@
 .startLevel:hover {
     transform: scale(1.05);
 }
+

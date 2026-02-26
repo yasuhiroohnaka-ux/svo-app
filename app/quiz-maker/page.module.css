@@ -75,6 +75,14 @@
     box-shadow: 0 2px 4px rgba(21, 101, 192, 0.1);
 }
 
+.tapTarget {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .button:hover {
     background: #e3f2fd;
     transform: translateY(-1px);
@@ -134,9 +142,9 @@
 }
 
 .choiceButton {
-    width: 32px;
+    width: 44px;
     /* Smaller */
-    height: 32px;
+    height: 44px;
     border: 2px solid #90caf9;
     border-radius: 50%;
     background: #ffffff;
@@ -887,3 +895,130 @@
 }
 
 /* Force re-deployment: 2026-02-20 */
+
+/* =============================================
+   Portal Theme Overrides (Pixel)
+   ============================================= */
+.container {
+    padding: 8px;
+    color: #0d47a1;
+    background: linear-gradient(160deg, #e3f2fd 0%, #f0f8ff 60%, #ffffff 100%);
+}
+
+.header {
+    color: #1565c0;
+    font-family: 'Press Start 2P', monospace;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.9), 0 2px 8px rgba(21, 101, 192, 0.2);
+}
+
+.controls,
+.gameArea,
+.flashImageContainer,
+.karutaHeader,
+.rankingModal {
+    background: #ffffff;
+    border: 2px solid #90caf9;
+    border-radius: 0;
+    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.1);
+}
+
+.button,
+.select,
+.choiceButton,
+.sentenceButton,
+.spokenResult,
+.nameInput {
+    border-radius: 0;
+    background: #ffffff;
+    color: #1565c0;
+    border-color: #64b5f6;
+    box-shadow: 0 2px 4px rgba(21, 101, 192, 0.1);
+}
+
+.buttonActive,
+.choiceButtonActive {
+    background: #1e88e5;
+    color: #ffffff;
+    border-color: #1565c0;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.buttonSurvival {
+    background: #fff8e1;
+    color: #e65100;
+    border-color: #ffd54f;
+}
+
+.buttonSurvival.buttonActive {
+    background: #ff9800;
+    color: #ffffff;
+}
+
+.buttonTrick {
+    background: #e8eaf6;
+    color: #283593;
+    border-color: #9fa8da;
+}
+
+.buttonTrick.buttonActive {
+    background: #3f51b5;
+    color: #ffffff;
+}
+
+.sentenceButton {
+    background: #ffffff;
+    border-color: #90caf9;
+}
+
+.karutaCard {
+    background: #ffffff;
+    border: 2.5px solid #bbdefb;
+    border-radius: 0;
+    box-shadow: 0 2px 6px rgba(21, 101, 192, 0.08);
+}
+
+.karutaCard:hover {
+    border-color: #42a5f5;
+}
+
+.overlay,
+.rankingOverlay {
+    background: rgba(13, 71, 161, 0.55);
+}
+
+.overlayText,
+.rankingHeader,
+.timer {
+    font-family: 'Press Start 2P', monospace;
+    color: #1565c0;
+    text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.9);
+}
+
+.overlaySubText {
+    border-radius: 0;
+    background: #ffffff;
+    border: 2px solid #90caf9;
+    color: #1565c0;
+}
+
+.rankingTable th,
+.rankingTable td {
+    border-bottom-color: #e3f2fd;
+}
+
+.rankingTable th {
+    background: #e3f2fd;
+    color: #1e88e5;
+}
+
+.rankingTable tr:nth-child(1) td {
+    background: #fff8e1;
+    color: #e65100;
+}
+
+.copyright {
+    font-family: 'Press Start 2P', monospace;
+    color: #90caf9;
+    letter-spacing: 1px;
+}
