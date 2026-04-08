@@ -1,29 +1,20 @@
 ﻿"use client";
 
-import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { speak, speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { cancelSpeech, unlockSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
-import { getRanking, saveRanking, clearRanking, formatTime, type RankEntry } from "@/utils/ranking";
+import { formatTime } from "@/utils/ranking";
+
+import { loadCards, pickRandomIndex, shuffle } from "./data";
+import type { Card, ContentLang, Feedback, Mode, TrickSentence, UiLang } from "./types";
+import { useGameTimer } from "./useGameTimer";
+import { useRanking } from "./useRanking";
+import { useSpeech } from "./useSpeech";
+import { useSpeechRecognition } from "./useSpeechRecognition";
+import { useVsMode } from "./useVsMode";
 
 import styles from "./page.module.css";
-
-type Card = {
-  id: number;
-  subject: string;
-  verb: string;
-  object: string;
-  sentence: string;
-  subject_zh: string;
-  verb_zh: string;
-  object_zh: string;
-  sentence_zh: string;
-  image: string;
-};
-
-type Mode = "flash" | "karuta";
-type ContentLang = "en" | "zh";
-type UiLang = "en" | "ja" | "zh";
-type ArticleMode = "easy" | "hard";
 
 const translations = {
   en: {
@@ -172,40 +163,6 @@ const translations = {
   }
 };
 
-function shuffle<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-/** Normalize for comparison: lowercase, trim, remove trailing punctuation */
-function normalize(s: string): string {
-  return s.toLowerCase().replace(/[.\s]+$/g, "").trim();
-}
-
-/** Remove articles (a, an, the) for easy mode comparison */
-function stripArticles(s: string): string {
-  return s.replace(/\b(a|an|the)\b/gi, "").replace(/\s+/g, " ").trim();
-}
-
-/** Strip verb inflection: "washes" -> "wash", "eats" -> "eat" */
-function stemVerb(v: string): string {
-  const w = v.toLowerCase();
-  if (w.endsWith("shes")) return w.slice(0, -2);   // washes -> wash
-  if (w.endsWith("ches")) return w.slice(0, -2);   // catches -> catch
-  if (w.endsWith("xes")) return w.slice(0, -2);    // fixes -> fix
-  if (w.endsWith("ies")) return w.slice(0, -3) + "y"; // carries -> carry
-  if (w.endsWith("s")) return w.slice(0, -1);      // eats -> eat
-  return w;
-}
-
-/** Extract core words from a string, lowercased */
-function extractWords(s: string): string[] {
-  return s.toLowerCase().replace(/[^a-z\s]/g, "").split(/\s+/).filter(Boolean);
-}
 
 export default function Page() {
   const [cards, setCards] = useState<Card[]>([]);
@@ -219,66 +176,13 @@ export default function Page() {
   const [index, setIndex] = useState<number>(0);
   const [score, setScore] = useState<number>(0);
   const [streak, setStreak] = useState<number>(0);
-  const [feedback, setFeedback] = useState<{ value: string; isCorrect: boolean } | null>(null);
-
-  const [error, setError] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
 
   // Survival Mode State
   const [isSurvival, setIsSurvival] = useState<boolean>(false);
   const [remainingCards, setRemainingCards] = useState<Card[]>([]);
   const [trickMode, setTrickMode] = useState<boolean>(false);
   const [deckSize, setDeckSize] = useState<number | "all">("all");
-
-  // VS Mode State
-  const [isVsMode, setIsVsMode] = useState(false);
-  const [aiLevel, setAiLevel] = useState<"easy" | "normal" | "hard">("normal");
-  const [aiScore, setAiScore] = useState(0);
-
-  // Game Flow State
-  type GameState = "idle" | "countdown" | "playing" | "paused" | "finished";
-  const [gameState, setGameState] = useState<GameState>("idle");
-  const [countdown, setCountdown] = useState<number>(3);
-
-  const toggleVsMode = () => {
-    setIsVsMode((prev) => {
-      const next = !prev;
-      if (next) setIsSurvival(true);
-      return next;
-    });
-    setScore(0);
-    setAiScore(0);
-    setStreak(0);
-    setGameState("idle"); // Reset to idle on toggle
-  };
-
-  const changeAiLevel = (level: "easy" | "normal" | "hard") => {
-    setAiLevel(level);
-  };
-
-  // Voice Recognition State
-  const [voiceMode, setVoiceMode] = useState<boolean>(false);
-  const [articleMode, setArticleMode] = useState<ArticleMode>("easy");
-  const [isListening, setIsListening] = useState<boolean>(false);
-  const [spokenText, setSpokenText] = useState<string>("");
-  const recognitionRef = useRef<any>(null);
-
-  // Refs for timers
-  // silenceTimeoutRef is declared below? Let's check context.
-  // Actually, I should just remove silenceTimeoutRef from here if it exists below.
-  const aiTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Time Trial timer
-  const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const [elapsedTime, setElapsedTime] = useState<number>(0);
-  const timerStartRef = useRef<number>(0);
-
-  // Ranking state
-  const [showRanking, setShowRanking] = useState(false);
-  const [rankingData, setRankingData] = useState<RankEntry[]>([]);
-  const [pendingEntry, setPendingEntry] = useState<RankEntry | null>(null);
-  const [playerName, setPlayerName] = useState("");
-  const [nameInputVisible, setNameInputVisible] = useState(false);
-  const [isNewRecord, setIsNewRecord] = useState(false);
 
   const APP_KEY = "svo";
 
@@ -289,87 +193,80 @@ export default function Page() {
   // Debug State
   const [step, setStep] = useState<string>("boot");
   const [initError, setInitError] = useState<string | null>(null);
+  const { aiLevel, aiScore, cancelAiTurn, changeAiLevel, disableVsMode, enableVsMode, isVsMode, scheduleAiTurn, setAiScore } =
+    useVsMode();
+  const { countdown, elapsedTime, gameState, resetGameTimer, setGameState, startGame, stopTimer, togglePause } =
+    useGameTimer({
+      shouldTrackElapsedOnCountdownFinish: mode === "karuta" && isSurvival,
+    });
+
+  const activePool = isSurvival ? remainingCards : cards;
+  const current = activePool[index];
+
+  const getSentence = useCallback(
+    (card: Card) => (contentLang === "zh" ? card.sentence_zh : card.sentence),
+    [contentLang],
+  );
+  const getSubject = useCallback(
+    (card: Card) => (contentLang === "zh" ? card.subject_zh : card.subject),
+    [contentLang],
+  );
+  const getVerb = useCallback(
+    (card: Card) => (contentLang === "zh" ? card.verb_zh : card.verb),
+    [contentLang],
+  );
+  const getObject = useCallback(
+    (card: Card) => (contentLang === "zh" ? card.object_zh : card.object),
+    [contentLang],
+  );
+  const getLangCode = useCallback(
+    () => (contentLang === "zh" ? "zh-CN" : "en-US"),
+    [contentLang],
+  );
 
   useEffect(() => {
-    const run = async () => {
-      try {
-        setStep("step1: start init");
+    let cancelled = false;
 
-        // Anti-cache param
-        const url = `/data/svo_cards.json?t=${Date.now()}`;
-        setStep(`step2: fetching ${url}`);
-
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
-
-        setStep("step3: parsing json");
-        const data = await res.json();
-
-        // 柔軟に配列 or {cards:[...]} / {items:[...]} を受け入れる
-        const arr: any[] = Array.isArray(data) ? data : data?.cards ?? data?.items ?? [];
-
-        setStep(`step4: normalizing ${arr.length} items`);
-
-        const normalized: Card[] = arr
-          .map((x, i) => ({
-            id: x.id ?? x.cardId ?? i,
-            subject: x.subject ?? "",
-            verb: x.verb ?? "",
-            object: x.object ?? "",
-            sentence: x.sentence ?? x.text ?? "",
-            subject_zh: x.subject_zh ?? "",
-            verb_zh: x.verb_zh ?? "",
-            object_zh: x.object_zh ?? "",
-            sentence_zh: x.sentence_zh ?? "",
-            image: x.image ?? x.img ?? x.imagePath ?? (x.imageFile ? `/images/${x.imageFile}` : ""),
-          }))
-          .filter((x) => x.sentence && x.image);
-
-        if (normalized.length === 0) {
-          throw new Error("No valid cards found in data.");
-        }
-
-        setCards(normalized);
-        setRemainingCards(normalized);
-        setIndex(0);
-        setScore(0);
-        setStreak(0);
-
-        setStep("step5: ready");
-      } catch (e: any) {
-        console.error("Init Error:", e);
-        setInitError(e.message || String(e));
-        setStep("failed");
-      }
-    };
-
-    // Timeout watchdog (15s)
     const timer = setTimeout(() => {
+      if (cancelled) return;
       setInitError((prev) => prev ?? "Timeout: Initialization took too long (15s). Check network or device restrictions.");
       setStep("timeout");
     }, 15000);
 
-    run().finally(() => clearTimeout(timer));
-  }, []);
+    const run = async () => {
+      try {
+        const loadedCards = await loadCards({
+          onStep: (nextStep) => {
+            if (!cancelled) {
+              setStep(nextStep);
+            }
+          },
+        });
 
-  // Cleanup speech on unmount
-  useEffect(() => {
+        if (cancelled) return;
+
+        setCards(loadedCards);
+        setRemainingCards(loadedCards);
+        setIndex(pickRandomIndex(loadedCards.length));
+        setScore(0);
+        setStreak(0);
+      } catch (error) {
+        if (cancelled) return;
+        console.error("Init Error:", error);
+        setInitError(error instanceof Error ? error.message : String(error));
+        setStep("failed");
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+
+    void run();
+
     return () => {
-      cancelSpeech();
+      cancelled = true;
+      clearTimeout(timer);
     };
   }, []);
-
-
-  // Determine current pool based on mode
-  const activePool = isSurvival ? remainingCards : cards;
-  const current = activePool[index];
-
-  // Helper to get text/audio based on contentLang
-  const getSentence = (c: Card) => contentLang === "zh" ? c.sentence_zh : c.sentence;
-  const getSubject = (c: Card) => contentLang === "zh" ? c.subject_zh : c.subject;
-  const getVerb = (c: Card) => contentLang === "zh" ? c.verb_zh : c.verb;
-  const getObject = (c: Card) => contentLang === "zh" ? c.object_zh : c.object;
-  const getLangCode = () => contentLang === "zh" ? "zh-CN" : "en-US";
 
   // Cycle UI Language: en -> ja -> zh -> en
   const toggleUiLang = () => {
@@ -400,40 +297,147 @@ export default function Page() {
     }
   }, [activePool.length, index]);
 
-  // Karuta: determine how many images to show based on deckSize
+  const trickSentence = useMemo<TrickSentence | null>(() => {
+    if (!trickMode || !current || !isSurvival || activePool.length > 10) return null;
+
+    const threshold = activePool.length <= 4 ? 1 / 3 : 0.2;
+    if (Math.random() > threshold) return null;
+
+    const takenCards = cards.filter((card) => !activePool.some((remaining) => remaining.id === card.id));
+    const useGhost = takenCards.length > 0 && Math.random() > 0.5;
+
+    if (useGhost) {
+      const ghostCard = takenCards[Math.floor(Math.random() * takenCards.length)];
+      return {
+        s: contentLang === "zh" ? ghostCard.subject_zh : ghostCard.subject,
+        v: contentLang === "zh" ? ghostCard.verb_zh : ghostCard.verb,
+        o: contentLang === "zh" ? ghostCard.object_zh : ghostCard.object,
+        sentence: contentLang === "zh" ? ghostCard.sentence_zh : ghostCard.sentence,
+      };
+    }
+
+    const subjects = [...new Set(activePool.map((card) => (contentLang === "zh" ? card.subject_zh : card.subject)))];
+    const verbs = [...new Set(activePool.map((card) => (contentLang === "zh" ? card.verb_zh : card.verb)))];
+    const objects = [...new Set(activePool.map((card) => (contentLang === "zh" ? card.object_zh : card.object)))];
+
+    if (subjects.length === 0 || verbs.length === 0 || objects.length === 0) return null;
+
+    for (let i = 0; i < 50; i += 1) {
+      const subject = subjects[Math.floor(Math.random() * subjects.length)];
+      const verb = verbs[Math.floor(Math.random() * verbs.length)];
+      const object = objects[Math.floor(Math.random() * objects.length)];
+
+      if (
+        verb.toLowerCase().includes("eats") &&
+        ["boy", "girl", "dog"].some((word) => object.toLowerCase().includes(word))
+      ) {
+        continue;
+      }
+
+      const fakeSentence = contentLang === "zh" ? `${subject}${verb}${object}。` : `${subject} ${verb} ${object}.`;
+      const matchesReal = activePool.some((card) => {
+        const realSentence = contentLang === "zh" ? card.sentence_zh : card.sentence;
+        return realSentence === fakeSentence;
+      });
+
+      if (!matchesReal) {
+        return { s: subject, v: verb, o: object, sentence: fakeSentence };
+      }
+    }
+
+    return null;
+  }, [trickMode, current, isSurvival, activePool, contentLang, cards]);
+
+  const isTrickActive = trickMode && isSurvival && activePool.length <= 10;
+  const displaySentence = isTrickActive && trickSentence ? trickSentence.sentence : current ? getSentence(current) : "";
+
+  const { clearSilenceTimeout, handleSpeak, scheduleSilenceTimeout } = useSpeech({
+    activePoolLength: activePool.length,
+    current,
+    getLangCode,
+    getObject,
+    getSentence,
+    getSubject,
+    getVerb,
+    isTrickActive,
+    trickSentence,
+  });
+
+  const { handleRankingRegister: registerRankingEntry, nameInputVisible, pendingEntry, playerName, promptForRankingEntry, rankingData, setPlayerName, setShowRanking, showRanking } =
+    useRanking({ appKey: APP_KEY });
+
+  const { articleMode, clearSpokenText, isListening, setArticleMode, spokenText, startListening, toggleVoiceMode, voiceMode } =
+    useSpeechRecognition({
+      current,
+      getLangCode,
+      getObject,
+      getSentence,
+      getSubject,
+      getVerb,
+      onCorrect: handleVoiceCorrect,
+      onIncorrect: handleVoiceIncorrect,
+    });
+
   const karutaChoiceCount = useMemo(() => {
     if (mode !== "karuta") return choiceCount;
-    if (isSurvival) return activePool.length; // survival uses all remaining
+    if (isSurvival) return activePool.length;
+
     const total = cards.length;
     if (deckSize === "all") return total;
     return Math.min(Number(deckSize), total);
   }, [mode, deckSize, cards.length, choiceCount, isSurvival, activePool.length]);
 
-  function nextCard() {
-    if (activePool.length === 0) return;
+  const survivalChoices = useMemo(() => {
+    if (!isSurvival) return [];
+    return shuffle(activePool).map((card) => card.image);
+  }, [activePool, isSurvival]);
 
-    if (!isSurvival) {
-      setIndex((i) => (i + 1) % activePool.length);
-    } else {
-      // If survival, pick random from remaining
-      if (activePool.length > 1) {
-        const nextIdx = Math.floor(Math.random() * activePool.length);
-        setIndex(nextIdx);
-      } else {
-        setIndex(0);
+  const choices = useMemo(() => {
+    if (!current || activePool.length === 0) return [];
+
+    if (mode === "karuta") {
+      if (isSurvival) {
+        return survivalChoices;
       }
+
+      const pool = cards.filter((card) => card.id !== current.id);
+      const count = Math.max(2, karutaChoiceCount);
+      const others = shuffle(pool).slice(0, count - 1);
+      return shuffle([current, ...others]).map((card) => card.image);
     }
-    setFeedback(null);
-    setSpokenText("");
+
+    const effectiveChoiceCount = Math.min(5, choiceCount);
+    if (isSurvival) {
+      const pool = activePool.filter((card) => card.id !== current.id);
+      const takeCount = Math.min(pool.length, effectiveChoiceCount - 1);
+      const others = shuffle(pool).slice(0, takeCount);
+      return shuffle([current, ...others]).map((card) => (contentLang === "zh" ? card.sentence_zh : card.sentence));
+    }
+
+    const pool = cards.filter((card) => card.id !== current.id);
+    const count = Math.max(2, effectiveChoiceCount);
+    const others = shuffle(pool).slice(0, count - 1);
+    return shuffle([current, ...others]).map((card) => (contentLang === "zh" ? card.sentence_zh : card.sentence));
+  }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, contentLang, survivalChoices]);
+
+  function handleVoiceCorrect(spoken: string) {
+    setFeedback({ value: spoken, isCorrect: true });
+    playChime();
+    setTimeout(() => handleCorrectAnswer(), 1000);
   }
 
-
+  function handleVoiceIncorrect(spoken: string) {
+    setStreak(0);
+    setFeedback({ value: spoken, isCorrect: false });
+    playBuzz();
+  }
 
   function judgeFlash(selectedSentence: string) {
     if (!current) return;
+
     unlockAudio();
     unlockSpeech();
-    // Check against current sentence (in correct lang)
+
     const correctText = getSentence(current);
     const ok = selectedSentence === correctText;
 
@@ -448,493 +452,170 @@ export default function Page() {
     }
   }
 
-  // Trick mode: generate a confusing sentence from remaining cards' S/V/O
-  const trickSentence = useMemo(() => {
-    if (!trickMode || !current || !isSurvival || activePool.length > 10) return null;
+  const resetGame = useCallback(() => {
+    cancelSpeech();
+    clearSilenceTimeout();
+    cancelAiTurn();
+    resetGameTimer();
 
-    // Probability logic:
-    // If cards <= 4, 33% chance (1/3).
-    // Else, 20% chance (1/5).
-    const threshold = activePool.length <= 4 ? (1 / 3) : 0.2;
-    // Math.random() < threshold means trick triggers.
-    // If Math.random() > threshold, it's normal (return null).
-    if (Math.random() > threshold) return null;
-
-    // Determine trick type: "Fake" (constructed) or "Ghost" (already taken card)
-    // Only possible if there are taken cards.
-    // Let's say 50% chance for Ghost if available.
-    const takenCards = cards.filter(c => !activePool.some(r => r.id === c.id));
-    const useGhost = takenCards.length > 0 && Math.random() > 0.5;
-
-    if (useGhost) {
-      // Pick a random taken card
-      const ghostCard = takenCards[Math.floor(Math.random() * takenCards.length)];
-      return {
-        s: contentLang === "zh" ? ghostCard.subject_zh : ghostCard.subject,
-        v: contentLang === "zh" ? ghostCard.verb_zh : ghostCard.verb,
-        o: contentLang === "zh" ? ghostCard.object_zh : ghostCard.object,
-        sentence: contentLang === "zh" ? ghostCard.sentence_zh : ghostCard.sentence
-      };
-    }
-
-    // Otherwise generate Fake sentence
-    // Collect all unique subjects, verbs, objects from remaining cards
-    const subjects = [...new Set(activePool.map(c => contentLang === "zh" ? c.subject_zh : c.subject))];
-    const verbs = [...new Set(activePool.map(c => contentLang === "zh" ? c.verb_zh : c.verb))];
-    const objects = [...new Set(activePool.map(c => contentLang === "zh" ? c.object_zh : c.object))];
-
-    // Safety check: need at least 1 of each to build a sentence
-    if (subjects.length === 0 || verbs.length === 0 || objects.length === 0) return null;
-
-    for (let i = 0; i < 50; i++) {
-      const s = subjects[Math.floor(Math.random() * subjects.length)];
-      const v = verbs[Math.floor(Math.random() * verbs.length)];
-      const o = objects[Math.floor(Math.random() * objects.length)];
-
-      // Safety filter: prevent "eats" + "boy"/"girl"/"dog"
-      if (v.toLowerCase().includes("eats")) {
-        const forbidden = ["boy", "girl", "dog"];
-        if (forbidden.some(word => o.toLowerCase().includes(word))) {
-          continue;
-        }
-      }
-
-      const fake = contentLang === "zh" ? `${s}${v}${o}。` : `${s} ${v} ${o}.`;
-      // Make sure this combo doesn't match any actual card (in activePool)
-      // Note: It MIGHT match a taken card (ghost), but that's fine as a trick!
-      // But here we rely on "activePool" for parts, so usually it won't match a ghost unless components overlap.
-      // The condition is: "Must not match a card CURRENTLY ON FIELD".
-      const matchesReal = activePool.some(c => {
-        const real = contentLang === "zh" ? c.sentence_zh : c.sentence;
-        return real === fake;
-      });
-      if (!matchesReal) {
-        return { s, v, o, sentence: fake };
-      }
-    }
-    return null; // fallback: use real sentence
-  }, [trickMode, current, isSurvival, activePool, contentLang, cards]);
-
-  // The sentence to display/speak (may be trick sentence)
-  const isTrickActive = trickMode && isSurvival && activePool.length <= 10;
-  const displaySentence = isTrickActive && trickSentence ? trickSentence.sentence : (current ? getSentence(current) : "");
-
-  // Stable shuffled pool for survival mode
-  // This memo only re-runs when activePool (remaining cards) changes,
-  // NOT when 'current' changes (unlike the logic below).
-  const survivalChoices = useMemo(() => {
-    if (!isSurvival) return [];
-    return shuffle(activePool).map((c) => c.image);
-  }, [activePool, isSurvival]);
-
-  // Build choices: flash uses sentences, karuta uses images.
-  const choices = useMemo(() => {
-    if (!current || activePool.length === 0) return [];
-
-    if (mode === "karuta") {
-      // Karuta mode: use karutaChoiceCount
-      if (isSurvival) {
-        // In survival, show all remaining cards as choices (STABLE ORDER)
-        return survivalChoices;
-      } else {
-        // Normal: take karutaChoiceCount cards (including current)
-        const pool = cards.filter((c) => c.id !== current.id);
-        const n = Math.max(2, karutaChoiceCount);
-        const others = shuffle(pool).slice(0, n - 1);
-        return shuffle([current, ...others]).map((c) => c.image);
-      }
-    } else {
-      // Flash mode: use choiceCount (max 5)
-      const effectiveN = Math.min(5, choiceCount);
-      if (isSurvival) {
-        const pool = activePool.filter((c) => c.id !== current.id);
-        const takeN = Math.min(pool.length, effectiveN - 1);
-        const others = shuffle(pool).slice(0, takeN);
-        return shuffle([current, ...others]).map((c) => contentLang === "zh" ? c.sentence_zh : c.sentence);
-      } else {
-        const pool = cards.filter((c) => c.id !== current.id);
-        const n = Math.max(2, effectiveN);
-        const others = shuffle(pool).slice(0, n - 1);
-        return shuffle([current, ...others]).map((c) => contentLang === "zh" ? c.sentence_zh : c.sentence);
-      }
-    }
-  }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, contentLang, survivalChoices]);
-
-  // Ref for silence timeout in trick mode
-  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Clear timeout on unmount or card change
-  useEffect(() => {
-    return () => {
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-    };
-  }, [current]);
-
-  // karuta譎ゅ↓閾ｪ蜍輔〒隱ｭ縺ｿ荳翫￡
-  const onSpeakComplete = useCallback(() => {
-    console.log("onSpeakComplete!", { isTrickActive, isVsMode, current, aiLevel });
-    // If trick mode & trick sentence (fake), wait 2s then auto-correct
-    if (isTrickActive && trickSentence) {
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-      silenceTimeoutRef.current = setTimeout(() => {
-        // If this fires, user hasn't clicked anything for 2s after reading
-        // Pass true to keep the card in the deck (just a "pass")
-        handleCorrectAnswer(true, "player");
-      }, 2000);
-    } else if (isVsMode && current) {
-      // VS AI Logic: if real sentence (or normal mode), AI tries to take it
-      let delay = 3000;
-      if (aiLevel === "easy") delay = 5000 + Math.random() * 3000;   // 5~8s
-      if (aiLevel === "normal") delay = 3000 + Math.random() * 2000; // 3~5s
-      if (aiLevel === "hard") delay = 1500 + Math.random() * 1000;   // 1.5~2.5s
-
-      console.log("Setting AI Timer for delay:", delay);
-
-      if (aiTimeoutRef.current) clearTimeout(aiTimeoutRef.current);
-      aiTimeoutRef.current = setTimeout(() => {
-        console.log("AI taking card now!");
-        handleCorrectAnswer(false, "ai");
-      }, delay);
-    }
-  }, [isTrickActive, trickSentence, isVsMode, current, aiLevel]); // handleCorrectAnswer is stable
-
-  // Helper to handle speaking (auto or manual)
-  const handleSpeak = useCallback((callback?: () => void) => {
-    if (!current) return;
-    if (silenceTimeoutRef.current) {
-      clearTimeout(silenceTimeoutRef.current);
-      silenceTimeoutRef.current = null;
-    }
-
-    const useInterval = activePool.length <= 4;
-    const interval = useInterval ? 300 : 0;
-
-    if (isTrickActive && trickSentence) {
-      // Trick (Fake or Ghost)
-      speakQueue(
-        [trickSentence.s, trickSentence.v, trickSentence.o],
-        interval,
-        getLangCode(),
-        callback
-      );
-    } else if (isTrickActive) {
-      // Real sentence in Trick Mode
-      if (!useInterval) {
-        // 10-5: Normal speaking
-        speak(getSentence(current), getLangCode(), callback);
-      } else {
-        // <= 4: Interval speaking
-        speakQueue(
-          [getSubject(current), getVerb(current), getObject(current)],
-          interval,
-          getLangCode(),
-          callback
-        );
-      }
-    } else {
-      // Normal Mode
-      speak(getSentence(current), getLangCode(), callback);
-    }
-  }, [current, activePool.length, isTrickActive, trickSentence, contentLang]);
-
-  // Auto-speak effect
-  useEffect(() => {
-    // Only speak if game is PLAYING
-    if (!autoSpeak || !current || mode === "flash" || gameState !== "playing") return;
-
-    // Slight delay to allow UI to settle?
-    const timer = setTimeout(() => {
-      handleSpeak(onSpeakComplete);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [current, autoSpeak, mode, handleSpeak, onSpeakComplete, gameState]);
-
-  // Countdown effect
-  useEffect(() => {
-    if (gameState !== "countdown") return;
-
-    if (countdown > 0) {
-      // 3 -> 2 -> 1 -> 0
-      const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
-      return () => clearTimeout(timer);
-    } else if (countdown === 0) {
-      // 0 means "GO!" - show it for a moment, then start
-      const timer = setTimeout(() => {
-        setGameState("playing");
-        if (mode === "karuta" && isSurvival) {
-          startTimer();
-        }
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [gameState, countdown]);
-
-  // Timer Effect
-  useEffect(() => {
-    return () => {
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    };
-  }, []);
-
-  const startGame = () => {
-    unlockAudio();
-    unlockSpeech();
-    setCountdown(3);
-    setGameState("countdown");
-
-    // Reset Timer
-    setElapsedTime(0);
-    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-  };
-
-  const startTimer = () => {
-    const startTime = Date.now();
-    timerStartRef.current = startTime;
-    setElapsedTime(0);
-
-    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    timerIntervalRef.current = setInterval(() => {
-      const now = Date.now();
-      setElapsedTime((now - startTime) / 1000);
-    }, 100);
-  };
-
-  const togglePause = () => {
-    if (gameState === "playing") {
-      setGameState("paused");
-      cancelSpeech();
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-      if (aiTimeoutRef.current) clearTimeout(aiTimeoutRef.current);
-      // Pause Timer
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    } else if (gameState === "paused") {
-      setGameState("playing");
-      // Resume Timer (adjust start time to account for pause?) 
-      // Simplified: Just restart interval, but we need to track accumulated time.
-      // Better: store "timeAtPause" and adjust "timerStartRef".
-      // Let's Keep it simple: Time Trial = No Pause allowed? Or accurate pause?
-      // For accurate pause:
-      // start = now - elapsedTime * 1000
-      const now = Date.now();
-      timerStartRef.current = now - (elapsedTime * 1000);
-      timerIntervalRef.current = setInterval(() => {
-        const n = Date.now();
-        setElapsedTime((n - timerStartRef.current) / 1000);
-      }, 100);
-    }
-  };
-
-  const resetGame = () => {
     const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
     const shuffled = shuffle(cards);
     setRemainingCards(shuffled.slice(0, targetCount));
     setScore(0);
     setAiScore(0);
     setStreak(0);
-    setIndex(0);
+    setIndex(pickRandomIndex(Math.min(targetCount, shuffled.length)));
+    setFeedback(null);
+    clearSpokenText();
+  }, [cancelAiTurn, cards, clearSpokenText, clearSilenceTimeout, deckSize, resetGameTimer, setAiScore]);
+
+  const nextCard = useCallback(() => {
+    if (activePool.length === 0) return;
+
+    if (!isSurvival) {
+      setIndex((currentIndex) => (currentIndex + 1) % activePool.length);
+    } else if (activePool.length > 1) {
+      setIndex(Math.floor(Math.random() * activePool.length));
+    } else {
+      setIndex(0);
+    }
+
+    setFeedback(null);
+    clearSpokenText();
+  }, [activePool.length, clearSpokenText, isSurvival]);
+
+  const handleCorrectAnswer = useCallback(
+    (keepCard = false, winner: "player" | "ai" = "player") => {
+      if (!current) return;
+
+      if (winner === "player") {
+        setScore((currentScore) => currentScore + 1);
+        setStreak((currentStreak) => currentStreak + 1);
+      } else {
+        setAiScore((currentScore) => currentScore + 1);
+        setStreak(0);
+      }
+
+      clearSilenceTimeout();
+      cancelAiTurn();
+
+      if (mode === "karuta" && isSurvival && !keepCard) {
+        const newPool = remainingCards.filter((card) => card.id !== current.id);
+        setRemainingCards(newPool);
+
+        if (newPool.length === 0) {
+          if (isVsMode) {
+            const finalPlayerScore = winner === "player" ? score + 1 : score;
+            const finalAiScore = winner === "ai" ? aiScore + 1 : aiScore;
+
+            let message = "";
+            if (finalPlayerScore > finalAiScore) message = "YOU WIN!";
+            else if (finalPlayerScore < finalAiScore) message = "YOU LOSE!";
+            else message = "DRAW!";
+
+            playChime();
+            alert(`${message}\nPlayer: ${finalPlayerScore} - AI: ${finalAiScore}`);
+            resetGame();
+          } else {
+            playChime();
+            stopTimer();
+
+            const cardCount = deckSize === "all" ? cards.length : Number(deckSize);
+            promptForRankingEntry({
+              name: "",
+              time: elapsedTime,
+              date: new Date().toISOString(),
+              cards: cardCount,
+            });
+          }
+        } else {
+          setIndex(Math.floor(Math.random() * newPool.length));
+        }
+
+        return;
+      }
+
+      if (mode === "karuta" && isSurvival && keepCard) {
+        setIndex(Math.floor(Math.random() * remainingCards.length));
+        return;
+      }
+
+      nextCard();
+    },
+    [
+      aiScore,
+      cancelAiTurn,
+      cards.length,
+      clearSilenceTimeout,
+      current,
+      deckSize,
+      elapsedTime,
+      isSurvival,
+      isVsMode,
+      mode,
+      nextCard,
+      promptForRankingEntry,
+      remainingCards,
+      resetGame,
+      score,
+      setAiScore,
+      stopTimer,
+    ],
+  );
+
+  const onSpeakComplete = useCallback(() => {
+    if (isTrickActive && trickSentence) {
+      scheduleSilenceTimeout(() => {
+        handleCorrectAnswer(true, "player");
+      }, 2000);
+      return;
+    }
+
+    if (isVsMode && current) {
+      scheduleAiTurn(() => {
+        handleCorrectAnswer(false, "ai");
+      });
+    }
+  }, [current, handleCorrectAnswer, isTrickActive, isVsMode, scheduleAiTurn, scheduleSilenceTimeout, trickSentence]);
+
+  useEffect(() => {
+    if (!autoSpeak || !current || mode === "flash" || gameState !== "playing") return;
+
+    const timer = setTimeout(() => {
+      handleSpeak(onSpeakComplete);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [autoSpeak, current, gameState, mode, handleSpeak, onSpeakComplete]);
+
+  const quitSpecialMode = () => {
+    cancelSpeech();
+    clearSilenceTimeout();
+    disableVsMode();
+    stopTimer();
+
+    setIsSurvival(false);
+    setRemainingCards(cards);
+    setScore(0);
+    setStreak(0);
+    setFeedback(null);
+    clearSpokenText();
+    setIndex(pickRandomIndex(cards.length));
     setGameState("idle");
-    setElapsedTime(0);
   };
 
   const handleRankingRegister = () => {
     if (!pendingEntry) return;
-    const entry = { ...pendingEntry, name: playerName || "Anonymous" };
-    saveRanking(APP_KEY, entry);
-    setNameInputVisible(false);
-    setRankingData(getRanking(APP_KEY));
-    setShowRanking(true);
+    registerRankingEntry();
     resetGame();
   };
 
-  /** Judge spoken text (voice recognition) */
-  function judgeVoice(spoken: string) {
-    if (!current) return;
-
-    let ok = false;
-    let processedSpoken = spoken;
-
-    // Fix for "washes" often recognized as "watches"
-    const correctText = getSentence(current);
-    if (correctText.toLowerCase().includes("washes")) {
-      processedSpoken = processedSpoken.replace(/\bwatches\b/gi, "washes");
-    }
-
-    if (articleMode === "easy") {
-      // Easy mode: check if the core S, V, O words are present in spoken text
-      // Extract the last word from subject/object (the noun), and stem the verb
-      const subjectWords = extractWords(getSubject(current));
-      const objectWords = extractWords(getObject(current));
-      const verbStemmed = stemVerb(getVerb(current));
-
-      // The key noun is usually the last word: "A banana" -> "banana"
-      const subjectNoun = subjectWords.filter(w => !["a", "an", "the"].includes(w)).pop() || "";
-      const objectNoun = objectWords.filter(w => !["a", "an", "the"].includes(w)).pop() || "";
-
-      const spokenWords = extractWords(processedSpoken);
-      // Also stem spoken words to catch "wash" vs "washes" etc.
-      const spokenStemmed = spokenWords.map(w => stemVerb(w));
-
-      const hasSubject = spokenWords.includes(subjectNoun) || spokenStemmed.includes(subjectNoun);
-      const hasVerb = spokenWords.includes(verbStemmed) || spokenStemmed.includes(verbStemmed)
-        || spokenWords.includes(getVerb(current).toLowerCase());
-      const hasObject = spokenWords.includes(objectNoun) || spokenStemmed.includes(objectNoun);
-
-      // Check Order: Subject must appear BEFORE Object (if distinct nouns)
-      // Prevents "Fish eats banana" passing for "Banana eats fish"
-      let orderOk = true;
-      if (hasSubject && hasObject && subjectNoun !== objectNoun) {
-        const sIdx = spokenWords.indexOf(subjectNoun) !== -1 ? spokenWords.indexOf(subjectNoun) : spokenStemmed.indexOf(subjectNoun);
-        const oIdx = spokenWords.indexOf(objectNoun) !== -1 ? spokenWords.indexOf(objectNoun) : spokenStemmed.indexOf(objectNoun);
-
-        if (sIdx !== -1 && oIdx !== -1) {
-          orderOk = sIdx < oIdx;
-        }
-      }
-
-      ok = hasSubject && hasVerb && hasObject && orderOk;
-    } else {
-      // Hard mode: exact match (after normalization)
-      ok = normalize(processedSpoken) === normalize(correctText);
-    }
-
-    if (ok) {
-      setFeedback({ value: spoken, isCorrect: true }); // Show original spoken text? Or processed? User said "watches" but we accepted it. Maybe show original.
-      playChime();
-      setTimeout(() => handleCorrectAnswer(), 1000);
-    } else {
-      setStreak(0);
-      setFeedback({ value: spoken, isCorrect: false });
-      playBuzz();
-    }
-  }
-
-  /** Start speech recognition */
-  const startListening = useCallback(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert("Speech recognition is not supported in this browser.");
-      return;
-    }
-
-    if (recognitionRef.current) {
-      recognitionRef.current.abort();
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = getLangCode();
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    recognition.onstart = () => {
-      setIsListening(true);
-      setSpokenText("");
-    };
-
-    recognition.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setSpokenText(transcript);
-      setIsListening(false);
-      judgeVoice(transcript);
-    };
-
-    recognition.onerror = () => {
-      setIsListening(false);
-    };
-
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-
-    recognitionRef.current = recognition;
-    recognition.start();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [current, articleMode, contentLang]);
-
-  function handleCorrectAnswer(keepCard = false, winner: "player" | "ai" = "player") {
-    if (!current) return;
-
-    if (winner === "player") {
-      setScore((s) => s + 1);
-      setStreak((s) => s + 1);
-    } else {
-      setAiScore((s) => s + 1);
-      setStreak(0); // AI took it, streak broken
-    }
-
-    // Stop silence timer if any
-    if (silenceTimeoutRef.current) {
-      clearTimeout(silenceTimeoutRef.current);
-      silenceTimeoutRef.current = null;
-    }
-    // Stop AI timer if any
-    if (aiTimeoutRef.current) {
-      clearTimeout(aiTimeoutRef.current);
-      aiTimeoutRef.current = null;
-    }
-
-    if (mode === "karuta" && isSurvival && !keepCard) {
-      // Remove current card from remaining
-      const newPool = remainingCards.filter((c) => c.id !== current.id);
-      setRemainingCards(newPool);
-
-      if (newPool.length === 0) {
-        if (isVsMode) {
-          // Compare scores
-          // We need latest scores. But state updates are async.
-          // We can use updated values if we track them manually or just rely on prev state + 1.
-          const finalPlayerScore = winner === "player" ? score + 1 : score;
-          const finalAiScore = winner === "ai" ? aiScore + 1 : aiScore;
-
-          let msg = "";
-          if (finalPlayerScore > finalAiScore) msg = "YOU WIN!";
-          else if (finalPlayerScore < finalAiScore) msg = "YOU LOSE!";
-          else msg = "DRAW!";
-
-          playChime();
-          alert(`${msg}\nPlayer: ${finalPlayerScore} - AI: ${finalAiScore}`);
-          resetGame();
-        } else {
-          // Time Trial Clear
-          playChime();
-          // Stop Timer
-          if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-
-          // Show Name Input for Ranking
-          // Calculate card count
-          const cardCount = deckSize === "all" ? cards.length : Number(deckSize);
-          setPendingEntry({
-            name: "",
-            time: elapsedTime,
-            date: new Date().toISOString(),
-            cards: cardCount
-          });
-          setNameInputVisible(true);
-        }
-      } else {
-        // Pick random next card
-        const nextIdx = Math.floor(Math.random() * newPool.length);
-        setIndex(nextIdx);
-      }
-    } else if (mode === "karuta" && isSurvival && keepCard) {
-      // Just pick random next card from CURRENT pool (which hasn't changed)
-      const nextIdx = Math.floor(Math.random() * remainingCards.length);
-      setIndex(nextIdx);
-    } else {
-      // Flash mode or normal Karuta
-      nextCard();
-    }
-  }
-
   function judgeKaruta(selectedImage: string) {
     if (!current) return;
+
     unlockAudio();
     unlockSpeech();
-
-    // User interacted, so clear silence timer
-    if (silenceTimeoutRef.current) {
-      clearTimeout(silenceTimeoutRef.current);
-      silenceTimeoutRef.current = null;
-    }
+    clearSilenceTimeout();
 
     const ok = selectedImage === current.image;
     if (ok) {
@@ -943,12 +624,71 @@ export default function Page() {
       setTimeout(() => handleCorrectAnswer(), 1000);
     } else {
       setStreak(0);
-      // In trick mode, if it's a trick sentence (fake), ANY card is wrong.
-      // So this logic holds.
       setFeedback({ value: selectedImage, isCorrect: false });
       playBuzz();
     }
   }
+
+  const startRound = () => {
+    unlockAudio();
+    unlockSpeech();
+    startGame();
+  };
+
+  const handlePauseToggle = () => {
+    if (gameState === "playing") {
+      cancelSpeech();
+      clearSilenceTimeout();
+      cancelAiTurn();
+    }
+
+    togglePause();
+  };
+
+  const handleToggleSurvivalMode = () => {
+    if (isVsMode) return;
+
+    const nextValue = !isSurvival;
+    setIsSurvival(nextValue);
+
+    if (nextValue) {
+      const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
+      const shuffled = shuffle(cards);
+      setRemainingCards(shuffled.slice(0, targetCount));
+      setScore(0);
+      setStreak(0);
+      setIndex(pickRandomIndex(Math.min(targetCount, shuffled.length)));
+      resetGameTimer();
+      return;
+    }
+
+    cancelAiTurn();
+    stopTimer();
+    setRemainingCards(cards);
+    setGameState("playing");
+  };
+
+  const handleToggleVsMode = () => {
+    if (isVsMode) {
+      disableVsMode();
+      setIsSurvival(false);
+      setRemainingCards(cards);
+      setIndex(pickRandomIndex(cards.length));
+    } else {
+      enableVsMode();
+      setIsSurvival(true);
+      const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
+      const shuffled = shuffle(cards);
+      setRemainingCards(shuffled.slice(0, targetCount));
+      setIndex(pickRandomIndex(Math.min(targetCount, shuffled.length)));
+    }
+
+    setScore(0);
+    setStreak(0);
+    setFeedback(null);
+    clearSpokenText();
+    resetGameTimer();
+  };
 
   if (initError) {
     return (
@@ -980,22 +720,18 @@ export default function Page() {
         <div style={{ marginTop: "1rem", color: "#666", fontSize: "0.9rem" }}>
           Status: {step}
         </div>
+        <div id="boot-probe" style={{ marginTop: "0.5rem", color: "#666", fontSize: "0.8rem" }}>
+          BOOT_OK: ...
+          {" / "}
+          HYDRATED_OK: ...
+        </div>
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){var w=window;var el=document.getElementById('boot-probe');if(!el)return;var render=function(){el.textContent='BOOT_OK: '+(w.BOOT_OK===true)+' / HYDRATED_OK: '+(w.HYDRATED_OK===true);};render();setTimeout(render,1500);})();",
+          }}
+        />
       </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <main className={styles.container}>
-        <h1 className={styles.header}>{t.appTitle}</h1>
-        <p style={{ marginTop: 12, color: "red", fontWeight: "bold" }}>Error: {error}</p>
-        <button
-          onClick={() => window.location.reload()}
-          style={{ minWidth: 44, minHeight: 44, marginTop: 16, padding: "8px 16px", background: "#333", color: "#fff", borderRadius: 4 }}
-        >
-          Reload
-        </button>
-      </main>
     );
   }
 
@@ -1011,6 +747,17 @@ export default function Page() {
   return (
     <main className={styles.container}>
       <h1 className={styles.header}>{t.appTitle}</h1>
+      <div className={styles.controlGroup} style={{ marginBottom: 8 }}>
+        <Link href="/" className={`${styles.button} ${styles.tapTarget}`}>
+          トップ
+        </Link>
+        <Link href="/quiz-maker" className={`${styles.button} ${styles.tapTarget}`}>
+          Quiz Maker
+        </Link>
+        <Link href="/phonics" className={`${styles.button} ${styles.tapTarget}`}>
+          oto-man
+        </Link>
+      </div>
 
       {/* Score & Status */}
       <div className={styles.statusRow}>
@@ -1072,7 +819,7 @@ export default function Page() {
             onClick={() => setShowAdvancedControls((v) => !v)}
             className={`${styles.button} ${styles.tapTarget}`}
           >
-            {showAdvancedControls ? "詳細を隠す" : "詳細を表示"}
+            {showAdvancedControls ? "メニューをとじる" : "メニュー"}
           </button>
         </div>
 
@@ -1097,13 +844,7 @@ export default function Page() {
           <div className={styles.controlGroup}>
             <div style={{ opacity: 0.7 }}>|</div>
             <button
-              onClick={() => {
-                setVoiceMode((v) => !v);
-                if (recognitionRef.current) {
-                  recognitionRef.current.abort();
-                  setIsListening(false);
-                }
-              }}
+              onClick={toggleVoiceMode}
               className={`${styles.button} ${voiceMode ? styles.buttonActive : ""}`}
             >
               {t.voiceMode}: {voiceMode ? t.on : t.off}
@@ -1147,7 +888,7 @@ export default function Page() {
             <div className={styles.controlGroup}>
               {gameState === "idle" && (
                 <button
-                  onClick={startGame}
+                  onClick={startRound}
                   className={`${styles.button} ${styles.tapTarget} ${styles.buttonActive}`}
                   style={{ background: "#ff7043", borderColor: "#f4511e" }}
                 >
@@ -1155,18 +896,28 @@ export default function Page() {
                 </button>
               )}
               {gameState === "playing" && (
-                <button onClick={togglePause} className={`${styles.button} ${styles.tapTarget}`}>
-                  ⏸ PAUSE
+                <button onClick={handlePauseToggle} className={`${styles.button} ${styles.tapTarget}`}>
+                  PAUSE
                 </button>
               )}
               {gameState === "paused" && (
                 <button
-                  onClick={togglePause}
+                  onClick={handlePauseToggle}
                   className={`${styles.button} ${styles.tapTarget} ${styles.buttonActive}`}
                   style={{ background: "#42a5f5", borderColor: "#1e88e5" }}
                 >
-                  ▶ RESUME
+                  RESUME
                 </button>
+              )}
+              {(isSurvival || isVsMode) && gameState !== "idle" && (
+                <>
+                  <button onClick={quitSpecialMode} className={`${styles.button} ${styles.tapTarget}`}>
+                    やめる
+                  </button>
+                  <button onClick={resetGame} className={`${styles.button} ${styles.tapTarget}`}>
+                    リセット
+                  </button>
+                </>
               )}
             </div>
 
@@ -1190,23 +941,7 @@ export default function Page() {
                   </div>
 
                   <button
-                    onClick={() => {
-                      if (isVsMode) return;
-                      const newVal = !isSurvival;
-                      setIsSurvival(newVal);
-                      if (newVal) {
-                        const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
-                        const shuffled = shuffle(cards);
-                        setRemainingCards(shuffled.slice(0, targetCount));
-                        setScore(0);
-                        setStreak(0);
-                        setIndex(0);
-                        setGameState("idle");
-                      } else {
-                        setRemainingCards(cards);
-                        setGameState("playing");
-                      }
-                    }}
+                    onClick={handleToggleSurvivalMode}
                     className={`${styles.button} ${styles.tapTarget} ${isSurvival ? styles.buttonSurvival : ""}`}
                     style={{ opacity: isVsMode ? 0.5 : 1, cursor: isVsMode ? "not-allowed" : "pointer" }}
                   >
@@ -1217,15 +952,7 @@ export default function Page() {
                 <div className={styles.controlGroup}>
                   <div style={{ opacity: 0.7 }}>|</div>
                   <button
-                    onClick={() => {
-                      toggleVsMode();
-                      if (!isVsMode) {
-                        const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
-                        const shuffled = shuffle(cards);
-                        setRemainingCards(shuffled.slice(0, targetCount));
-                        setIndex(0);
-                      }
-                    }}
+                    onClick={handleToggleVsMode}
                     className={`${styles.button} ${styles.tapTarget} ${isVsMode ? styles.buttonActive : ""}`}
                   >
                     VS AI: {isVsMode ? t.on : t.off}
@@ -1234,7 +961,7 @@ export default function Page() {
                   {isVsMode && (
                     <select
                       value={aiLevel}
-                      onChange={(e) => changeAiLevel(e.target.value as any)}
+                      onChange={(e) => changeAiLevel(e.target.value as typeof aiLevel)}
                       className={styles.select}
                       style={{ marginLeft: 4 }}
                     >
@@ -1275,7 +1002,8 @@ export default function Page() {
                 className={styles.flashImageContainer}
                 onClick={() => {
                   unlockAudio();
-                  speak(getSentence(current), getLangCode());
+                  unlockSpeech();
+                  handleSpeak();
                 }}
                 style={{ cursor: "pointer" }}
               >
@@ -1302,7 +1030,7 @@ export default function Page() {
                     className={`${styles.voiceButton} ${isListening ? styles.voiceButtonListening : ""}`}
                     disabled={isListening}
                   >
-                    {isListening ? `🎤 ${t.listening}` : "🎤"}
+                    {isListening ? `${t.voiceMode}: ${t.listening}` : `${t.voiceMode}: ${t.speak}`}
                   </button>
 
                   {spokenText && (
@@ -1319,7 +1047,14 @@ export default function Page() {
                   )}
 
                   <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
-                    <button onClick={() => speak(getSentence(current), getLangCode())} className={`${styles.button} ${styles.tapTarget}`}>
+                    <button
+                      onClick={() => {
+                        unlockAudio();
+                        unlockSpeech();
+                        handleSpeak();
+                      }}
+                      className={`${styles.button} ${styles.tapTarget}`}
+                    >
                       {t.speak}
                     </button>
                     <button onClick={nextCard} className={`${styles.button} ${styles.tapTarget}`}>
@@ -1363,13 +1098,9 @@ export default function Page() {
               <div className={styles.controlGroup}>
                 <button
                   onClick={() => {
-                    if (isTrickActive && trickSentence) {
-                      speakQueue([trickSentence.s, trickSentence.v, trickSentence.o], 300, getLangCode());
-                    } else if (isTrickActive) {
-                      speakQueue([getSubject(current), getVerb(current), getObject(current)], 300, getLangCode());
-                    } else {
-                      speak(getSentence(current), getLangCode());
-                    }
+                    unlockAudio();
+                    unlockSpeech();
+                    handleSpeak();
                   }}
                   className={`${styles.button} ${styles.tapTarget}`}
                   title={t.speak}
@@ -1419,7 +1150,7 @@ export default function Page() {
               <>
                 <div className={styles.overlayText}>PAUSED</div>
                 <button
-                  onClick={togglePause}
+                  onClick={handlePauseToggle}
                   className={styles.overlaySubText}
                   style={{ cursor: "pointer", border: "2px solid white" }}
                 >
@@ -1499,7 +1230,7 @@ export default function Page() {
       )}
 
       <footer className={styles.copyright}>
-        ﾂｩ 2026 Yasuhiro Ohnaka 窶・All rights reserved
+        (c) 2026 Yasuhiro Ohnaka - All rights reserved
       </footer>
     </main >
   );
