@@ -1,6 +1,6 @@
 import Link from "next/link";
-import styles from "./portal.module.css";
 import type { Metadata } from "next";
+import styles from "./portal.module.css";
 
 export const metadata: Metadata = {
   title: "Puzzle Grammar - English Learning Games",
@@ -24,23 +24,23 @@ const apps = [
     title: "Quiz\nMaker",
     desc: "絵を見て英語の文を選ぶ、カード型クイズゲームです。",
     tags: ["FLASH", "KARUTA", "VOICE"],
-    soon: true,
+    soon: false,
   },
   {
     href: "/phonics",
     className: styles.cardPhonics,
     icon: "🔊",
     title: "oto-man",
-    desc: "音を聞いて文字を選び、フォニックスを遊びながら学べます。",
-    tags: ["SOUND", "PUZZLE", "SPEAK"],
-    soon: true,
+    desc: "おとを聞いて、カードをえらんだり、ことばを作ったりして遊べます。",
+    tags: ["おと", "ことば", "カード"],
+    soon: false,
   },
   {
     href: "#",
     className: styles.cardSoon,
     icon: "✨",
     title: "Coming\nSoon",
-    desc: "新しいゲームを準備中です。お楽しみに！",
+    desc: "新しいゲームを準備中です。お楽しみに。",
     tags: ["SOON"],
     soon: true,
   },
@@ -50,9 +50,11 @@ export default function PortalPage() {
   return (
     <main className={styles.portal}>
       <header className={styles.header}>
-        <div className={styles.stars}>★ ★ ★</div>
+        <div className={styles.stars}>☀️ ☁️ ☀️</div>
         <h1 className={styles.logo}>
-          PUZZLE<br />GRAMMAR
+          PUZZLE
+          <br />
+          GRAMMAR
         </h1>
         <p className={styles.subtitle}>English Learning Games</p>
       </header>
@@ -66,7 +68,9 @@ export default function PortalPage() {
               <p className={styles.cardDesc}>{app.desc}</p>
               <div>
                 {app.tags.map((tag) => (
-                  <span key={tag} className={styles.cardTag}>{tag}</span>
+                  <span key={tag} className={styles.cardTag}>
+                    {tag}
+                  </span>
                 ))}
               </div>
             </div>
@@ -77,18 +81,18 @@ export default function PortalPage() {
               <p className={styles.cardDesc}>{app.desc}</p>
               <div>
                 {app.tags.map((tag) => (
-                  <span key={tag} className={styles.cardTag}>{tag}</span>
+                  <span key={tag} className={styles.cardTag}>
+                    {tag}
+                  </span>
                 ))}
               </div>
-              <span className={styles.cardArrow}>→→</span>
+              <span className={styles.cardArrow}>-&gt;</span>
             </Link>
-          )
+          ),
         )}
       </div>
 
-      <footer className={styles.footer}>
-        © 2026 Yasuhiro Ohnaka - All rights reserved
-      </footer>
+      <footer className={styles.footer}>(c) 2026 Yasuhiro Ohnaka - All rights reserved</footer>
     </main>
   );
 }
