@@ -18,6 +18,7 @@ import { hasFatalFeatureGap, runFeatureCheck, type BootStep } from "@/utils/boot
 
 type ViewMode = "setup" | "poster" | "challenge" | "soundQuiz";
 type FeedbackKind = "idle" | "correct" | "tryAgain" | "empty";
+type EntryMode = "direct" | "sound" | "word" | "set";
 
 const LOW_WORD_COUNT_HINT = "ことばが少ないときは、ほかのレベルも 見てみよう。";
 const WORD_AUDIO_GUIDE = "きいて、まねして、こえにだしてみよう。";
@@ -42,6 +43,13 @@ const pickRandomId = (ids: string[], usedIds: string[]): string | null => {
 
 const makeEmptySlots = (word: LessonWord | null): (string | null)[] => (word ? word.phonics.map(() => null) : []);
 
+const getEntryMode = (entry: string | null): EntryMode => {
+    if (entry === "sound" || entry === "word" || entry === "set") {
+        return entry;
+    }
+    return "direct";
+};
+
 export default function PhonicsPage() {
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
     const [bootStep, setBootStep] = useState<BootStep>("boot");
@@ -65,6 +73,7 @@ export default function PhonicsPage() {
     const [soundQuizAnswered, setSoundQuizAnswered] = useState(false);
     const [soundQuizFeedback, setSoundQuizFeedback] = useState("きいて、どのカードか さがそう。");
     const [soundQuizFeedbackKind, setSoundQuizFeedbackKind] = useState<FeedbackKind>("idle");
+    const [entryMode, setEntryMode] = useState<EntryMode>("direct");
 
     const selectedPhonics = useMemo(
         () => selectedIds.map((id) => getPhonicById(id)).filter((phonic): phonic is Phonic => Boolean(phonic)),
@@ -137,6 +146,88 @@ export default function PhonicsPage() {
             setIsAuthorized(false);
             setBootStep("ready");
         }
+
+        const applyEntryMode = () => {
+            const nextEntryMode = getEntryMode(new URLSearchParams(window.location.search).get("entry"));
+            setEntryMode(nextEntryMode);
+
+            if (nextEntryMode === "direct") {
+                return;
+            }
+
+            if (nextEntryMode === "sound") {
+                const soundLevel = PHONICS_LEVELS.find((level) => level.id === "level-0") ?? PHONICS_LEVELS[0];
+                const firstSoundId = soundLevel.targetIds[0] ?? null;
+                setSelectedLevelId(soundLevel.id);
+                setSelectedIds(soundLevel.targetIds);
+                setCurrentWord(null);
+                setUsedWordIds([]);
+                setAnswerSlots([]);
+                setHintLevel(0);
+                setShowAnswer(false);
+                setCurrentSoundTargetId(firstSoundId);
+                setUsedSoundTargetIds(firstSoundId ? [firstSoundId] : []);
+                setSoundQuizAnswered(false);
+                setSoundQuizFeedback("きいて、どのカードか さがそう。");
+                setSoundQuizFeedbackKind("idle");
+                setMode("soundQuiz");
+                setNotice("きいてみよう を おしてね。");
+                return;
+            }
+
+            const wordLevel = PHONICS_LEVELS.find((level) => level.id === "level-1") ?? PHONICS_LEVELS[1] ?? PHONICS_LEVELS[0];
+            const isWordEntry = nextEntryMode === "word";
+            const firstWord =
+                LESSON_WORDS.find(
+                    (word) => word.levelIds.includes(wordLevel.id) && word.phonics.every((id) => wordLevel.targetIds.includes(id)),
+                ) ?? null;
+            setSelectedLevelId(wordLevel.id);
+            setSelectedIds(wordLevel.targetIds);
+            setCurrentWord(isWordEntry ? firstWord : null);
+            setUsedWordIds(isWordEntry && firstWord ? [firstWord.id] : []);
+            setAnswerSlots(isWordEntry ? makeEmptySlots(firstWord) : []);
+            setHintLevel(0);
+            setShowAnswer(false);
+            setFeedback("まずは ことばを きいてみよう。");
+            setFeedbackKind("idle");
+            setCurrentSoundTargetId(null);
+            setUsedSoundTargetIds([]);
+            setSoundQuizAnswered(false);
+            setMode(isWordEntry ? "challenge" : "setup");
+            setNotice(isWordEntry ? "きいて、カードをならべてみよう。" : "レベル1のカードで はじめよう。");
+        };
+
+        applyEntryMode();
+
+        const handleUrlChange = () => applyEntryMode();
+        const originalPushState = window.history.pushState;
+        const originalReplaceState = window.history.replaceState;
+
+        const patchedPushState: History["pushState"] = (...args) => {
+            originalPushState.apply(window.history, args);
+            window.dispatchEvent(new Event("phonics-entry-change"));
+        };
+
+        const patchedReplaceState: History["replaceState"] = (...args) => {
+            originalReplaceState.apply(window.history, args);
+            window.dispatchEvent(new Event("phonics-entry-change"));
+        };
+
+        window.history.pushState = patchedPushState;
+        window.history.replaceState = patchedReplaceState;
+        window.addEventListener("popstate", handleUrlChange);
+        window.addEventListener("phonics-entry-change", handleUrlChange);
+
+        return () => {
+            window.removeEventListener("popstate", handleUrlChange);
+            window.removeEventListener("phonics-entry-change", handleUrlChange);
+            if (window.history.pushState === patchedPushState) {
+                window.history.pushState = originalPushState;
+            }
+            if (window.history.replaceState === patchedReplaceState) {
+                window.history.replaceState = originalReplaceState;
+            }
+        };
     }, []);
 
     const resetAnswerState = (word: LessonWord | null) => {
@@ -420,9 +511,10 @@ export default function PhonicsPage() {
 
     const hintThreeText = currentWord ? [currentWord.text[0], ...currentWord.text.slice(1).split("").map(() => "?")].join(" ") : "";
     const hintFourText = currentWord ? currentWord.phonics.join(" / ") : "";
+    const showWordPrompt = entryMode === "word" || showAnswer;
     const hiddenLetters = currentWord
         ? currentWord.text.split("").map((letter, index) => {
-              if (showAnswer) return letter;
+              if (showWordPrompt) return letter;
               if (hintLevel >= 3 && index === 0) return letter;
               return "?";
           })
@@ -594,6 +686,9 @@ export default function PhonicsPage() {
                             <div className={styles.soundQuizPanel}>
                                 <p className={styles.kicker}>おとあて</p>
                                 <h3>どのカードかな？</h3>
+                                <div className={styles.soundMysterySlot} aria-label="おとのもんだい">
+                                    <span>[?]</span>
+                                </div>
                                 <div className={styles.bigActions}>
                                     <button className={styles.primaryButton} onClick={playCurrentSoundTarget}>
                                         きいてみよう
@@ -692,10 +787,10 @@ export default function PhonicsPage() {
                                                 type="button"
                                                 aria-label={`${index + 1}ばんめの おと`}
                                             >
-                                                {letter}
+                                                {letter === "?" ? "[?]" : letter}
                                             </button>
                                         ) : (
-                                            <span key={`${letter}-${index}`}>{letter}</span>
+                                            <span key={`${letter}-${index}`}>{letter === "?" ? "[?]" : letter}</span>
                                         )
                                     ))}
                                 </div>
@@ -744,7 +839,7 @@ export default function PhonicsPage() {
                                                     aria-label={
                                                         slotPhonic
                                                             ? `${index + 1}ばんめの ${slotPhonic.symbol}を はずす`
-                                                            : `${index + 1}ばんめは から`
+                                                            : "まだ からの スロット"
                                                     }
                                                     type="button"
                                                 >
@@ -754,7 +849,7 @@ export default function PhonicsPage() {
                                                             <span>{slotPhonic.symbol}</span>
                                                         </>
                                                     ) : (
-                                                        <span>□</span>
+                                                        <span>[?]</span>
                                                     )}
                                                 </button>
                                             );
