@@ -24,8 +24,18 @@ type CorrectWordsByLevel = Record<string, string[]>;
 const LOW_WORD_COUNT_HINT = "ことばが少ないときは、ほかのレベルも 見てみよう。";
 const WORD_AUDIO_GUIDE = "きいて、まねして、こえにだしてみよう。";
 const CORRECT_WORDS_STORAGE_PREFIX = "phonics.correctWords.";
+const LEVEL_4_NEW_SOUND_IDS = ["s", "f", "h"];
 
 const getPhonicById = (id: string): Phonic | undefined => PHONICS_DATA.find((phonic) => phonic.id === id);
+
+const hasLevel4NewSound = (word: LessonWord): boolean => word.phonics.some((id) => LEVEL_4_NEW_SOUND_IDS.includes(id));
+
+const getPreferredWordPool = (levelId: string, words: LessonWord[]): LessonWord[] => {
+    if (levelId !== "level-4") return words;
+
+    const level4NewWords = words.filter(hasLevel4NewSound);
+    return level4NewWords.length > 0 ? level4NewWords : words;
+};
 
 const getLocalDateStamp = (): string => {
     const now = new Date();
@@ -167,6 +177,11 @@ export default function PhonicsPage() {
         [correctWordIdsForLevel, levelWords],
     );
 
+    const preferredAvailableWords = useMemo(
+        () => getPreferredWordPool(selectedLevel.id, availableWords),
+        [availableWords, selectedLevel.id],
+    );
+
     const isLevelCompleteToday = selectedLevel.mode !== "practice-first" && levelWords.length > 0 && availableWords.length === 0;
 
     const answerPhonics = useMemo(
@@ -221,7 +236,7 @@ export default function PhonicsPage() {
         setCorrectWordsByLevel(nextCorrectWords);
         setUsedWordIds([]);
 
-        const nextWord = pickRandomWord(levelWords, []);
+        const nextWord = pickRandomWord(getPreferredWordPool(selectedLevel.id, levelWords), []);
         setCurrentWord(nextWord);
         resetAnswerState(nextWord);
         setNotice(nextWord ? "もういちど やってみよう。" : "レベルを えらびなおしてみよう。");
@@ -457,7 +472,7 @@ export default function PhonicsPage() {
             return;
         }
 
-        const nextWord = pickRandomWord(availableWords, usedWordIds);
+        const nextWord = pickRandomWord(preferredAvailableWords, usedWordIds);
         setCurrentWord(nextWord);
         resetAnswerState(nextWord);
 
