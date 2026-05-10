@@ -19,11 +19,50 @@ import { hasFatalFeatureGap, runFeatureCheck, type BootStep } from "@/utils/boot
 type ViewMode = "setup" | "poster" | "challenge" | "soundQuiz";
 type FeedbackKind = "idle" | "correct" | "tryAgain" | "empty";
 type EntryMode = "direct" | "sound" | "word" | "set";
+type CorrectWordsByLevel = Record<string, string[]>;
 
 const LOW_WORD_COUNT_HINT = "ことばが少ないときは、ほかのレベルも 見てみよう。";
 const WORD_AUDIO_GUIDE = "きいて、まねして、こえにだしてみよう。";
+const CORRECT_WORDS_STORAGE_PREFIX = "phonics.correctWords.";
 
 const getPhonicById = (id: string): Phonic | undefined => PHONICS_DATA.find((phonic) => phonic.id === id);
+
+const getLocalDateStamp = (): string => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const date = String(now.getDate()).padStart(2, "0");
+    return `${year}-${month}-${date}`;
+};
+
+const getCorrectWordsStorageKey = (): string => `${CORRECT_WORDS_STORAGE_PREFIX}${getLocalDateStamp()}`;
+
+const parseCorrectWordsByLevel = (value: string | null): CorrectWordsByLevel => {
+    if (!value) return {};
+
+    try {
+        const parsed = JSON.parse(value) as unknown;
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+
+        return Object.fromEntries(
+            Object.entries(parsed)
+                .filter((entry): entry is [string, unknown[]] => Array.isArray(entry[1]))
+                .map(([levelId, wordIds]) => [levelId, wordIds.filter((wordId): wordId is string => typeof wordId === "string")]),
+        );
+    } catch {
+        return {};
+    }
+};
+
+const readCorrectWordsByLevelFromStorage = (): CorrectWordsByLevel => {
+    if (typeof window === "undefined") return {};
+
+    try {
+        return parseCorrectWordsByLevel(window.localStorage.getItem(getCorrectWordsStorageKey()));
+    } catch {
+        return {};
+    }
+};
 
 const pickRandomWord = (words: LessonWord[], usedWordIds: string[]): LessonWord | null => {
     if (words.length === 0) return null;
@@ -96,6 +135,9 @@ export default function PhonicsPage() {
     const [soundQuizFeedback, setSoundQuizFeedback] = useState("きいて、どのカードか さがそう。");
     const [soundQuizFeedbackKind, setSoundQuizFeedbackKind] = useState<FeedbackKind>("idle");
     const [entryMode, setEntryMode] = useState<EntryMode>("direct");
+    const [correctWordsByLevel, setCorrectWordsByLevel] = useState<CorrectWordsByLevel>(() =>
+        readCorrectWordsByLevelFromStorage(),
+    );
 
     const selectedPhonics = useMemo(
         () => selectedIds.map((id) => getPhonicById(id)).filter((phonic): phonic is Phonic => Boolean(phonic)),
@@ -107,13 +149,25 @@ export default function PhonicsPage() {
         [selectedLevelId],
     );
 
-    const availableWords = useMemo(
+    const levelWords = useMemo(
         () =>
             LESSON_WORDS.filter(
                 (word) => word.levelIds.includes(selectedLevel.id) && word.phonics.every((id) => selectedIds.includes(id)),
             ),
         [selectedIds, selectedLevel.id],
     );
+
+    const correctWordIdsForLevel = useMemo(
+        () => correctWordsByLevel[selectedLevel.id] ?? [],
+        [correctWordsByLevel, selectedLevel.id],
+    );
+
+    const availableWords = useMemo(
+        () => levelWords.filter((word) => !correctWordIdsForLevel.includes(word.id)),
+        [correctWordIdsForLevel, levelWords],
+    );
+
+    const isLevelCompleteToday = selectedLevel.mode !== "practice-first" && levelWords.length > 0 && availableWords.length === 0;
 
     const answerPhonics = useMemo(
         () =>
@@ -140,6 +194,37 @@ export default function PhonicsPage() {
             const message = err instanceof Error ? err.message : "storage_access_failed";
             setStorageError(message);
         }
+    };
+
+    const writeCorrectWordsByLevel = (nextCorrectWords: CorrectWordsByLevel): void => {
+        safeSetLocalStorage(getCorrectWordsStorageKey(), JSON.stringify(nextCorrectWords));
+    };
+
+    const markWordCorrectToday = (levelId: string, wordId: string): void => {
+        setCorrectWordsByLevel((current) => {
+            const currentLevelWords = current[levelId] ?? [];
+            if (currentLevelWords.includes(wordId)) return current;
+
+            const nextCorrectWords = {
+                ...current,
+                [levelId]: [...currentLevelWords, wordId],
+            };
+            writeCorrectWordsByLevel(nextCorrectWords);
+            return nextCorrectWords;
+        });
+    };
+
+    const resetTodayCorrectWordsForLevel = (): void => {
+        const nextCorrectWords = { ...correctWordsByLevel };
+        delete nextCorrectWords[selectedLevel.id];
+        writeCorrectWordsByLevel(nextCorrectWords);
+        setCorrectWordsByLevel(nextCorrectWords);
+        setUsedWordIds([]);
+
+        const nextWord = pickRandomWord(levelWords, []);
+        setCurrentWord(nextWord);
+        resetAnswerState(nextWord);
+        setNotice(nextWord ? "もういちど やってみよう。" : "レベルを えらびなおしてみよう。");
     };
 
     useEffect(() => {
@@ -171,6 +256,7 @@ export default function PhonicsPage() {
 
         const applyEntryMode = () => {
             const nextEntryMode = getEntryMode(new URLSearchParams(window.location.search).get("entry"));
+            const latestCorrectWords = readCorrectWordsByLevelFromStorage();
             setEntryMode(nextEntryMode);
 
             if (nextEntryMode === "direct") {
@@ -199,9 +285,13 @@ export default function PhonicsPage() {
 
             const wordLevel = PHONICS_LEVELS.find((level) => level.id === "level-1") ?? PHONICS_LEVELS[1] ?? PHONICS_LEVELS[0];
             const isWordEntry = nextEntryMode === "word";
+            const correctWordIds = latestCorrectWords[wordLevel.id] ?? [];
             const firstWord =
                 LESSON_WORDS.find(
-                    (word) => word.levelIds.includes(wordLevel.id) && word.phonics.every((id) => wordLevel.targetIds.includes(id)),
+                    (word) =>
+                        word.levelIds.includes(wordLevel.id) &&
+                        word.phonics.every((id) => wordLevel.targetIds.includes(id)) &&
+                        !correctWordIds.includes(word.id),
                 ) ?? null;
             setSelectedLevelId(wordLevel.id);
             setSelectedIds(wordLevel.targetIds);
@@ -361,7 +451,7 @@ export default function PhonicsPage() {
     };
 
     const chooseNextWord = (keepCurrent = false) => {
-        if (keepCurrent && currentWord) {
+        if (keepCurrent && currentWord && !correctWordIdsForLevel.includes(currentWord.id)) {
             resetAnswerState(currentWord);
             setFeedback("もういっかい やってみよう。");
             return;
@@ -375,8 +465,20 @@ export default function PhonicsPage() {
             setUsedWordIds((current) => (current.includes(nextWord.id) ? current : [...current, nextWord.id]));
             setNotice("きいて、カードをならべてみよう。");
         } else {
-            setNotice(selectedLevel.mode === "practice-first" ? "まずは おとカードで なんども きいてみよう。" : `つくれる ことばが まだないよ。${LOW_WORD_COUNT_HINT}`);
-            setFeedback(selectedLevel.mode === "practice-first" ? "レベル0は、おとを きくところから はじめよう。" : "レベルを えらびなおしてみよう。");
+            setNotice(
+                selectedLevel.mode === "practice-first"
+                    ? "まずは おとカードで なんども きいてみよう。"
+                    : isLevelCompleteToday
+                      ? "きょうの クイズは ぜんぶ できた！"
+                      : `つくれる ことばが まだないよ。${LOW_WORD_COUNT_HINT}`,
+            );
+            setFeedback(
+                selectedLevel.mode === "practice-first"
+                    ? "レベル0は、おとを きくところから はじめよう。"
+                    : isLevelCompleteToday
+                      ? "また あした あそぼう。"
+                      : "レベルを えらびなおしてみよう。",
+            );
         }
     };
 
@@ -497,6 +599,7 @@ export default function PhonicsPage() {
 
         const isCorrect = currentWord.phonics.every((id, index) => answerSlots[index] === id);
         if (isCorrect) {
+            markWordCorrectToday(selectedLevel.id, currentWord.id);
             setFeedback("できた！");
             setFeedbackKind("correct");
         } else {
@@ -609,7 +712,7 @@ export default function PhonicsPage() {
                 <button
                     className={mode === "challenge" || mode === "soundQuiz" ? styles.modeActive : styles.modeButton}
                     onClick={startChallenge}
-                    disabled={selectedLevel.mode !== "practice-first" && availableWords.length === 0}
+                    disabled={selectedLevel.mode !== "practice-first" && levelWords.length === 0}
                 >
                     {selectedLevel.mode === "practice-first" ? "3. おとを さがそう" : "3. クイズに ちょうせん！"}
                 </button>
@@ -659,9 +762,10 @@ export default function PhonicsPage() {
                     </div>
 
                     <div className={styles.summaryBar}>
-                        <span>つくれる ことば: {availableWords.length}</span>
-                        <span>{availableWords.map((word) => word.text).join(", ") || "まだないよ"}</span>
-                        {availableWords.length < 3 && <span className={styles.warningText}>{LOW_WORD_COUNT_HINT}</span>}
+                        <span>つくれる ことば: {levelWords.length}</span>
+                        {selectedLevel.mode !== "practice-first" && <span>きょう のこり {availableWords.length}もん</span>}
+                        <span>{availableWords.map((word) => word.text).join(", ") || (isLevelCompleteToday ? "きょうは ぜんぶ できた！" : "まだないよ")}</span>
+                        {availableWords.length < 3 && !isLevelCompleteToday && <span className={styles.warningText}>{LOW_WORD_COUNT_HINT}</span>}
                     </div>
                 </section>
             )}
@@ -676,7 +780,7 @@ export default function PhonicsPage() {
                         <button
                             className={styles.primaryButton}
                             onClick={startChallenge}
-                            disabled={selectedLevel.mode !== "practice-first" && availableWords.length === 0}
+                            disabled={selectedLevel.mode !== "practice-first" && levelWords.length === 0}
                         >
                             {selectedLevel.mode === "practice-first" ? "おとあてへ" : "クイズへ"}
                         </button>
@@ -794,7 +898,7 @@ export default function PhonicsPage() {
                                 <h2>クイズに ちょうせん！</h2>
                             </div>
                             <div className={styles.countBadge}>
-                                {usedWordIds.length}/{availableWords.length}
+                                のこり {availableWords.length}もん
                             </div>
                         </div>
 
@@ -930,11 +1034,23 @@ export default function PhonicsPage() {
                             </>
                         ) : (
                             <div className={styles.emptyState}>
-                                <h2>つくれる ことばが ないよ</h2>
-                                <p>レベルを えらびなおしてみよう。</p>
-                                <button className={styles.primaryButton} onClick={() => setMode("setup")}>
-                                    きょうの おとへ
-                                </button>
+                                {isLevelCompleteToday ? (
+                                    <>
+                                        <h2>きょうの クイズは ぜんぶ できた！</h2>
+                                        <p>また あした あそぼう。</p>
+                                        <button className={styles.primaryButton} onClick={resetTodayCorrectWordsForLevel}>
+                                            もういちど やる
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h2>つくれる ことばが ないよ</h2>
+                                        <p>レベルを えらびなおしてみよう。</p>
+                                        <button className={styles.primaryButton} onClick={() => setMode("setup")}>
+                                            きょうの おとへ
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         )}
                     </section>
