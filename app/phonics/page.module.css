@@ -522,6 +522,13 @@
     font-size: clamp(1.25rem, 2vw, 1.6rem);
 }
 
+.answerSlotsWrapper {
+    position: relative;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
 .answerSlots {
     display: flex;
     flex-wrap: wrap;
@@ -569,6 +576,72 @@
 .answerSlotFilled span {
     font-size: 1.8rem;
     font-weight: 1000;
+}
+
+.correctMarkOverlay {
+    position: absolute;
+    inset: -42px -62px;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    transform: rotate(-4deg);
+}
+
+.correctMarkSvg {
+    width: min(520px, 126%);
+    min-width: 300px;
+    height: auto;
+    overflow: visible;
+    opacity: 0.94;
+    filter: drop-shadow(0 5px 0 rgba(171, 24, 30, 0.12));
+}
+
+.hanamaruLine,
+.hanamaruInnerLine,
+.hanamaruAccentLine {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.hanamaruLine {
+    stroke: #f04445;
+    stroke-width: 18;
+}
+
+.hanamaruInnerLine {
+    stroke: #ff514f;
+    stroke-width: 15;
+}
+
+.hanamaruAccentLine {
+    stroke: #ff8075;
+    stroke-width: 8;
+    opacity: 0.62;
+}
+
+.incorrectSlotBadge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(86px, 22vw, 126px);
+    height: clamp(86px, 22vw, 126px);
+    border: 6px solid #ffcf4d;
+    border-radius: 999px;
+    background: rgba(255, 248, 217, 0.94);
+    color: #9b6b00;
+    font-size: clamp(4.8rem, 14vw, 7.2rem);
+    font-weight: 1000;
+    line-height: 1;
+    box-shadow: 0 8px 0 rgba(138, 90, 0, 0.14);
+    pointer-events: none;
+    transform: translate(-50%, -50%) rotate(4deg);
 }
 
 .feedback {
@@ -621,30 +694,18 @@
 
 .hanamaruBadge {
     position: relative;
-    color: #9f2f51;
+    min-height: 128px;
 }
 
-.hanamaruBadge::before {
-    content: "";
-    position: absolute;
-    width: 132px;
-    height: 132px;
-    border-radius: 999px;
-    background:
-        radial-gradient(circle at 50% 50%, #fff7f9 0 38%, transparent 39%),
-        radial-gradient(circle at 50% 4%, #ff9fbe 0 14%, transparent 15%),
-        radial-gradient(circle at 84% 16%, #ffb3c9 0 14%, transparent 15%),
-        radial-gradient(circle at 96% 50%, #ff9fbe 0 14%, transparent 15%),
-        radial-gradient(circle at 84% 84%, #ffb3c9 0 14%, transparent 15%),
-        radial-gradient(circle at 50% 96%, #ff9fbe 0 14%, transparent 15%),
-        radial-gradient(circle at 16% 84%, #ffb3c9 0 14%, transparent 15%),
-        radial-gradient(circle at 4% 50%, #ff9fbe 0 14%, transparent 15%),
-        radial-gradient(circle at 16% 16%, #ffb3c9 0 14%, transparent 15%);
-    filter: drop-shadow(0 8px 0 rgba(159, 47, 81, 0.14));
-    z-index: 0;
+.hanamaruStamp {
+    width: min(240px, 80vw);
+    height: auto;
+    overflow: visible;
+    opacity: 0.94;
+    transform: rotate(-4deg);
+    filter: drop-shadow(0 6px 0 rgba(171, 24, 30, 0.12));
 }
 
-.hanamaruCircle,
 .questionBadge span {
     position: relative;
     z-index: 1;
@@ -655,21 +716,6 @@
     height: 104px;
     font-size: clamp(4.8rem, 12vw, 7rem);
     font-weight: 1000;
-}
-
-.hanamaruCircle {
-    color: #f15b84;
-    text-shadow: 0 4px 0 #ffe1ea;
-}
-
-.hanamaruBadge strong {
-    position: relative;
-    z-index: 1;
-    padding: 8px 16px;
-    border: 3px solid #f15b84;
-    background: #fff7f9;
-    color: #9f2f51;
-    box-shadow: 4px 4px 0 rgba(159, 47, 81, 0.14);
 }
 
 .questionBadge {
@@ -737,6 +783,7 @@
     justify-content: center;
     gap: 10px;
     margin-top: 18px;
+    margin-bottom: 16px;
 }
 
 .answerCard {
@@ -959,6 +1006,23 @@
         height: 68px;
     }
 
+    .correctMarkOverlay {
+        inset: -24px -26px;
+    }
+
+    .correctMarkSvg {
+        width: 128%;
+        min-width: 238px;
+    }
+
+    .incorrectSlotBadge {
+        width: 82px;
+        height: 82px;
+        border-width: 4px;
+        font-size: 4.8rem;
+        box-shadow: 0 5px 0 rgba(138, 90, 0, 0.12);
+    }
+
     .resultBadge {
         min-height: 112px;
         margin: 10px auto 8px;
@@ -969,20 +1033,21 @@
         font-size: 1.25rem;
     }
 
-    .hanamaruBadge::before {
-        width: 100px;
-        height: 100px;
-        filter: drop-shadow(0 5px 0 rgba(159, 47, 81, 0.12));
+    .hanamaruBadge {
+        min-height: 100px;
     }
 
-    .hanamaruCircle,
+    .hanamaruStamp {
+        width: min(190px, 78vw);
+        filter: drop-shadow(0 5px 0 rgba(171, 24, 30, 0.1));
+    }
+
     .questionBadge span {
         width: 82px;
         height: 82px;
         font-size: clamp(4rem, 18vw, 5.2rem);
     }
 
-    .hanamaruBadge strong,
     .questionBadge strong {
         padding: 6px 12px;
     }

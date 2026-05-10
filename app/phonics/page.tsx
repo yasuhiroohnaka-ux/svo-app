@@ -99,12 +99,26 @@ const getEntryMode = (entry: string | null): EntryMode => {
     return "direct";
 };
 
+const HanamaruMark = ({ className }: { className?: string }) => (
+    <svg className={className} viewBox="0 0 520 260" aria-hidden="true" focusable="false">
+        <path
+            className={styles.hanamaruLine}
+            d="M260 37 C302 -8 372 12 372 70 C432 58 480 106 438 151 C462 206 385 229 338 195 C313 250 224 240 202 195 C145 224 82 181 116 129 C62 88 119 37 178 61 C190 8 242 -4 260 37 Z"
+        />
+        <path
+            className={styles.hanamaruInnerLine}
+            d="M301 86 C233 64 181 118 206 171 C233 228 344 196 344 125 C344 74 255 66 231 127 C213 173 274 192 308 154 C335 124 306 103 273 115"
+        />
+        <path className={styles.hanamaruAccentLine} d="M118 92 C136 81 153 75 174 72" />
+        <path className={styles.hanamaruAccentLine} d="M382 78 C406 80 425 89 440 105" />
+    </svg>
+);
+
 const FeedbackBadge = ({ kind }: { kind: FeedbackKind }) => {
     if (kind === "correct") {
         return (
-            <div className={`${styles.resultBadge} ${styles.hanamaruBadge}`} aria-label="はなまる">
-                <span className={styles.hanamaruCircle}>◎</span>
-                <strong>はなまる！</strong>
+            <div className={`${styles.resultBadge} ${styles.hanamaruBadge}`} aria-label="正解">
+                <HanamaruMark className={styles.hanamaruStamp} />
             </div>
         );
     }
@@ -605,14 +619,18 @@ export default function PhonicsPage() {
     };
 
     const checkAnswer = () => {
-        if (!currentWord) return;
-        if (answerSlots.some((slot) => slot === null)) {
+        if (!currentWord || showAnswer) return;
+
+        const isIncomplete = answerSlots.length !== currentWord.phonics.length || answerSlots.some((slot) => slot === null);
+        if (isIncomplete) {
+            setShowAnswer(false);
             setFeedback("まだ あいている ところが あるよ。");
             setFeedbackKind("empty");
             return;
         }
 
         const isCorrect = currentWord.phonics.every((id, index) => answerSlots[index] === id);
+        setShowAnswer(false);
         if (isCorrect) {
             markWordCorrectToday(selectedLevel.id, currentWord.id);
             setFeedback("できた！");
@@ -626,9 +644,14 @@ export default function PhonicsPage() {
     const showFinalAnswer = () => {
         if (!currentWord) return;
         setShowAnswer(true);
-        setAnswerSlots([...currentWord.phonics]);
-        setFeedback("こたえを たしかめよう。");
-        setFeedbackKind("correct");
+        setFeedback("自分のこたえと、ただしい ならびを 見くらべよう。");
+        setFeedbackKind("idle");
+    };
+
+    const retryAfterAnswerCheck = () => {
+        setShowAnswer(false);
+        setFeedback("もういちど ならべてみよう。");
+        setFeedbackKind("idle");
     };
 
     const handleDragStart = (event: DragEvent<HTMLButtonElement>, id: string) => {
@@ -968,34 +991,46 @@ export default function PhonicsPage() {
 
                                 <section className={styles.slotPanel} aria-label="こたえスロット">
                                     <h3>カードをならべよう</h3>
-                                    <div className={styles.answerSlots}>
-                                        {answerSlots.map((slotId, index) => {
-                                            const slotPhonic = slotId ? getPhonicById(slotId) : null;
-                                            return (
-                                                <button
-                                                    key={`${currentWord.id}-slot-${index}`}
-                                                    className={slotPhonic ? styles.answerSlotFilled : styles.answerSlot}
-                                                    onClick={() => removeSlot(index)}
-                                                    onDragOver={(event) => event.preventDefault()}
-                                                    onDrop={(event) => handleSlotDrop(event, index)}
-                                                    aria-label={
-                                                        slotPhonic
-                                                            ? `${index + 1}ばんめの ${slotPhonic.symbol}を はずす`
-                                                            : "まだ からの スロット"
-                                                    }
-                                                    type="button"
-                                                >
-                                                    {slotPhonic ? (
-                                                        <>
-                                                            <Image src={slotPhonic.image} alt="" width={130} height={90} />
-                                                            <span>{slotPhonic.symbol}</span>
-                                                        </>
-                                                    ) : (
-                                                        <span>[?]</span>
-                                                    )}
-                                                </button>
-                                            );
-                                        })}
+                                    <div className={styles.answerSlotsWrapper}>
+                                        <div className={styles.answerSlots}>
+                                            {answerSlots.map((slotId, index) => {
+                                                const slotPhonic = slotId ? getPhonicById(slotId) : null;
+                                                return (
+                                                    <button
+                                                        key={`${currentWord.id}-slot-${index}`}
+                                                        className={slotPhonic ? styles.answerSlotFilled : styles.answerSlot}
+                                                        onClick={() => removeSlot(index)}
+                                                        onDragOver={(event) => event.preventDefault()}
+                                                        onDrop={(event) => handleSlotDrop(event, index)}
+                                                        aria-label={
+                                                            slotPhonic
+                                                                ? `${index + 1}ばんめの ${slotPhonic.symbol}を はずす`
+                                                                : "まだ からの スロット"
+                                                        }
+                                                        type="button"
+                                                    >
+                                                        {slotPhonic ? (
+                                                            <>
+                                                                <Image src={slotPhonic.image} alt="" width={130} height={90} />
+                                                                <span>{slotPhonic.symbol}</span>
+                                                            </>
+                                                        ) : (
+                                                            <span>[?]</span>
+                                                        )}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        {feedbackKind === "correct" && !showAnswer && (
+                                            <div className={styles.correctMarkOverlay} aria-label="正解のしるし" role="img">
+                                                <HanamaruMark className={styles.correctMarkSvg} />
+                                            </div>
+                                        )}
+                                        {feedbackKind === "tryAgain" && !showAnswer && (
+                                            <div className={styles.incorrectSlotBadge} aria-label="もういちど考えよう" role="img">
+                                                ?
+                                            </div>
+                                        )}
                                     </div>
                                     <div className={styles.actions}>
                                         <button className={styles.primaryButton} onClick={checkAnswer}>
@@ -1005,10 +1040,9 @@ export default function PhonicsPage() {
                                             からにする
                                         </button>
                                         <button className={styles.answerButton} onClick={showFinalAnswer}>
-                                            こたえを みる
+                                            こたえあわせ
                                         </button>
                                     </div>
-                                    <FeedbackBadge kind={feedbackKind} />
                                     <p className={`${styles.feedback} ${styles[feedbackKind]}`}>{feedback}</p>
                                 </section>
 
@@ -1022,7 +1056,7 @@ export default function PhonicsPage() {
 
                                 {showAnswer && (
                                     <div className={styles.answerPanel}>
-                                        <p>こたえ</p>
+                                        <p>ただしい ならび</p>
                                         <div className={styles.answerWord}>{currentWord.text}</div>
                                         <div className={styles.answerCards}>
                                             {answerPhonics.map((phonic, index) => (
@@ -1032,6 +1066,9 @@ export default function PhonicsPage() {
                                                 </div>
                                             ))}
                                         </div>
+                                        <button className={styles.secondaryButton} onClick={retryAfterAnswerCheck}>
+                                            さいチャレンジ
+                                        </button>
                                     </div>
                                 )}
 
