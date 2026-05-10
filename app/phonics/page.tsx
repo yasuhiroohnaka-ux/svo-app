@@ -149,7 +149,6 @@ export default function PhonicsPage() {
     const [usedWordIds, setUsedWordIds] = useState<string[]>([]);
     const [answerSlots, setAnswerSlots] = useState<(string | null)[]>([]);
     const [hintLevel, setHintLevel] = useState(0);
-    const [showAnswer, setShowAnswer] = useState(false);
     const [feedback, setFeedback] = useState("まずは ことばを きいてみよう。");
     const [feedbackKind, setFeedbackKind] = useState<FeedbackKind>("idle");
     const [notice, setNotice] = useState(WORD_AUDIO_GUIDE);
@@ -197,14 +196,6 @@ export default function PhonicsPage() {
     );
 
     const isLevelCompleteToday = selectedLevel.mode !== "practice-first" && levelWords.length > 0 && availableWords.length === 0;
-
-    const answerPhonics = useMemo(
-        () =>
-            currentWord
-                ? currentWord.phonics.map((id) => getPhonicById(id)).filter((phonic): phonic is Phonic => Boolean(phonic))
-                : [],
-        [currentWord],
-    );
 
     const safeGetLocalStorage = (key: string): string | null => {
         try {
@@ -301,7 +292,6 @@ export default function PhonicsPage() {
                 setUsedWordIds([]);
                 setAnswerSlots([]);
                 setHintLevel(0);
-                setShowAnswer(false);
                 setCurrentSoundTargetId(firstSoundId);
                 setUsedSoundTargetIds(firstSoundId ? [firstSoundId] : []);
                 setSoundQuizAnswered(false);
@@ -328,7 +318,6 @@ export default function PhonicsPage() {
             setUsedWordIds(isWordEntry && firstWord ? [firstWord.id] : []);
             setAnswerSlots(isWordEntry ? makeEmptySlots(firstWord) : []);
             setHintLevel(0);
-            setShowAnswer(false);
             setFeedback("まずは ことばを きいてみよう。");
             setFeedbackKind("idle");
             setCurrentSoundTargetId(null);
@@ -374,7 +363,6 @@ export default function PhonicsPage() {
     const resetAnswerState = (word: LessonWord | null) => {
         setAnswerSlots(makeEmptySlots(word));
         setHintLevel(0);
-        setShowAnswer(false);
         setFeedback("まずは ことばを きいてみよう。");
         setFeedbackKind("idle");
     };
@@ -453,7 +441,7 @@ export default function PhonicsPage() {
     };
 
     const playSoundPart = (index: number) => {
-        if (!currentWord || hintLevel < 2 || showAnswer) return;
+        if (!currentWord || hintLevel < 2) return;
 
         const phonicId = currentWord.phonics[index];
         const phonic = getPhonicById(phonicId);
@@ -570,7 +558,7 @@ export default function PhonicsPage() {
     };
 
     const addCardToNextSlot = (id: string) => {
-        if (!currentWord || showAnswer) return;
+        if (!currentWord) return;
 
         const nextEmptyIndex = answerSlots.findIndex((slot) => slot === null);
         if (nextEmptyIndex === -1) {
@@ -589,7 +577,7 @@ export default function PhonicsPage() {
     };
 
     const placeCardInSlot = (id: string, slotIndex: number) => {
-        if (!currentWord || showAnswer) return;
+        if (!currentWord) return;
 
         setAnswerSlots((current) => {
             const next = [...current];
@@ -601,8 +589,6 @@ export default function PhonicsPage() {
     };
 
     const removeSlot = (slotIndex: number) => {
-        if (showAnswer) return;
-
         setAnswerSlots((current) => {
             const next = [...current];
             next[slotIndex] = null;
@@ -619,18 +605,16 @@ export default function PhonicsPage() {
     };
 
     const checkAnswer = () => {
-        if (!currentWord || showAnswer) return;
+        if (!currentWord) return;
 
         const isIncomplete = answerSlots.length !== currentWord.phonics.length || answerSlots.some((slot) => slot === null);
         if (isIncomplete) {
-            setShowAnswer(false);
             setFeedback("まだ あいている ところが あるよ。");
             setFeedbackKind("empty");
             return;
         }
 
         const isCorrect = currentWord.phonics.every((id, index) => answerSlots[index] === id);
-        setShowAnswer(false);
         if (isCorrect) {
             markWordCorrectToday(selectedLevel.id, currentWord.id);
             setFeedback("できた！");
@@ -641,15 +625,7 @@ export default function PhonicsPage() {
         }
     };
 
-    const showFinalAnswer = () => {
-        if (!currentWord) return;
-        setShowAnswer(true);
-        setFeedback("自分のこたえと、ただしい ならびを 見くらべよう。");
-        setFeedbackKind("idle");
-    };
-
-    const retryAfterAnswerCheck = () => {
-        setShowAnswer(false);
+    const retryWordAnswer = () => {
         setFeedback("もういちど ならべてみよう。");
         setFeedbackKind("idle");
     };
@@ -674,7 +650,7 @@ export default function PhonicsPage() {
 
     const hintThreeText = currentWord ? [currentWord.text[0], ...currentWord.text.slice(1).split("").map(() => "?")].join(" ") : "";
     const hintFourText = currentWord ? currentWord.phonics.join(" / ") : "";
-    const showWordPrompt = entryMode === "word" || showAnswer;
+    const showWordPrompt = entryMode === "word";
     const hiddenLetters = currentWord
         ? currentWord.text.split("").map((letter, index) => {
               if (showWordPrompt) return letter;
@@ -910,12 +886,12 @@ export default function PhonicsPage() {
                         <p className={styles.sideNote}>カードをタップすると、あいている ところに入るよ。</p>
                         <div className={styles.sideGrid}>
                             {selectedPhonics.map((phonic) => {
-                                const usedInAnswer = showAnswer && currentWord?.phonics.includes(phonic.id);
+                                const usedInAnswer = feedbackKind === "correct" && currentWord?.phonics.includes(phonic.id);
                                 return (
                                     <button
                                         key={phonic.id}
                                         className={usedInAnswer ? styles.sideCardActive : styles.sideCard}
-                                        draggable={!showAnswer}
+                                        draggable
                                         onClick={() => addCardToNextSlot(phonic.id)}
                                         onDragStart={(event) => handleDragStart(event, phonic.id)}
                                         aria-label={`${phonic.symbol}を 入れる`}
@@ -944,7 +920,7 @@ export default function PhonicsPage() {
                             <>
                                 <div className={styles.blankWord} aria-label="もじのかず">
                                     {hiddenLetters.map((letter, index) => (
-                                        hintLevel >= 2 && !showAnswer ? (
+                                        hintLevel >= 2 ? (
                                             <button
                                                 key={`${letter}-${index}`}
                                                 className={styles.soundSlot}
@@ -1021,12 +997,12 @@ export default function PhonicsPage() {
                                                 );
                                             })}
                                         </div>
-                                        {feedbackKind === "correct" && !showAnswer && (
+                                        {feedbackKind === "correct" && (
                                             <div className={styles.correctMarkOverlay} aria-label="正解のしるし" role="img">
                                                 <HanamaruMark className={styles.correctMarkSvg} />
                                             </div>
                                         )}
-                                        {feedbackKind === "tryAgain" && !showAnswer && (
+                                        {feedbackKind === "tryAgain" && (
                                             <div className={styles.incorrectSlotBadge} aria-label="もういちど考えよう" role="img">
                                                 ?
                                             </div>
@@ -1039,11 +1015,17 @@ export default function PhonicsPage() {
                                         <button className={styles.secondaryButton} onClick={resetSlots}>
                                             からにする
                                         </button>
-                                        <button className={styles.answerButton} onClick={showFinalAnswer}>
-                                            こたえあわせ
-                                        </button>
                                     </div>
                                     <p className={`${styles.feedback} ${styles[feedbackKind]}`}>{feedback}</p>
+                                    {feedbackKind === "tryAgain" && (
+                                        <button
+                                            className={`${styles.secondaryButton} ${styles.retryButton}`}
+                                            onClick={retryWordAnswer}
+                                            type="button"
+                                        >
+                                            さいチャレンジ
+                                        </button>
+                                    )}
                                 </section>
 
                                 <div className={styles.hintBox}>
@@ -1053,24 +1035,6 @@ export default function PhonicsPage() {
                                     {hintLevel >= 3 && <p className={styles.phonemeText}>はじめ: {hintThreeText}</p>}
                                     {hintLevel >= 4 && <p className={styles.phonemeText}>つかうカード: {hintFourText}</p>}
                                 </div>
-
-                                {showAnswer && (
-                                    <div className={styles.answerPanel}>
-                                        <p>ただしい ならび</p>
-                                        <div className={styles.answerWord}>{currentWord.text}</div>
-                                        <div className={styles.answerCards}>
-                                            {answerPhonics.map((phonic, index) => (
-                                                <div key={`${phonic.id}-${index}`} className={styles.answerCard}>
-                                                    <Image src={phonic.image} alt="" width={150} height={100} />
-                                                    <span>{phonic.symbol}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <button className={styles.secondaryButton} onClick={retryAfterAnswerCheck}>
-                                            さいチャレンジ
-                                        </button>
-                                    </div>
-                                )}
 
                                 <div className={styles.actions}>
                                     <button className={styles.primaryButton} onClick={() => chooseNextWord(false)}>
