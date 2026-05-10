@@ -601,6 +601,97 @@
     background: #e7f5ff;
 }
 
+.resultBadge {
+    width: min(360px, 100%);
+    min-height: 148px;
+    margin: 16px auto 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    font-weight: 1000;
+    line-height: 1;
+}
+
+.resultBadge strong {
+    font-size: clamp(1.45rem, 4vw, 2.2rem);
+}
+
+.hanamaruBadge {
+    position: relative;
+    color: #9f2f51;
+}
+
+.hanamaruBadge::before {
+    content: "";
+    position: absolute;
+    width: 132px;
+    height: 132px;
+    border-radius: 999px;
+    background:
+        radial-gradient(circle at 50% 50%, #fff7f9 0 38%, transparent 39%),
+        radial-gradient(circle at 50% 4%, #ff9fbe 0 14%, transparent 15%),
+        radial-gradient(circle at 84% 16%, #ffb3c9 0 14%, transparent 15%),
+        radial-gradient(circle at 96% 50%, #ff9fbe 0 14%, transparent 15%),
+        radial-gradient(circle at 84% 84%, #ffb3c9 0 14%, transparent 15%),
+        radial-gradient(circle at 50% 96%, #ff9fbe 0 14%, transparent 15%),
+        radial-gradient(circle at 16% 84%, #ffb3c9 0 14%, transparent 15%),
+        radial-gradient(circle at 4% 50%, #ff9fbe 0 14%, transparent 15%),
+        radial-gradient(circle at 16% 16%, #ffb3c9 0 14%, transparent 15%);
+    filter: drop-shadow(0 8px 0 rgba(159, 47, 81, 0.14));
+    z-index: 0;
+}
+
+.hanamaruCircle,
+.questionBadge span {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 104px;
+    height: 104px;
+    font-size: clamp(4.8rem, 12vw, 7rem);
+    font-weight: 1000;
+}
+
+.hanamaruCircle {
+    color: #f15b84;
+    text-shadow: 0 4px 0 #ffe1ea;
+}
+
+.hanamaruBadge strong {
+    position: relative;
+    z-index: 1;
+    padding: 8px 16px;
+    border: 3px solid #f15b84;
+    background: #fff7f9;
+    color: #9f2f51;
+    box-shadow: 4px 4px 0 rgba(159, 47, 81, 0.14);
+}
+
+.questionBadge {
+    color: #755200;
+}
+
+.questionBadge span {
+    border: 5px solid #ffcf4d;
+    border-radius: 999px;
+    background: #fff8d9;
+    color: #9b6b00;
+    font-size: clamp(5.6rem, 14vw, 8rem);
+    box-shadow: 0 8px 0 rgba(138, 90, 0, 0.14);
+}
+
+.questionBadge strong {
+    padding: 8px 16px;
+    background: #fff6d5;
+    border: 3px solid #ffcf4d;
+    color: #755200;
+}
+
 .hintBox {
     min-height: 112px;
     margin-top: 18px;
@@ -866,6 +957,39 @@
 
     .answerSlotFilled img {
         height: 68px;
+    }
+
+    .resultBadge {
+        min-height: 112px;
+        margin: 10px auto 8px;
+        gap: 6px;
+    }
+
+    .resultBadge strong {
+        font-size: 1.25rem;
+    }
+
+    .hanamaruBadge::before {
+        width: 100px;
+        height: 100px;
+        filter: drop-shadow(0 5px 0 rgba(159, 47, 81, 0.12));
+    }
+
+    .hanamaruCircle,
+    .questionBadge span {
+        width: 82px;
+        height: 82px;
+        font-size: clamp(4rem, 18vw, 5.2rem);
+    }
+
+    .hanamaruBadge strong,
+    .questionBadge strong {
+        padding: 6px 12px;
+    }
+
+    .questionBadge span {
+        border-width: 4px;
+        box-shadow: 0 5px 0 rgba(138, 90, 0, 0.12);
     }
 
     .hintBox {

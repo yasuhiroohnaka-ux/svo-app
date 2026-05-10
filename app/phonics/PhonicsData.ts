@@ -76,7 +76,7 @@ export const PHONICS_LEVELS: PhonicsLevel[] = [
     {
         id: "level-1",
         label: "レベル1",
-        description: "3もじの ことばを つくろう",
+        description: "3もじの クイズに ちょうせん！",
         targetIds: ["a", "e", "o", "p", "n", "t", "b", "d"],
     },
     {

@@ -50,6 +50,28 @@ const getEntryMode = (entry: string | null): EntryMode => {
     return "direct";
 };
 
+const FeedbackBadge = ({ kind }: { kind: FeedbackKind }) => {
+    if (kind === "correct") {
+        return (
+            <div className={`${styles.resultBadge} ${styles.hanamaruBadge}`} aria-label="はなまる">
+                <span className={styles.hanamaruCircle}>◎</span>
+                <strong>はなまる！</strong>
+            </div>
+        );
+    }
+
+    if (kind === "tryAgain") {
+        return (
+            <div className={`${styles.resultBadge} ${styles.questionBadge}`} aria-label="もういちど考えよう">
+                <span>?</span>
+                <strong>もういちど</strong>
+            </div>
+        );
+    }
+
+    return null;
+};
+
 export default function PhonicsPage() {
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
     const [bootStep, setBootStep] = useState<BootStep>("boot");
@@ -589,7 +611,7 @@ export default function PhonicsPage() {
                     onClick={startChallenge}
                     disabled={selectedLevel.mode !== "practice-first" && availableWords.length === 0}
                 >
-                    {selectedLevel.mode === "practice-first" ? "3. おとを さがそう" : "3. ことばを つくろう"}
+                    {selectedLevel.mode === "practice-first" ? "3. おとを さがそう" : "3. クイズに ちょうせん！"}
                 </button>
             </section>
 
@@ -656,7 +678,7 @@ export default function PhonicsPage() {
                             onClick={startChallenge}
                             disabled={selectedLevel.mode !== "practice-first" && availableWords.length === 0}
                         >
-                            {selectedLevel.mode === "practice-first" ? "おとあてへ" : "ことばへ"}
+                            {selectedLevel.mode === "practice-first" ? "おとあてへ" : "クイズへ"}
                         </button>
                     </div>
 
@@ -697,6 +719,7 @@ export default function PhonicsPage() {
                                         もういちど きく
                                     </button>
                                 </div>
+                                <FeedbackBadge kind={soundQuizFeedbackKind} />
                                 <p className={`${styles.feedback} ${styles[soundQuizFeedbackKind]}`}>{soundQuizFeedback}</p>
                             </div>
 
@@ -767,8 +790,8 @@ export default function PhonicsPage() {
                     <section className={styles.challengePanel}>
                         <div className={styles.challengeTop}>
                             <div>
-                                <p className={styles.kicker}>ことば</p>
-                                <h2>ことばを つくろう</h2>
+                                <p className={styles.kicker}>クイズ</p>
+                                <h2>クイズに ちょうせん！</h2>
                             </div>
                             <div className={styles.countBadge}>
                                 {usedWordIds.length}/{availableWords.length}
@@ -866,6 +889,7 @@ export default function PhonicsPage() {
                                             こたえを みる
                                         </button>
                                     </div>
+                                    <FeedbackBadge kind={feedbackKind} />
                                     <p className={`${styles.feedback} ${styles[feedbackKind]}`}>{feedback}</p>
                                 </section>
 
