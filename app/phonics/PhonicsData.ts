@@ -10,7 +10,7 @@ export type Word = {
     id: string;
     text: string;
     phonics: string[]; // sequence of phonic IDs
-    level: 1 | 2 | 3;
+    level: 1 | 2 | 3 | 4;
     image?: string;
 };
 
@@ -19,7 +19,7 @@ export type LessonWord = {
     text: string;
     phonics: string[];
     soundParts: string[];
-    level: 1 | 2 | 3;
+    level: 1 | 2 | 3 | 4;
     levelIds: string[];
     note?: string;
     audio?: string;
@@ -63,7 +63,10 @@ export const PHONICS_DATA: Phonic[] = [
     { id: "z", symbol: "z", image: "/images/phonics/cards/z.png", audio: "/audio/phonics/z.m4a", pronunciation: "z" },
 ];
 
-export const PRIORITY_PHONICS_IDS = ["a", "e", "i", "o", "u", "p", "n", "t", "b", "d", "g", "c", "k", "m", "l", "r"];
+const LEVEL3_TARGET_IDS = ["a", "e", "i", "o", "u", "p", "n", "t", "b", "d", "g", "c", "k", "m", "l", "r"];
+const LEVEL4_TARGET_IDS = [...LEVEL3_TARGET_IDS, "s", "f", "h"];
+
+export const PRIORITY_PHONICS_IDS = LEVEL4_TARGET_IDS;
 
 export const PHONICS_LEVELS: PhonicsLevel[] = [
     {
@@ -89,13 +92,19 @@ export const PHONICS_LEVELS: PhonicsLevel[] = [
         id: "level-3",
         label: "レベル3",
         description: "ことばを ふやそう",
-        targetIds: PRIORITY_PHONICS_IDS,
+        targetIds: LEVEL3_TARGET_IDS,
+    },
+    {
+        id: "level-4",
+        label: "レベル4",
+        description: "あたらしい おとで クイズ！",
+        targetIds: LEVEL4_TARGET_IDS,
     },
 ];
 
 export const DEFAULT_LESSON_TARGET_IDS = PHONICS_LEVELS[0].targetIds;
 
-const makeLessonWord = (text: string, phonics: string[], levelIds: string[], level: 1 | 2 | 3 = 1): LessonWord => ({
+const makeLessonWord = (text: string, phonics: string[], levelIds: string[], level: 1 | 2 | 3 | 4 = 1): LessonWord => ({
     id: text,
     text,
     phonics,
@@ -106,43 +115,55 @@ const makeLessonWord = (text: string, phonics: string[], levelIds: string[], lev
 
 export const LESSON_WORDS: LessonWord[] = [
     // Level 1 keeps the first word set concrete and short: a/e/o plus p/n/t/b/d.
-    { ...makeLessonWord("pen", ["p", "e", "n"], ["level-1", "level-2", "level-3"]), wordAudio: "/audio/phonics/words/level1/pen.m4a" },
-    { ...makeLessonWord("pet", ["p", "e", "t"], ["level-1", "level-2", "level-3"]), wordAudio: "/audio/phonics/words/level1/pet.m4a" },
-    { ...makeLessonWord("ten", ["t", "e", "n"], ["level-1", "level-2", "level-3"]), wordAudio: "/audio/phonics/words/level1/ten.m4a" },
-    { ...makeLessonWord("net", ["n", "e", "t"], ["level-1", "level-2", "level-3"]), wordAudio: "/audio/phonics/words/level1/net.m4a" },
-    { ...makeLessonWord("tap", ["t", "a", "p"], ["level-1", "level-2", "level-3"]), wordAudio: "/audio/phonics/words/level1/tap.m4a" },
-    { ...makeLessonWord("pan", ["p", "a", "n"], ["level-1", "level-2", "level-3"]), wordAudio: "/audio/phonics/words/level1/pan.m4a" },
-    { ...makeLessonWord("nap", ["n", "a", "p"], ["level-1", "level-2", "level-3"]), wordAudio: "/audio/phonics/words/level1/nap.m4a" },
-    { ...makeLessonWord("bat", ["b", "a", "t"], ["level-1", "level-2", "level-3"]), wordAudio: "/audio/phonics/words/level1/bat.m4a" },
-    { ...makeLessonWord("bed", ["b", "e", "d"], ["level-1", "level-2", "level-3"]), wordAudio: "/audio/phonics/words/level1/bed.m4a" },
-    { ...makeLessonWord("pot", ["p", "o", "t"], ["level-1", "level-2", "level-3"]), wordAudio: "/audio/phonics/words/level1/pot.m4a" },
-    { ...makeLessonWord("top", ["t", "o", "p"], ["level-1", "level-2", "level-3"]), wordAudio: "/audio/phonics/words/level1/top.m4a" },
+    { ...makeLessonWord("pen", ["p", "e", "n"], ["level-1", "level-2", "level-3", "level-4"]), wordAudio: "/audio/phonics/words/level1/pen.m4a" },
+    { ...makeLessonWord("pet", ["p", "e", "t"], ["level-1", "level-2", "level-3", "level-4"]), wordAudio: "/audio/phonics/words/level1/pet.m4a" },
+    { ...makeLessonWord("ten", ["t", "e", "n"], ["level-1", "level-2", "level-3", "level-4"]), wordAudio: "/audio/phonics/words/level1/ten.m4a" },
+    { ...makeLessonWord("net", ["n", "e", "t"], ["level-1", "level-2", "level-3", "level-4"]), wordAudio: "/audio/phonics/words/level1/net.m4a" },
+    { ...makeLessonWord("tap", ["t", "a", "p"], ["level-1", "level-2", "level-3", "level-4"]), wordAudio: "/audio/phonics/words/level1/tap.m4a" },
+    { ...makeLessonWord("pan", ["p", "a", "n"], ["level-1", "level-2", "level-3", "level-4"]), wordAudio: "/audio/phonics/words/level1/pan.m4a" },
+    { ...makeLessonWord("nap", ["n", "a", "p"], ["level-1", "level-2", "level-3", "level-4"]), wordAudio: "/audio/phonics/words/level1/nap.m4a" },
+    { ...makeLessonWord("bat", ["b", "a", "t"], ["level-1", "level-2", "level-3", "level-4"]), wordAudio: "/audio/phonics/words/level1/bat.m4a" },
+    { ...makeLessonWord("bed", ["b", "e", "d"], ["level-1", "level-2", "level-3", "level-4"]), wordAudio: "/audio/phonics/words/level1/bed.m4a" },
+    { ...makeLessonWord("pot", ["p", "o", "t"], ["level-1", "level-2", "level-3", "level-4"]), wordAudio: "/audio/phonics/words/level1/pot.m4a" },
+    { ...makeLessonWord("top", ["t", "o", "p"], ["level-1", "level-2", "level-3", "level-4"]), wordAudio: "/audio/phonics/words/level1/top.m4a" },
 
     // Level 2 adds i/u and g/m while keeping every word in the CVC pattern.
-    makeLessonWord("bag", ["b", "a", "g"], ["level-2", "level-3"], 2),
-    makeLessonWord("big", ["b", "i", "g"], ["level-2", "level-3"], 2),
-    makeLessonWord("dig", ["d", "i", "g"], ["level-2", "level-3"], 2),
-    makeLessonWord("dog", ["d", "o", "g"], ["level-2", "level-3"], 2),
-    makeLessonWord("mop", ["m", "o", "p"], ["level-2", "level-3"], 2),
-    makeLessonWord("map", ["m", "a", "p"], ["level-2", "level-3"], 2),
-    makeLessonWord("bug", ["b", "u", "g"], ["level-2", "level-3"], 2),
-    makeLessonWord("mug", ["m", "u", "g"], ["level-2", "level-3"], 2),
-    makeLessonWord("gum", ["g", "u", "m"], ["level-2", "level-3"], 2),
-    makeLessonWord("mud", ["m", "u", "d"], ["level-2", "level-3"], 2),
+    makeLessonWord("bag", ["b", "a", "g"], ["level-2", "level-3", "level-4"], 2),
+    makeLessonWord("big", ["b", "i", "g"], ["level-2", "level-3", "level-4"], 2),
+    makeLessonWord("dig", ["d", "i", "g"], ["level-2", "level-3", "level-4"], 2),
+    makeLessonWord("dog", ["d", "o", "g"], ["level-2", "level-3", "level-4"], 2),
+    makeLessonWord("mop", ["m", "o", "p"], ["level-2", "level-3", "level-4"], 2),
+    makeLessonWord("map", ["m", "a", "p"], ["level-2", "level-3", "level-4"], 2),
+    makeLessonWord("bug", ["b", "u", "g"], ["level-2", "level-3", "level-4"], 2),
+    makeLessonWord("mug", ["m", "u", "g"], ["level-2", "level-3", "level-4"], 2),
+    makeLessonWord("gum", ["g", "u", "m"], ["level-2", "level-3", "level-4"], 2),
+    makeLessonWord("mud", ["m", "u", "d"], ["level-2", "level-3", "level-4"], 2),
 
     // Level 3 expands into c/k/l/r with familiar CVC words and useful sound contrasts.
-    makeLessonWord("cat", ["c", "a", "t"], ["level-3"], 3),
-    makeLessonWord("cap", ["c", "a", "p"], ["level-3"], 3),
-    makeLessonWord("cup", ["c", "u", "p"], ["level-3"], 3),
-    makeLessonWord("cut", ["c", "u", "t"], ["level-3"], 3),
-    makeLessonWord("kid", ["k", "i", "d"], ["level-3"], 3),
-    makeLessonWord("kit", ["k", "i", "t"], ["level-3"], 3),
-    makeLessonWord("leg", ["l", "e", "g"], ["level-3"], 3),
-    makeLessonWord("lip", ["l", "i", "p"], ["level-3"], 3),
-    makeLessonWord("log", ["l", "o", "g"], ["level-3"], 3),
-    makeLessonWord("red", ["r", "e", "d"], ["level-3"], 3),
-    makeLessonWord("run", ["r", "u", "n"], ["level-3"], 3),
-    makeLessonWord("rat", ["r", "a", "t"], ["level-3"], 3),
+    makeLessonWord("cat", ["c", "a", "t"], ["level-3", "level-4"], 3),
+    makeLessonWord("cap", ["c", "a", "p"], ["level-3", "level-4"], 3),
+    makeLessonWord("cup", ["c", "u", "p"], ["level-3", "level-4"], 3),
+    makeLessonWord("cut", ["c", "u", "t"], ["level-3", "level-4"], 3),
+    makeLessonWord("kid", ["k", "i", "d"], ["level-3", "level-4"], 3),
+    makeLessonWord("kit", ["k", "i", "t"], ["level-3", "level-4"], 3),
+    makeLessonWord("leg", ["l", "e", "g"], ["level-3", "level-4"], 3),
+    makeLessonWord("lip", ["l", "i", "p"], ["level-3", "level-4"], 3),
+    makeLessonWord("log", ["l", "o", "g"], ["level-3", "level-4"], 3),
+    makeLessonWord("red", ["r", "e", "d"], ["level-3", "level-4"], 3),
+    makeLessonWord("run", ["r", "u", "n"], ["level-3", "level-4"], 3),
+    makeLessonWord("rat", ["r", "a", "t"], ["level-3", "level-4"], 3),
+
+    // Level 4 adds s/f/h but stays inside short-vowel CVC words.
+    makeLessonWord("sun", ["s", "u", "n"], ["level-4"], 4),
+    makeLessonWord("sit", ["s", "i", "t"], ["level-4"], 4),
+    makeLessonWord("sad", ["s", "a", "d"], ["level-4"], 4),
+    makeLessonWord("sip", ["s", "i", "p"], ["level-4"], 4),
+    makeLessonWord("fan", ["f", "a", "n"], ["level-4"], 4),
+    makeLessonWord("fin", ["f", "i", "n"], ["level-4"], 4),
+    makeLessonWord("fog", ["f", "o", "g"], ["level-4"], 4),
+    makeLessonWord("hat", ["h", "a", "t"], ["level-4"], 4),
+    makeLessonWord("hen", ["h", "e", "n"], ["level-4"], 4),
+    makeLessonWord("hot", ["h", "o", "t"], ["level-4"], 4),
 ];
 
 export const WORDS_DATA: Word[] = [
