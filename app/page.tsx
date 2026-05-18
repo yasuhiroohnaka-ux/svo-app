@@ -36,13 +36,13 @@ const apps = [
     soon: false,
   },
   {
-    href: "#",
-    className: styles.cardSoon,
-    icon: "✨",
-    title: "Coming\nSoon",
-    desc: "新しいゲームを準備中です。お楽しみに。",
-    tags: ["SOON"],
-    soon: true,
+    href: "/storyquiz",
+    className: styles.cardStory,
+    icon: "📖",
+    title: "Story\nQuiz",
+    desc: "短い英語ストーリーを聞いて、日本語クイズに答える読解ゲームです。",
+    tags: ["STORY", "VOICE", "QUIZ"],
+    soon: false,
   },
 ];
 

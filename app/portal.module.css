@@ -126,6 +126,10 @@
     --card-accent: #e67e22;
 }
 
+.cardStory {
+    --card-accent: #ff9f43;
+}
+
 .cardSoon {
     --card-accent: #888;
     opacity: 0.6;

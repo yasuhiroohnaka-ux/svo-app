@@ -1,0 +1,868 @@
+{
+  "issue": "no1",
+  "title": "Story Quiz orange no.1",
+  "description": "MVP: Chapter 1 Thumbelina",
+  "parts": [
+    {
+      "id": "no1-ch1-p1",
+      "issue": "no1",
+      "chapterNo": 1,
+      "chapterTitle": "Thumbelina",
+      "partNo": 1,
+      "partTitle": "A tiny girl from the flower",
+      "recommendedGrade": "小1〜2",
+      "keywords": [
+        {
+          "id": "once-upon-a-time",
+          "word": "Once upon a time",
+          "ja": "むかしむかしあるところに",
+          "emoji": "📖",
+          "audioText": "Once upon a time"
+        },
+        {
+          "id": "lonely",
+          "word": "lonely",
+          "ja": "ひとりぼっちの",
+          "emoji": "😢"
+        },
+        {
+          "id": "woman",
+          "word": "woman",
+          "ja": "女の人",
+          "emoji": "👩"
+        },
+        {
+          "id": "kid",
+          "word": "kid",
+          "ja": "子ども",
+          "emoji": "🧒"
+        },
+        {
+          "id": "tiny",
+          "word": "tiny",
+          "ja": "とても小さい",
+          "emoji": "🤏"
+        },
+        {
+          "id": "flower-petal",
+          "word": "flower petal",
+          "ja": "花びら",
+          "emoji": "🌸"
+        }
+      ],
+      "segments": [
+        {
+          "id": "no1-ch1-p1-s1",
+          "text": "Once upon a time, a lonely woman made a wish. \"I want to have a kid!\"",
+          "questionJa": "ひとりぼっちの女の人は、何がほしかったでしょう？",
+          "choices": [
+            {
+              "id": "kid",
+              "labelEn": "a kid",
+              "labelJa": "子ども",
+              "emoji": "🧒"
+            },
+            {
+              "id": "frog",
+              "labelEn": "a frog",
+              "labelJa": "かえる",
+              "emoji": "🐸"
+            },
+            {
+              "id": "flower",
+              "labelEn": "a flower",
+              "labelJa": "花",
+              "emoji": "🌷"
+            }
+          ],
+          "correctChoiceId": "kid",
+          "feedbackCorrectJa": "あたり！a kid だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"I want to have a kid!\" にヒントがあるよ。",
+          "summaryJa": "女の人は kid（子ども）がほしかった"
+        },
+        {
+          "id": "no1-ch1-p1-s2",
+          "text": "Next morning, a beautiful flower bloomed. She found a tiny cute girl inside!",
+          "questionJa": "花の中にいたのは、だれでしょう？",
+          "choices": [
+            {
+              "id": "tiny-girl",
+              "labelEn": "a tiny girl",
+              "labelJa": "とても小さな女の子",
+              "emoji": "👧"
+            },
+            {
+              "id": "bird",
+              "labelEn": "a bird",
+              "labelJa": "小鳥",
+              "emoji": "🐦"
+            },
+            {
+              "id": "mouse",
+              "labelEn": "a mouse",
+              "labelJa": "ねずみ",
+              "emoji": "🐭"
+            }
+          ],
+          "correctChoiceId": "tiny-girl",
+          "feedbackCorrectJa": "そう！a tiny girl だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"a tiny cute girl\" がヒントだよ。",
+          "summaryJa": "花の中に tiny girl がいた"
+        },
+        {
+          "id": "no1-ch1-p1-s3",
+          "text": "\"Nice to meet you!\" Her name was Thumbelina. She was very tiny. She swam in a dish. Her blanket was made of flower petal.",
+          "questionJa": "Thumbelina の毛布は、何でできていたでしょう？",
+          "choices": [
+            {
+              "id": "flower-petal",
+              "labelEn": "flower petal",
+              "labelJa": "花びら",
+              "emoji": "🌸"
+            },
+            {
+              "id": "paper",
+              "labelEn": "paper",
+              "labelJa": "紙",
+              "emoji": "📄"
+            },
+            {
+              "id": "snow",
+              "labelEn": "snow",
+              "labelJa": "雪",
+              "emoji": "❄️"
+            }
+          ],
+          "correctChoiceId": "flower-petal",
+          "feedbackCorrectJa": "あたり！flower petal だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"Her blanket was made of flower petal.\" がヒントだよ。",
+          "summaryJa": "その子の名前は Thumbelina。毛布は flower petal でできていた"
+        },
+        {
+          "id": "no1-ch1-p1-s4",
+          "text": "A lonely woman was very happy and she took care of Thumbelina very well.",
+          "questionJa": "女の人は、Thumbelina とくらしてどんな気持ちだったでしょう？",
+          "choices": [
+            {
+              "id": "happy",
+              "labelEn": "happy",
+              "labelJa": "とてもうれしい",
+              "emoji": "😊"
+            },
+            {
+              "id": "angry",
+              "labelEn": "angry",
+              "labelJa": "おこっている",
+              "emoji": "😠"
+            },
+            {
+              "id": "scared",
+              "labelEn": "scared",
+              "labelJa": "こわかった",
+              "emoji": "😨"
+            }
+          ],
+          "correctChoiceId": "happy",
+          "feedbackCorrectJa": "そう！happy だったね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"very happy\" がヒントだよ。",
+          "summaryJa": "女の人はとても happy で、Thumbelina を大切にした"
+        }
+      ]
+    },
+    {
+      "id": "no1-ch1-p2",
+      "issue": "no1",
+      "chapterNo": 1,
+      "chapterTitle": "Thumbelina",
+      "partNo": 2,
+      "partTitle": "Meeting with a frog",
+      "recommendedGrade": "小1〜2",
+      "keywords": [
+        {
+          "id": "frog",
+          "word": "frog",
+          "ja": "かえる",
+          "emoji": "🐸"
+        },
+        {
+          "id": "noisy",
+          "word": "noisy",
+          "ja": "うるさい",
+          "emoji": "📣"
+        },
+        {
+          "id": "muddy",
+          "word": "muddy",
+          "ja": "どろだらけの",
+          "emoji": "🟫"
+        },
+        {
+          "id": "live",
+          "word": "live",
+          "ja": "住む",
+          "emoji": "🏠"
+        },
+        {
+          "id": "free",
+          "word": "free",
+          "ja": "自由な",
+          "emoji": "🪽"
+        }
+      ],
+      "segments": [
+        {
+          "id": "no1-ch1-p2-s1",
+          "text": "One night. A frog found Thumbelina. She was sleeping.",
+          "questionJa": "ある夜、ねている Thumbelina を見つけたのはだれ？",
+          "choices": [
+            {
+              "id": "frog",
+              "labelEn": "a frog",
+              "labelJa": "かえる",
+              "emoji": "🐸"
+            },
+            {
+              "id": "gold-beetle",
+              "labelEn": "a gold beetle",
+              "labelJa": "こがねむし",
+              "emoji": "🪲"
+            },
+            {
+              "id": "mouse",
+              "labelEn": "a mouse",
+              "labelJa": "ねずみ",
+              "emoji": "🐭"
+            }
+          ],
+          "correctChoiceId": "frog",
+          "feedbackCorrectJa": "そう！a frog だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"A frog found Thumbelina.\" にヒントがあるよ。",
+          "summaryJa": "frog がねている Thumbelina を見つけた"
+        },
+        {
+          "id": "no1-ch1-p2-s2",
+          "text": "\"Wow! She is beautiful!\" The frog took Thumbelina.",
+          "questionJa": "かえるは Thumbelina を見て、どうした？",
+          "choices": [
+            {
+              "id": "took",
+              "labelEn": "took her",
+              "labelJa": "つれていった",
+              "emoji": "🤲"
+            },
+            {
+              "id": "gave-wings",
+              "labelEn": "gave wings",
+              "labelJa": "つばさをあげた",
+              "emoji": "🪽"
+            },
+            {
+              "id": "pulled-leaf",
+              "labelEn": "pulled the leaf",
+              "labelJa": "葉っぱをひっぱった",
+              "emoji": "🍃"
+            }
+          ],
+          "correctChoiceId": "took",
+          "feedbackCorrectJa": "あたり！frog が連れていったね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"The frog took Thumbelina.\" がヒントだよ。",
+          "summaryJa": "frog が Thumbelina を連れていった"
+        },
+        {
+          "id": "no1-ch1-p2-s3",
+          "text": "When Thumbelina woke up, she was with a frog! The frog was noisy! The house was muddy! Thumbelina didn't like it.",
+          "questionJa": "かえるの家はどんなところだった？",
+          "choices": [
+            {
+              "id": "noisy-muddy",
+              "labelEn": "noisy and muddy",
+              "labelJa": "うるさくて、どろだらけ",
+              "emoji": "📣"
+            },
+            {
+              "id": "flower-house",
+              "labelEn": "full of flowers",
+              "labelJa": "花でいっぱい",
+              "emoji": "🌼"
+            },
+            {
+              "id": "quiet-warm",
+              "labelEn": "quiet and warm",
+              "labelJa": "しずかであたたかい",
+              "emoji": "🛏️"
+            }
+          ],
+          "correctChoiceId": "noisy-muddy",
+          "feedbackCorrectJa": "そう！noisy and muddy だったね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"The frog was noisy! The house was muddy!\" がヒントだよ。",
+          "summaryJa": "frog の家は noisy で muddy だった"
+        },
+        {
+          "id": "no1-ch1-p2-s4",
+          "text": "The frog said, \"Why don't you live with us? I will show you my frog friends! Wait for a while!\"",
+          "questionJa": "かえるは Thumbelina に何をしようと言った？",
+          "choices": [
+            {
+              "id": "live-with-us",
+              "labelEn": "live with us",
+              "labelJa": "いっしょに住もう",
+              "emoji": "🏠"
+            },
+            {
+              "id": "fly-away",
+              "labelEn": "fly away",
+              "labelJa": "空を飛ぼう",
+              "emoji": "🪽"
+            },
+            {
+              "id": "make-a-wish",
+              "labelEn": "make a wish",
+              "labelJa": "ねがいごとをしよう",
+              "emoji": "⭐"
+            }
+          ],
+          "correctChoiceId": "live-with-us",
+          "feedbackCorrectJa": "あたり！live with us だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"Why don't you live with us?\" にヒントがあるよ。",
+          "summaryJa": "frog は Thumbelina に live with us と言った"
+        },
+        {
+          "id": "no1-ch1-p2-s5",
+          "text": "Thumbelina was on a leaf alone. She started crying. Then fish gathered up to her. \"We will help you!\" The fish pulled the leaf. Thumbelina was free. \"Thank you, fish!\"",
+          "questionJa": "Thumbelina を自由にしてくれたのはだれ？",
+          "choices": [
+            {
+              "id": "fish",
+              "labelEn": "fish",
+              "labelJa": "さかな",
+              "emoji": "🐟"
+            },
+            {
+              "id": "frog",
+              "labelEn": "frog",
+              "labelJa": "かえる",
+              "emoji": "🐸"
+            },
+            {
+              "id": "mole",
+              "labelEn": "mole",
+              "labelJa": "もぐら",
+              "emoji": "🕳️"
+            }
+          ],
+          "correctChoiceId": "fish",
+          "feedbackCorrectJa": "そう！fish が助けてくれたね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"We will help you!\" と fish が来たよ。",
+          "summaryJa": "fish が葉っぱを引いて、Thumbelina は free になった"
+        }
+      ]
+    },
+    {
+      "id": "no1-ch1-p3",
+      "issue": "no1",
+      "chapterNo": 1,
+      "chapterTitle": "Thumbelina",
+      "partNo": 3,
+      "partTitle": "Meeting with a gold beetle",
+      "recommendedGrade": "小2〜3",
+      "keywords": [
+        {
+          "id": "gold-beetle",
+          "word": "gold beetle",
+          "ja": "こがねむし",
+          "emoji": "🪲"
+        },
+        {
+          "id": "floating",
+          "word": "floating",
+          "ja": "ういている",
+          "emoji": "🛶"
+        },
+        {
+          "id": "river",
+          "word": "river",
+          "ja": "川",
+          "emoji": "🏞️"
+        },
+        {
+          "id": "forest",
+          "word": "forest",
+          "ja": "森",
+          "emoji": "🌲"
+        },
+        {
+          "id": "leaves",
+          "word": "leaves",
+          "ja": "葉っぱ",
+          "emoji": "🍃"
+        }
+      ],
+      "segments": [
+        {
+          "id": "no1-ch1-p3-s1",
+          "text": "Thumbelina was on a leaf. She enjoyed floating on the river.",
+          "questionJa": "Thumbelina は何に乗って川をういていた？",
+          "choices": [
+            {
+              "id": "leaf",
+              "labelEn": "a leaf",
+              "labelJa": "葉っぱ",
+              "emoji": "🍃"
+            },
+            {
+              "id": "dish",
+              "labelEn": "a dish",
+              "labelJa": "お皿",
+              "emoji": "🍽️"
+            },
+            {
+              "id": "back",
+              "labelEn": "a back",
+              "labelJa": "背中",
+              "emoji": "🪽"
+            }
+          ],
+          "correctChoiceId": "leaf",
+          "feedbackCorrectJa": "あたり！a leaf だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"on a leaf\" と \"river\" がヒントだよ。",
+          "summaryJa": "Thumbelina は leaf の上で river をういていた"
+        },
+        {
+          "id": "no1-ch1-p3-s2",
+          "text": "She found a gold beetle. \"Hello! How are you?\" Suddenly a gold beetle caught Thumbelina and took her deep in the forest. She became alone.",
+          "questionJa": "Thumbelina はだれに会って、どこへ連れていかれた？",
+          "choices": [
+            {
+              "id": "gold-beetle-forest",
+              "labelEn": "a gold beetle / forest",
+              "labelJa": "こがねむしに会い、森の奥へ",
+              "emoji": "🌲"
+            },
+            {
+              "id": "frog-house",
+              "labelEn": "a frog / muddy house",
+              "labelJa": "かえるに会い、どろの家へ",
+              "emoji": "🐸"
+            },
+            {
+              "id": "swallow-island",
+              "labelEn": "a swallow / island",
+              "labelJa": "つばめに会い、島へ",
+              "emoji": "🐦"
+            }
+          ],
+          "correctChoiceId": "gold-beetle-forest",
+          "feedbackCorrectJa": "そう！gold beetle と forest だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"a gold beetle\" と \"deep in the forest\" がヒントだよ。",
+          "summaryJa": "gold beetle が Thumbelina を forest の奥へ連れていった"
+        },
+        {
+          "id": "no1-ch1-p3-s3",
+          "text": "Thumbelina ate flowers. She drank water drop from leaves. Her bed was flower leaves.",
+          "questionJa": "Thumbelina は葉っぱから何を飲んだ？",
+          "choices": [
+            {
+              "id": "water-drop",
+              "labelEn": "water drop",
+              "labelJa": "水のしずく",
+              "emoji": "💧"
+            },
+            {
+              "id": "milk",
+              "labelEn": "milk",
+              "labelJa": "ミルク",
+              "emoji": "🥛"
+            },
+            {
+              "id": "tea",
+              "labelEn": "tea",
+              "labelJa": "お茶",
+              "emoji": "🍵"
+            }
+          ],
+          "correctChoiceId": "water-drop",
+          "feedbackCorrectJa": "あたり！water drop だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"water drop from leaves\" がヒントだよ。",
+          "summaryJa": "Thumbelina は花を食べ、leaves の water drop を飲んだ"
+        },
+        {
+          "id": "no1-ch1-p3-s4",
+          "text": "\"I love flowers! I love forest!\" After a while, winter came. It was cold in the forest.",
+          "questionJa": "しばらくして森に来た季節はどれ？",
+          "choices": [
+            {
+              "id": "winter",
+              "labelEn": "winter",
+              "labelJa": "冬",
+              "emoji": "❄️"
+            },
+            {
+              "id": "spring",
+              "labelEn": "spring",
+              "labelJa": "春",
+              "emoji": "🌸"
+            },
+            {
+              "id": "summer",
+              "labelEn": "summer",
+              "labelJa": "夏",
+              "emoji": "☀️"
+            }
+          ],
+          "correctChoiceId": "winter",
+          "feedbackCorrectJa": "そう！winter だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"winter came\" がヒントだよ。",
+          "summaryJa": "winter が来て、forest は cold になった"
+        }
+      ]
+    },
+    {
+      "id": "no1-ch1-p4",
+      "issue": "no1",
+      "chapterNo": 1,
+      "chapterTitle": "Thumbelina",
+      "partNo": 4,
+      "partTitle": "Meeting with a mouse",
+      "recommendedGrade": "小2〜3",
+      "keywords": [
+        {
+          "id": "mouse",
+          "word": "mouse",
+          "ja": "ねずみ",
+          "emoji": "🐭"
+        },
+        {
+          "id": "rich",
+          "word": "rich",
+          "ja": "お金持ちの",
+          "emoji": "💰"
+        },
+        {
+          "id": "mole",
+          "word": "mole",
+          "ja": "もぐら",
+          "emoji": "🕳️"
+        },
+        {
+          "id": "swallow",
+          "word": "swallow",
+          "ja": "つばめ",
+          "emoji": "🐦"
+        },
+        {
+          "id": "injured",
+          "word": "injured",
+          "ja": "けがをした",
+          "emoji": "🩹"
+        }
+      ],
+      "segments": [
+        {
+          "id": "no1-ch1-p4-s1",
+          "text": "Thumbelina found a mouse's house. \"Hello? It is cold outside. Can I get in, please?\"",
+          "questionJa": "寒い外で、Thumbelina は何の家を見つけた？",
+          "choices": [
+            {
+              "id": "mouse-house",
+              "labelEn": "a mouse's house",
+              "labelJa": "ねずみの家",
+              "emoji": "🐭"
+            },
+            {
+              "id": "frog-house",
+              "labelEn": "a frog's house",
+              "labelJa": "かえるの家",
+              "emoji": "🐸"
+            },
+            {
+              "id": "flower-house",
+              "labelEn": "a flower house",
+              "labelJa": "花の家",
+              "emoji": "🌷"
+            }
+          ],
+          "correctChoiceId": "mouse-house",
+          "feedbackCorrectJa": "あたり！mouse's house だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"a mouse's house\" がヒントだよ。",
+          "summaryJa": "Thumbelina は cold な外で mouse の家を見つけた"
+        },
+        {
+          "id": "no1-ch1-p4-s2",
+          "text": "The mouse said, \"Oh, my! Poor girl. Come in, it's warm inside and stay with me.\" \"Thank you!\"",
+          "questionJa": "ねずみは Thumbelina にどうしていいと言った？",
+          "choices": [
+            {
+              "id": "stay-inside",
+              "labelEn": "stay inside",
+              "labelJa": "中でいっしょにいていい",
+              "emoji": "🏠"
+            },
+            {
+              "id": "wait-outside",
+              "labelEn": "wait outside",
+              "labelJa": "外で待って",
+              "emoji": "❄️"
+            },
+            {
+              "id": "go-river",
+              "labelEn": "go to the river",
+              "labelJa": "川へ行って",
+              "emoji": "🏞️"
+            }
+          ],
+          "correctChoiceId": "stay-inside",
+          "feedbackCorrectJa": "そう！stay inside だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"Come in, it's warm inside\" がヒントだよ。",
+          "summaryJa": "mouse は Thumbelina をあたたかい家に入れてくれた"
+        },
+        {
+          "id": "no1-ch1-p4-s3",
+          "text": "Thumbelina and mouse lived together. A rich mole lived near the mouse. The mole liked Thumbelina so he visited her every day.",
+          "questionJa": "Thumbelina に毎日会いに来たのはだれ？",
+          "choices": [
+            {
+              "id": "mole",
+              "labelEn": "a mole",
+              "labelJa": "もぐら",
+              "emoji": "🕳️"
+            },
+            {
+              "id": "frog",
+              "labelEn": "a frog",
+              "labelJa": "かえる",
+              "emoji": "🐸"
+            },
+            {
+              "id": "prince",
+              "labelEn": "a prince",
+              "labelJa": "王子さま",
+              "emoji": "🤴"
+            }
+          ],
+          "correctChoiceId": "mole",
+          "feedbackCorrectJa": "あたり！a mole だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"A rich mole\" がヒントだよ。",
+          "summaryJa": "rich mole が近くに住み、毎日 Thumbelina に会いに来た"
+        },
+        {
+          "id": "no1-ch1-p4-s4",
+          "text": "One day, Thumbelina found a swallow. He was injured. She took care of him every day.",
+          "questionJa": "Thumbelina が見つけたつばめは、どんなようすだった？",
+          "choices": [
+            {
+              "id": "injured",
+              "labelEn": "injured",
+              "labelJa": "けがをしていた",
+              "emoji": "🩹"
+            },
+            {
+              "id": "noisy",
+              "labelEn": "noisy",
+              "labelJa": "うるさかった",
+              "emoji": "📣"
+            },
+            {
+              "id": "rich",
+              "labelEn": "rich",
+              "labelJa": "お金持ちだった",
+              "emoji": "💰"
+            }
+          ],
+          "correctChoiceId": "injured",
+          "feedbackCorrectJa": "そう！injured だったね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"He was injured.\" がヒントだよ。",
+          "summaryJa": "Thumbelina は injured な swallow を見つけて世話をした"
+        },
+        {
+          "id": "no1-ch1-p4-s5",
+          "text": "Spring came. The swallow recovered. He was ready to fly. \"Thanks, Thumbelina! Let's go to a tropical island with me!\" Thumbelina said, \"Why not?\"",
+          "questionJa": "元気になったつばめは、どこへ行こうと言った？",
+          "choices": [
+            {
+              "id": "tropical-island",
+              "labelEn": "a tropical island",
+              "labelJa": "南の島",
+              "emoji": "🏝️"
+            },
+            {
+              "id": "forest",
+              "labelEn": "the forest",
+              "labelJa": "森",
+              "emoji": "🌲"
+            },
+            {
+              "id": "muddy-house",
+              "labelEn": "the muddy house",
+              "labelJa": "どろだらけの家",
+              "emoji": "🟫"
+            }
+          ],
+          "correctChoiceId": "tropical-island",
+          "feedbackCorrectJa": "あたり！a tropical island だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"a tropical island\" がヒントだよ。",
+          "summaryJa": "spring に swallow が元気になり、tropical island に誘った"
+        }
+      ]
+    },
+    {
+      "id": "no1-ch1-p5",
+      "issue": "no1",
+      "chapterNo": 1,
+      "chapterTitle": "Thumbelina",
+      "partNo": 5,
+      "partTitle": "To a tropical island",
+      "recommendedGrade": "小2〜3",
+      "keywords": [
+        {
+          "id": "swallow",
+          "word": "swallow",
+          "ja": "つばめ",
+          "emoji": "🐦"
+        },
+        {
+          "id": "back",
+          "word": "back",
+          "ja": "背中",
+          "emoji": "🪽"
+        },
+        {
+          "id": "here-you-are",
+          "word": "Here you are.",
+          "ja": "はい、どうぞ",
+          "emoji": "🎁",
+          "audioText": "Here you are."
+        },
+        {
+          "id": "wing",
+          "word": "wing",
+          "ja": "つばさ",
+          "emoji": "🪽"
+        },
+        {
+          "id": "prince",
+          "word": "prince",
+          "ja": "王子さま",
+          "emoji": "🤴"
+        }
+      ],
+      "segments": [
+        {
+          "id": "no1-ch1-p5-s1",
+          "text": "The swallow flew with Thumbelina on his back. Thumbelina and the swallow reached the tropical land.",
+          "questionJa": "Thumbelina はどこに乗って飛んだ？",
+          "choices": [
+            {
+              "id": "swallow-back",
+              "labelEn": "the swallow's back",
+              "labelJa": "つばめの背中",
+              "emoji": "🐦"
+            },
+            {
+              "id": "leaf",
+              "labelEn": "a leaf",
+              "labelJa": "葉っぱ",
+              "emoji": "🍃"
+            },
+            {
+              "id": "mole-house",
+              "labelEn": "a mole's house",
+              "labelJa": "もぐらの家",
+              "emoji": "🕳️"
+            }
+          ],
+          "correctChoiceId": "swallow-back",
+          "feedbackCorrectJa": "そう！the swallow's back だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"on his back\" がヒントだよ。",
+          "summaryJa": "Thumbelina は swallow の back に乗って飛んだ"
+        },
+        {
+          "id": "no1-ch1-p5-s2",
+          "text": "There were many flowers. The swallow put Thumbelina down on a flower.",
+          "questionJa": "南の国で、つばめは Thumbelina をどこにおろした？",
+          "choices": [
+            {
+              "id": "flower",
+              "labelEn": "on a flower",
+              "labelJa": "花の上",
+              "emoji": "🌼"
+            },
+            {
+              "id": "mud",
+              "labelEn": "on mud",
+              "labelJa": "どろの上",
+              "emoji": "🟫"
+            },
+            {
+              "id": "nest",
+              "labelEn": "in a nest",
+              "labelJa": "鳥の巣",
+              "emoji": "🪺"
+            }
+          ],
+          "correctChoiceId": "flower",
+          "feedbackCorrectJa": "あたり！on a flower だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"on a flower\" がヒントだよ。",
+          "summaryJa": "tropical land に着き、Thumbelina は flower の上におりた"
+        },
+        {
+          "id": "no1-ch1-p5-s3",
+          "text": "Thumbelina met a boy on the flower. \"Hello, pretty girl! Here you are.\" A boy gave her wings.",
+          "questionJa": "花の上の男の子は、Thumbelina に何をくれた？",
+          "choices": [
+            {
+              "id": "wings",
+              "labelEn": "wings",
+              "labelJa": "つばさ",
+              "emoji": "🪽"
+            },
+            {
+              "id": "leaves",
+              "labelEn": "leaves",
+              "labelJa": "葉っぱ",
+              "emoji": "🍃"
+            },
+            {
+              "id": "money",
+              "labelEn": "money",
+              "labelJa": "お金",
+              "emoji": "💰"
+            }
+          ],
+          "correctChoiceId": "wings",
+          "feedbackCorrectJa": "そう！wings だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"gave her wings\" がヒントだよ。",
+          "summaryJa": "flower の上の boy が Thumbelina に wings をくれた"
+        },
+        {
+          "id": "no1-ch1-p5-s4",
+          "text": "Thumbelina started flying with the boy. The boy was a prince. Thumbelina and the prince flew over flowers to flowers and lived happily.",
+          "questionJa": "Thumbelina といっしょに飛んだ男の子は、ほんとうはだれだった？",
+          "choices": [
+            {
+              "id": "prince",
+              "labelEn": "a prince",
+              "labelJa": "王子さま",
+              "emoji": "🤴"
+            },
+            {
+              "id": "frog",
+              "labelEn": "a frog",
+              "labelJa": "かえる",
+              "emoji": "🐸"
+            },
+            {
+              "id": "witch",
+              "labelEn": "a witch",
+              "labelJa": "魔女",
+              "emoji": "🧙"
+            }
+          ],
+          "correctChoiceId": "prince",
+          "feedbackCorrectJa": "あたり！a prince だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"The boy was a prince.\" がヒントだよ。",
+          "summaryJa": "boy は prince で、Thumbelina と幸せに暮らした"
+        }
+      ]
+    }
+  ]
+}
