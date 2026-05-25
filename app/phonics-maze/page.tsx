@@ -53,7 +53,7 @@ const SOUND_RESOURCES: Record<SoundId, SoundResource> = {
   },
   sh: {
     symbol: "sh",
-    image: "/images/phonics/cards/sh.svg",
+    image: "/images/phonics/cards/sh.png",
     audio: "/audio/phonics/sh.m4a",
     speech: "sh",
   },
