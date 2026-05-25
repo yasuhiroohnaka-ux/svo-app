@@ -20,14 +20,22 @@ type SoundResource = {
   image?: string;
 };
 
-type MazeLevel = {
+type MazeTemplate = {
   id: string;
   label: string;
-  target: SoundId[];
-  grid: SoundId[][];
+  pattern: SoundId[];
+  rows: number;
+  cols: number;
+  solutionPath: Coord[];
   start: Coord;
   goal: Coord;
   color: string;
+};
+
+type MazeLevel = MazeTemplate & {
+  target: SoundId[];
+  grid: SoundId[][];
+  seed: number;
 };
 
 const SOUND_RESOURCES: Record<SoundId, SoundResource> = {
@@ -75,43 +83,56 @@ const SOUND_RESOURCES: Record<SoundId, SoundResource> = {
   },
 };
 
-const MAZE_LEVELS: MazeLevel[] = [
+const MAZE_TEMPLATES: MazeTemplate[] = [
   {
-    id: "mmi",
-    label: "m m i",
-    target: ["m", "m", "i", "m", "m", "i"],
-    grid: [
-      ["m", "m", "i", "m"],
-      ["i", "m", "i", "m"],
-      ["m", "i", "m", "i"],
+    id: "basic",
+    label: "basic",
+    pattern: ["m", "m", "i"],
+    rows: 3,
+    cols: 4,
+    solutionPath: [
+      { row: 0, col: 0 },
+      { row: 0, col: 1 },
+      { row: 0, col: 2 },
+      { row: 0, col: 3 },
+      { row: 1, col: 3 },
+      { row: 2, col: 3 },
     ],
     start: { row: 0, col: 0 },
     goal: { row: 2, col: 3 },
     color: "#2bb8a8",
   },
   {
-    id: "shap",
-    label: "sh a p",
-    target: ["sh", "a", "p", "sh", "a", "p"],
-    grid: [
-      ["sh", "a", "p", "sh", "a"],
-      ["a", "p", "sh", "a", "p"],
-      ["p", "sh", "p", "a", "p"],
+    id: "advanced",
+    label: "advanced",
+    pattern: ["sh", "a", "p"],
+    rows: 3,
+    cols: 5,
+    solutionPath: [
+      { row: 0, col: 0 },
+      { row: 0, col: 1 },
+      { row: 0, col: 2 },
+      { row: 0, col: 3 },
+      { row: 0, col: 4 },
+      { row: 1, col: 4 },
     ],
     start: { row: 0, col: 0 },
     goal: { row: 1, col: 4 },
     color: "#ff9f43",
   },
   {
-    id: "faj",
-    label: "f a j",
-    target: ["f", "a", "j", "f", "a", "j"],
-    grid: [
-      ["f", "a", "j", "f", "f"],
-      ["a", "f", "f", "j", "a"],
-      ["j", "a", "a", "f", "a"],
-      ["f", "a", "j", "a", "j"],
-      ["f", "f", "f", "a", "j"],
+    id: "super",
+    label: "super!",
+    pattern: ["f", "a", "j"],
+    rows: 5,
+    cols: 5,
+    solutionPath: [
+      { row: 0, col: 0 },
+      { row: 0, col: 1 },
+      { row: 0, col: 2 },
+      { row: 1, col: 2 },
+      { row: 2, col: 2 },
+      { row: 3, col: 2 },
     ],
     start: { row: 0, col: 0 },
     goal: { row: 3, col: 2 },
@@ -128,6 +149,49 @@ const sameCoord = (a: Coord, b: Coord): boolean => a.row === b.row && a.col === 
 const coordKey = (coord: Coord): string => `${coord.row}:${coord.col}`;
 
 const isNeighbor = (a: Coord, b: Coord): boolean => Math.abs(a.row - b.row) + Math.abs(a.col - b.col) === 1;
+
+const makeSeed = (): number => Math.floor(Date.now() + Math.random() * 100000);
+
+const createRng = (seed: number): (() => number) => {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 0x100000000;
+  };
+};
+
+const shuffleWithRng = <T,>(items: T[], rng: () => number): T[] => {
+  const shuffled = [...items];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(rng() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+
+  return shuffled;
+};
+
+const uniqueSounds = (sounds: SoundId[]): SoundId[] => sounds.filter((sound, index) => sounds.indexOf(sound) === index);
+
+const makeMazeLevel = (template: MazeTemplate, seed: number): MazeLevel => {
+  const rng = createRng(seed);
+  const soundPool = uniqueSounds(template.pattern);
+  const target = shuffleWithRng([...template.pattern, ...template.pattern], rng);
+  const grid = Array.from({ length: template.rows }, () =>
+    Array.from({ length: template.cols }, () => soundPool[Math.floor(rng() * soundPool.length)]),
+  );
+
+  template.solutionPath.forEach((coord, index) => {
+    grid[coord.row][coord.col] = target[index];
+  });
+
+  return {
+    ...template,
+    target,
+    grid,
+    seed,
+  };
+};
 
 const wait = (duration: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, duration));
 
@@ -203,12 +267,12 @@ const PatternTile = ({ sound }: { sound: SoundId }) => {
 
 export default function PhonicsMazePage() {
   const [levelIndex, setLevelIndex] = useState(0);
-  const [path, setPath] = useState<Coord[]>([MAZE_LEVELS[0].start]);
+  const [level, setLevel] = useState<MazeLevel>(() => makeMazeLevel(MAZE_TEMPLATES[0], 1));
+  const [path, setPath] = useState<Coord[]>([MAZE_TEMPLATES[0].start]);
   const [verdict, setVerdict] = useState<Verdict>("idle");
   const [spokenIndex, setSpokenIndex] = useState<number | null>(null);
   const [message, setMessage] = useState("Start のとなりをタップ");
 
-  const level = MAZE_LEVELS[levelIndex];
   const rows = level.grid.length;
   const cols = level.grid[0].length;
   const pathKeys = useMemo(() => new Set(path.map(coordKey)), [path]);
@@ -253,13 +317,18 @@ export default function PhonicsMazePage() {
     [path],
   );
 
-  const resetLevel = (nextIndex = levelIndex) => {
-    const nextLevel = MAZE_LEVELS[nextIndex];
-    setLevelIndex(nextIndex);
+  const resetPath = (nextLevel = level) => {
     setPath([nextLevel.start]);
     setVerdict("idle");
     setSpokenIndex(null);
     setMessage("Start のとなりをタップ");
+  };
+
+  const resetLevel = (nextIndex = levelIndex, seed = makeSeed()) => {
+    const nextLevel = makeMazeLevel(MAZE_TEMPLATES[nextIndex], seed);
+    setLevelIndex(nextIndex);
+    setLevel(nextLevel);
+    resetPath(nextLevel);
   };
 
   const finishPath = async (nextPath: Coord[]) => {
@@ -291,7 +360,7 @@ export default function PhonicsMazePage() {
     if (isResolving) return;
 
     if (verdict === "correct" || verdict === "tryAgain") {
-      resetLevel();
+      resetPath();
       return;
     }
 
@@ -332,7 +401,7 @@ export default function PhonicsMazePage() {
   };
 
   const nextLevel = () => {
-    resetLevel((levelIndex + 1) % MAZE_LEVELS.length);
+    resetLevel(levelIndex);
   };
 
   return (
@@ -348,7 +417,7 @@ export default function PhonicsMazePage() {
       </header>
 
       <section className={styles.levelTabs} aria-label="めいろ">
-        {MAZE_LEVELS.map((mazeLevel, index) => (
+        {MAZE_TEMPLATES.map((mazeLevel, index) => (
           <button
             key={mazeLevel.id}
             className={index === levelIndex ? styles.levelTabActive : styles.levelTab}
@@ -385,7 +454,7 @@ export default function PhonicsMazePage() {
             <button className={styles.iconButton} onClick={undoPath} disabled={isResolving || path.length <= 1} type="button">
               ↶
             </button>
-            <button className={styles.textButton} onClick={() => resetLevel()} disabled={isResolving} type="button">
+            <button className={styles.textButton} onClick={() => resetPath()} disabled={isResolving} type="button">
               けす
             </button>
             <button className={styles.textButton} onClick={nextLevel} disabled={isResolving} type="button">
