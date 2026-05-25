@@ -303,6 +303,10 @@ const MAZE_TEMPLATES: MazeTemplate[] = [
 const RHYTHM_PLAYBACK_RATE = 1.18;
 const RHYTHM_SOUND_WINDOW_MS = 1320;
 const RHYTHM_SOUND_GAP_MS = 35;
+const RHYTHM_FIRST_SOUND_LEAD_IN_MS = 140;
+const RHYTHM_FIRST_SOUND_WINDOW_MS = 1520;
+const RHYTHM_AUDIO_READY_TIMEOUT_MS = 260;
+const AUDIO_READY_STATE_CURRENT_DATA = 2;
 
 const sameCoord = (a: Coord, b: Coord): boolean => a.row === b.row && a.col === b.col;
 
@@ -405,11 +409,44 @@ const speakFallback = (text: string): Promise<void> =>
     setTimeout(resolve, 1100);
   });
 
-const playSound = (sound: SoundId): Promise<void> => {
+const waitForAudioReady = (audio: HTMLAudioElement): Promise<void> =>
+  new Promise((resolve) => {
+    if (audio.readyState >= AUDIO_READY_STATE_CURRENT_DATA) {
+      resolve();
+      return;
+    }
+
+    let settled = false;
+
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+
+    audio.addEventListener("loadeddata", finish, { once: true });
+    audio.addEventListener("canplaythrough", finish, { once: true });
+    audio.addEventListener("error", finish, { once: true });
+    audio.load();
+    setTimeout(finish, RHYTHM_AUDIO_READY_TIMEOUT_MS);
+  });
+
+type PlaySoundOptions = {
+  maxDuration?: number;
+  waitUntilReady?: boolean;
+};
+
+const playSound = async (sound: SoundId, options: PlaySoundOptions = {}): Promise<void> => {
   const resource = SOUND_RESOURCES[sound];
+  const audio = new Audio(resource.audio);
+  audio.preload = "auto";
+  audio.playbackRate = RHYTHM_PLAYBACK_RATE;
+
+  if (options.waitUntilReady) {
+    await waitForAudioReady(audio);
+  }
 
   return new Promise((resolve) => {
-    const audio = new Audio(resource.audio);
     let settled = false;
 
     const finish = () => {
@@ -429,12 +466,12 @@ const playSound = (sound: SoundId): Promise<void> => {
       { once: true },
     );
 
-    audio.playbackRate = RHYTHM_PLAYBACK_RATE;
+    audio.currentTime = 0;
     audio.play().catch(() => {
       void speakFallback(resource.speech).then(finish);
     });
 
-    setTimeout(finish, RHYTHM_SOUND_WINDOW_MS);
+    setTimeout(finish, options.maxDuration ?? RHYTHM_SOUND_WINDOW_MS);
   });
 };
 
@@ -527,7 +564,13 @@ export default function PhonicsMazePage() {
 
     for (let index = 0; index < sounds.length; index += 1) {
       setSpokenIndex(index);
-      await playSound(sounds[index]);
+      if (index === 0) {
+        await wait(RHYTHM_FIRST_SOUND_LEAD_IN_MS);
+      }
+      await playSound(sounds[index], {
+        maxDuration: index === 0 ? RHYTHM_FIRST_SOUND_WINDOW_MS : RHYTHM_SOUND_WINDOW_MS,
+        waitUntilReady: index === 0,
+      });
       await wait(RHYTHM_SOUND_GAP_MS);
     }
 

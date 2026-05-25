@@ -290,6 +290,27 @@
   background: #fff8d9;
 }
 
+.mazeNodeGoal {
+  width: clamp(72px, 11vw, 104px);
+  height: clamp(72px, 11vw, 104px);
+  border-color: #e95f8b;
+  background: #fff2cf;
+  box-shadow:
+    0 0 0 8px rgba(255, 207, 77, 0.34),
+    0 0 24px rgba(233, 95, 139, 0.32),
+    0 5px 0 rgba(29, 47, 69, 0.14);
+  position: relative;
+  z-index: 3;
+}
+
+.mazeNodeGoal.mazeNodeVisited {
+  border-color: var(--level-color);
+  box-shadow:
+    0 0 0 8px color-mix(in srgb, var(--level-color), transparent 62%),
+    0 0 26px color-mix(in srgb, var(--level-color), transparent 34%),
+    0 5px 0 rgba(29, 47, 69, 0.14);
+}
+
 .mazeNodeStart::after,
 .mazeNodeGoal::after {
   position: absolute;
@@ -324,7 +345,20 @@
 .goalFlag {
   align-self: end;
   justify-self: end;
-  transform: translate(58px, 34px);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 9px;
+  border: 3px solid var(--level-color);
+  border-radius: 999px;
+  background: #fff8d9;
+  color: #1d2f45;
+  font-size: clamp(1rem, 2.4vw, 1.45rem);
+  line-height: 1;
+  box-shadow:
+    0 0 0 5px rgba(255, 207, 77, 0.32),
+    4px 4px 0 rgba(29, 47, 69, 0.14);
+  transform: translate(34px, 12px);
 }
 
 .feedback {
@@ -434,12 +468,19 @@
     font-size: clamp(1.5rem, 8vw, 2.4rem);
   }
 
+  .mazeNodeGoal {
+    width: clamp(56px, 16vw, 78px);
+    height: clamp(56px, 16vw, 78px);
+  }
+
   .startFlag {
     transform: translateY(-24px);
   }
 
   .goalFlag {
-    transform: translate(38px, 28px);
+    font-size: clamp(0.9rem, 3.6vw, 1.15rem);
+    padding: 4px 7px;
+    transform: translate(24px, 8px);
   }
 
   .feedback {
@@ -455,6 +496,6 @@
   }
 
   .goalFlag {
-    transform: translate(24px, 28px);
+    transform: translate(16px, 8px);
   }
 }
