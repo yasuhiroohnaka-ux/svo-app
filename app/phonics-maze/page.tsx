@@ -5,7 +5,37 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import styles from "./page.module.css";
 
-type SoundId = "m" | "i" | "sh" | "a" | "p" | "f" | "j";
+const SOUND_IDS = [
+  "a",
+  "b",
+  "c",
+  "d",
+  "e",
+  "f",
+  "g",
+  "h",
+  "i",
+  "j",
+  "k",
+  "l",
+  "m",
+  "n",
+  "o",
+  "p",
+  "q",
+  "r",
+  "s",
+  "sh",
+  "t",
+  "u",
+  "v",
+  "w",
+  "x",
+  "y",
+  "z",
+] as const;
+
+type SoundId = (typeof SOUND_IDS)[number];
 type Verdict = "idle" | "playing" | "correct" | "tryAgain";
 
 type Coord = {
@@ -24,6 +54,7 @@ type MazeTemplate = {
   id: string;
   label: string;
   pattern: SoundId[];
+  patternPool?: SoundId[];
   rows: number;
   cols: number;
   solutionPath: Coord[];
@@ -39,35 +70,35 @@ type MazeLevel = MazeTemplate & {
 };
 
 const SOUND_RESOURCES: Record<SoundId, SoundResource> = {
-  m: {
-    symbol: "m",
-    image: "/images/phonics/cards/m.png",
-    audio: "/audio/phonics/m.m4a",
-    speech: "m",
-  },
-  i: {
-    symbol: "i",
-    image: "/images/phonics/cards/i.png",
-    audio: "/audio/phonics/i.m4a",
-    speech: "i",
-  },
-  sh: {
-    symbol: "sh",
-    image: "/images/phonics/cards/sh.png",
-    audio: "/audio/phonics/sh.m4a",
-    speech: "sh",
-  },
   a: {
     symbol: "a",
     image: "/images/phonics/cards/a.png",
     audio: "/audio/phonics/a.m4a",
     speech: "ah",
   },
-  p: {
-    symbol: "p",
-    image: "/images/phonics/cards/p.png",
-    audio: "/audio/phonics/p.m4a",
-    speech: "p",
+  b: {
+    symbol: "b",
+    image: "/images/phonics/cards/b.png",
+    audio: "/audio/phonics/b.m4a",
+    speech: "b",
+  },
+  c: {
+    symbol: "c",
+    image: "/images/phonics/cards/c.png",
+    audio: "/audio/phonics/c_k_q.m4a",
+    speech: "k",
+  },
+  d: {
+    symbol: "d",
+    image: "/images/phonics/cards/d.png",
+    audio: "/audio/phonics/d.m4a",
+    speech: "d",
+  },
+  e: {
+    symbol: "e",
+    image: "/images/phonics/cards/e.png",
+    audio: "/audio/phonics/e.m4a",
+    speech: "e",
   },
   f: {
     symbol: "f",
@@ -75,19 +106,148 @@ const SOUND_RESOURCES: Record<SoundId, SoundResource> = {
     audio: "/audio/phonics/f.m4a",
     speech: "f",
   },
+  g: {
+    symbol: "g",
+    image: "/images/phonics/cards/g.png",
+    audio: "/audio/phonics/g.m4a",
+    speech: "g",
+  },
+  h: {
+    symbol: "h",
+    image: "/images/phonics/cards/h.png",
+    audio: "/audio/phonics/h.m4a",
+    speech: "h",
+  },
+  i: {
+    symbol: "i",
+    image: "/images/phonics/cards/i.png",
+    audio: "/audio/phonics/i.m4a",
+    speech: "i",
+  },
   j: {
     symbol: "j",
     image: "/images/phonics/cards/j.png",
     audio: "/audio/phonics/j.m4a",
     speech: "j",
   },
+  k: {
+    symbol: "k",
+    image: "/images/phonics/cards/k.png",
+    audio: "/audio/phonics/c_k_q.m4a",
+    speech: "k",
+  },
+  l: {
+    symbol: "l",
+    image: "/images/phonics/cards/l.png",
+    audio: "/audio/phonics/l.m4a",
+    speech: "l",
+  },
+  m: {
+    symbol: "m",
+    image: "/images/phonics/cards/m.png",
+    audio: "/audio/phonics/m.m4a",
+    speech: "m",
+  },
+  n: {
+    symbol: "n",
+    image: "/images/phonics/cards/n.png",
+    audio: "/audio/phonics/n.m4a",
+    speech: "n",
+  },
+  o: {
+    symbol: "o",
+    image: "/images/phonics/cards/o.png",
+    audio: "/audio/phonics/o.m4a",
+    speech: "aw",
+  },
+  p: {
+    symbol: "p",
+    image: "/images/phonics/cards/p.png",
+    audio: "/audio/phonics/p.m4a",
+    speech: "p",
+  },
+  q: {
+    symbol: "q",
+    image: "/images/phonics/cards/q.png",
+    audio: "/audio/phonics/c_k_q.m4a",
+    speech: "k",
+  },
+  r: {
+    symbol: "r",
+    image: "/images/phonics/cards/r.png",
+    audio: "/audio/phonics/r.m4a",
+    speech: "r",
+  },
+  s: {
+    symbol: "s",
+    image: "/images/phonics/cards/s.png",
+    audio: "/audio/phonics/s.m4a",
+    speech: "s",
+  },
+  sh: {
+    symbol: "sh",
+    image: "/images/phonics/cards/sh.png",
+    audio: "/audio/phonics/sh.m4a",
+    speech: "sh",
+  },
+  t: {
+    symbol: "t",
+    image: "/images/phonics/cards/t.png",
+    audio: "/audio/phonics/t.m4a",
+    speech: "t",
+  },
+  u: {
+    symbol: "u",
+    image: "/images/phonics/cards/u.png",
+    audio: "/audio/phonics/u.m4a",
+    speech: "uh",
+  },
+  v: {
+    symbol: "v",
+    image: "/images/phonics/cards/v.png",
+    audio: "/audio/phonics/v.m4a",
+    speech: "v",
+  },
+  w: {
+    symbol: "w",
+    image: "/images/phonics/cards/w.png",
+    audio: "/audio/phonics/w.m4a",
+    speech: "w",
+  },
+  x: {
+    symbol: "x",
+    image: "/images/phonics/cards/x.png",
+    audio: "/audio/phonics/x.m4a",
+    speech: "x",
+  },
+  y: {
+    symbol: "y",
+    image: "/images/phonics/cards/y.png",
+    audio: "/audio/phonics/y.m4a",
+    speech: "y",
+  },
+  z: {
+    symbol: "z",
+    image: "/images/phonics/cards/z.png",
+    audio: "/audio/phonics/z.m4a",
+    speech: "z",
+  },
 };
+
+const BASIC_EXCLUDED_SOUNDS: SoundId[] = ["j", "q", "sh", "v", "w", "x", "y", "z"];
+const BASIC_PATTERN_POOL: SoundId[] = SOUND_IDS.filter((sound) => !BASIC_EXCLUDED_SOUNDS.includes(sound));
+const RHYTHM_SHAPES = [
+  [0, 1, 2, 0, 1, 2],
+  [0, 0, 1, 0, 0, 1],
+  [0, 1, 1, 0, 1, 1],
+] as const;
 
 const MAZE_TEMPLATES: MazeTemplate[] = [
   {
     id: "basic",
     label: "basic",
     pattern: ["m", "m", "i"],
+    patternPool: BASIC_PATTERN_POOL,
     rows: 3,
     cols: 4,
     solutionPath: [
@@ -173,10 +333,36 @@ const shuffleWithRng = <T,>(items: T[], rng: () => number): T[] => {
 
 const uniqueSounds = (sounds: SoundId[]): SoundId[] => sounds.filter((sound, index) => sounds.indexOf(sound) === index);
 
+const pickPattern = (template: MazeTemplate, rng: () => number): SoundId[] => {
+  const patternSize = template.pattern.length;
+
+  if (!template.patternPool) {
+    return shuffleWithRng(template.pattern, rng);
+  }
+
+  const shuffledPool = shuffleWithRng(uniqueSounds(template.patternPool), rng);
+
+  if (shuffledPool.length >= patternSize) {
+    return shuffledPool.slice(0, patternSize);
+  }
+
+  return Array.from({ length: patternSize }, (_, index) => shuffledPool[index % shuffledPool.length] ?? template.pattern[index]);
+};
+
+const makeTarget = (template: MazeTemplate, pattern: SoundId[], rng: () => number): SoundId[] => {
+  const shape = RHYTHM_SHAPES[Math.floor(rng() * RHYTHM_SHAPES.length)];
+
+  return Array.from({ length: template.solutionPath.length }, (_, index) => {
+    const shapeIndex = shape[index % shape.length];
+    return pattern[shapeIndex] ?? pattern[index % pattern.length];
+  });
+};
+
 const makeMazeLevel = (template: MazeTemplate, seed: number): MazeLevel => {
   const rng = createRng(seed);
-  const soundPool = uniqueSounds(template.pattern);
-  const target = shuffleWithRng([...template.pattern, ...template.pattern], rng);
+  const pattern = pickPattern(template, rng);
+  const target = makeTarget(template, pattern, rng);
+  const soundPool = uniqueSounds(target);
   const grid = Array.from({ length: template.rows }, () =>
     Array.from({ length: template.cols }, () => soundPool[Math.floor(rng() * soundPool.length)]),
   );
@@ -187,6 +373,7 @@ const makeMazeLevel = (template: MazeTemplate, seed: number): MazeLevel => {
 
   return {
     ...template,
+    pattern,
     target,
     grid,
     seed,
