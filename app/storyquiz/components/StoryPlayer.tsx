@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { cancelSpeech, speak, unlockSpeech } from "../lib/speech";
+import {
+  cancelSpeech,
+  speak,
+  STORYQUIZ_SPEECH_RATE,
+  unlockSpeech,
+} from "../lib/speech";
 import type { StoryPart, StorySegment } from "../types";
 import AnswerPanel, { type AnswerResult } from "./AnswerPanel";
 import styles from "../storyquiz.module.css";
@@ -50,6 +55,7 @@ export default function StoryPlayer({ part, onComplete }: Props) {
     const timer = setTimeout(() => {
       speak(`${part.chapterTitle}. ${part.chapterNo}-${part.partNo}. ${part.partTitle}.`, {
         lang: "en-US",
+        rate: STORYQUIZ_SPEECH_RATE.title,
         onEnd: goToReading,
       });
     }, 250);
@@ -62,6 +68,7 @@ export default function StoryPlayer({ part, onComplete }: Props) {
     const timer = setTimeout(() => {
       speak(segment.text, {
         lang: "en-US",
+        rate: STORYQUIZ_SPEECH_RATE.story,
         onEnd: goToQuestion,
       });
     }, 250);
@@ -77,7 +84,10 @@ export default function StoryPlayer({ part, onComplete }: Props) {
 
   function handleReplay() {
     if (!segment) return;
-    speak(segment.text, { lang: "en-US" });
+    speak(segment.text, {
+      lang: "en-US",
+      rate: STORYQUIZ_SPEECH_RATE.story,
+    });
   }
 
   function handleAnswer(result: AnswerResult) {
@@ -95,7 +105,10 @@ export default function StoryPlayer({ part, onComplete }: Props) {
       next.add(result.choiceId);
       return next;
     });
-    speak(segment.text, { lang: "en-US" });
+    speak(segment.text, {
+      lang: "en-US",
+      rate: STORYQUIZ_SPEECH_RATE.hint,
+    });
   }
 
   function handleNext() {

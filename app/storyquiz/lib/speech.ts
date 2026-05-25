@@ -9,6 +9,13 @@ export type SpeakOptions = {
   onError?: (event: SpeechSynthesisErrorEvent) => void;
 };
 
+export const STORYQUIZ_SPEECH_RATE = {
+  keyword: 0.78,
+  title: 0.8,
+  story: 0.75,
+  hint: 0.78,
+} as const;
+
 let activeSpeechId = 0;
 let currentUtterance: SpeechSynthesisUtterance | null = null;
 let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
@@ -130,30 +137,30 @@ export function speak(text: string, options: SpeakOptions = {}) {
   waitForVoices(synth, speechId, () => {
     if (speechId !== activeSpeechId) return;
 
-  const utterance = new SpeechSynthesisUtterance(text);
-  currentUtterance = utterance;
-  utterance.lang = options.lang ?? "en-US";
-  utterance.rate = options.rate ?? 0.88;
-  utterance.pitch = options.pitch ?? 1;
-  utterance.volume = options.volume ?? 1;
-  utterance.voice = pickVoice(synth, utterance.lang);
+    const utterance = new SpeechSynthesisUtterance(text);
+    currentUtterance = utterance;
+    utterance.lang = options.lang ?? "en-US";
+    utterance.rate = options.rate ?? STORYQUIZ_SPEECH_RATE.story;
+    utterance.pitch = options.pitch ?? 1;
+    utterance.volume = options.volume ?? 1;
+    utterance.voice = pickVoice(synth, utterance.lang);
 
-  utterance.onend = () => completeSpeech(speechId, options.onEnd);
-  utterance.onerror = (event) => {
-    options.onError?.(event);
-    completeSpeech(speechId, options.onEnd);
-  };
+    utterance.onend = () => completeSpeech(speechId, options.onEnd);
+    utterance.onerror = (event) => {
+      options.onError?.(event);
+      completeSpeech(speechId, options.onEnd);
+    };
 
-  const estimatedMs = Math.max(1600, text.length * 90);
-  fallbackTimer = setTimeout(() => {
-    completeSpeech(speechId, options.onEnd);
-  }, estimatedMs + 2500);
+    const estimatedMs = Math.max(1600, text.length * 90);
+    fallbackTimer = setTimeout(() => {
+      completeSpeech(speechId, options.onEnd);
+    }, estimatedMs + 2500);
 
-  try {
-    synth.speak(utterance);
-  } catch {
-    completeSpeech(speechId, options.onEnd);
-  }
+    try {
+      synth.speak(utterance);
+    } catch {
+      completeSpeech(speechId, options.onEnd);
+    }
   });
 }
 

@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { cancelSpeech, speak, unlockSpeech } from "../lib/speech";
+import {
+  cancelSpeech,
+  speak,
+  STORYQUIZ_SPEECH_RATE,
+  unlockSpeech,
+} from "../lib/speech";
 import type { Keyword } from "../types";
 import styles from "../storyquiz.module.css";
 
@@ -17,7 +22,9 @@ export default function KeywordReview({ keywords, onStart }: Props) {
   }, []);
 
   function handleSpeak(keyword: Keyword) {
-    speak(keyword.audioText ?? keyword.word);
+    speak(keyword.audioText ?? keyword.word, {
+      rate: STORYQUIZ_SPEECH_RATE.keyword,
+    });
   }
 
   return (
