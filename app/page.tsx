@@ -36,6 +36,15 @@ const apps = [
     soon: false,
   },
   {
+    href: "/phonics-maze",
+    className: styles.cardMaze,
+    icon: "MZ",
+    title: "Phonics\nMaze",
+    desc: "フォニックスの音をたどってゴールへ。通ったリズムをぜんぶ聞いてから正解チェックします。",
+    tags: ["PHONICS", "MAZE", "VOICE"],
+    soon: false,
+  },
+  {
     href: "/storyquiz",
     className: styles.cardStory,
     icon: "📖",

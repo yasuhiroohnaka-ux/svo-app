@@ -126,6 +126,16 @@
     --card-accent: #e67e22;
 }
 
+.cardMaze {
+    --card-accent: #58d6c7;
+}
+
+.cardMaze .cardIcon {
+    color: var(--card-accent);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 32px;
+}
+
 .cardStory {
     --card-accent: #ff9f43;
 }
