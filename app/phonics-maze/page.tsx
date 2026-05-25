@@ -45,6 +45,7 @@ const SOUND_RESOURCES: Record<SoundId, SoundResource> = {
   },
   sh: {
     symbol: "sh",
+    image: "/images/phonics/cards/sh.svg",
     audio: "/audio/phonics/sh.m4a",
     speech: "sh",
   },
@@ -118,6 +119,10 @@ const MAZE_LEVELS: MazeLevel[] = [
   },
 ];
 
+const RHYTHM_PLAYBACK_RATE = 1.18;
+const RHYTHM_SOUND_WINDOW_MS = 1320;
+const RHYTHM_SOUND_GAP_MS = 35;
+
 const sameCoord = (a: Coord, b: Coord): boolean => a.row === b.row && a.col === b.col;
 
 const coordKey = (coord: Coord): string => `${coord.row}:${coord.col}`;
@@ -159,6 +164,8 @@ const playSound = (sound: SoundId): Promise<void> => {
     const finish = () => {
       if (settled) return;
       settled = true;
+      audio.pause();
+      audio.currentTime = 0;
       resolve();
     };
 
@@ -171,11 +178,12 @@ const playSound = (sound: SoundId): Promise<void> => {
       { once: true },
     );
 
+    audio.playbackRate = RHYTHM_PLAYBACK_RATE;
     audio.play().catch(() => {
       void speakFallback(resource.speech).then(finish);
     });
 
-    setTimeout(finish, 1700);
+    setTimeout(finish, RHYTHM_SOUND_WINDOW_MS);
   });
 };
 
@@ -264,7 +272,7 @@ export default function PhonicsMazePage() {
     for (let index = 0; index < sounds.length; index += 1) {
       setSpokenIndex(index);
       await playSound(sounds[index]);
-      await wait(90);
+      await wait(RHYTHM_SOUND_GAP_MS);
     }
 
     setSpokenIndex(null);

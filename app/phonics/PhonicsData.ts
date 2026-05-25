@@ -54,6 +54,7 @@ export const PHONICS_DATA: Phonic[] = [
     { id: "q", symbol: "q", image: "/images/phonics/cards/q.png", audio: "/audio/phonics/c_k_q.m4a", pronunciation: "k" },
     { id: "r", symbol: "r", image: "/images/phonics/cards/r.png", audio: "/audio/phonics/r.m4a", pronunciation: "r" },
     { id: "s", symbol: "s", image: "/images/phonics/cards/s.png", audio: "/audio/phonics/s.m4a", pronunciation: "s" },
+    { id: "sh", symbol: "sh", image: "/images/phonics/cards/sh.svg", audio: "/audio/phonics/sh.m4a", pronunciation: "sh" },
     { id: "t", symbol: "t", image: "/images/phonics/cards/t.png", audio: "/audio/phonics/t.m4a", pronunciation: "t" },
     { id: "u", symbol: "u", image: "/images/phonics/cards/u.png", audio: "/audio/phonics/u.m4a", pronunciation: "uh" },
     { id: "v", symbol: "v", image: "/images/phonics/cards/v.png", audio: "/audio/phonics/v.m4a", pronunciation: "v" },
