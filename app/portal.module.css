@@ -122,6 +122,16 @@
     --card-accent: #4ecdc4;
 }
 
+.cardGuess {
+    --card-accent: #ffe066;
+}
+
+.cardGuess .cardIcon {
+    color: var(--card-accent);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 32px;
+}
+
 .cardPhonics {
     --card-accent: #e67e22;
 }

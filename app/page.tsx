@@ -27,6 +27,15 @@ const apps = [
     soon: false,
   },
   {
+    href: "/guess-it",
+    className: styles.cardGuess,
+    icon: "??",
+    title: "Guess\nIt!",
+    desc: "Yes/No質問をタップして、ひみつのお題を当てる英語ゲームです。",
+    tags: ["YES/NO", "VOICE", "AI"],
+    soon: false,
+  },
+  {
     href: "/phonics",
     className: styles.cardPhonics,
     icon: "🔊",
