@@ -790,9 +790,10 @@ export default function GuessItPage() {
 
         <aside className={styles.historyPanel}>
           <div className={styles.historyHeader}>
-            <span>History</span>
+            <span className={styles.historyTitle}>History</span>
             <button type="button" onClick={openGuess} disabled={phase !== "playing"} className={styles.gotItButton}>
-              I got it!
+              <strong>I got it!</strong>
+              <small>わかったらここをタップ！</small>
             </button>
           </div>
 
