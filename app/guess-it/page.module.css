@@ -1,0 +1,611 @@
+.shell {
+  min-height: 100vh;
+  padding: 18px;
+  background:
+    linear-gradient(135deg, rgba(251, 253, 255, 0.96), rgba(255, 249, 235, 0.94) 48%, rgba(240, 255, 248, 0.96)),
+    repeating-linear-gradient(90deg, rgba(33, 55, 80, 0.04) 0 1px, transparent 1px 38px);
+  color: #1b2430;
+  font-family: "Nunito", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, system-ui, sans-serif;
+  font-weight: 800;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  max-width: 1240px;
+  margin: 0 auto 16px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 2px solid #1b2430;
+  border-radius: 8px;
+  box-shadow: 5px 5px 0 #1b2430;
+}
+
+.kicker {
+  margin: 0 0 2px;
+  color: #0e7c86;
+  font-size: 0.9rem;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.9rem;
+  line-height: 1.12;
+}
+
+.modeStrip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.segment,
+.startButton,
+.secondaryButton,
+.peekButton,
+.gotItButton {
+  min-height: 42px;
+  border: 2px solid #1b2430;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1b2430;
+  box-shadow: 3px 3px 0 #1b2430;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.92rem;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    background 140ms ease;
+}
+
+.segment {
+  padding: 8px 12px;
+}
+
+.segmentActive {
+  background: #ffe066;
+}
+
+.segment:hover,
+.startButton:hover,
+.secondaryButton:hover,
+.peekButton:hover,
+.gotItButton:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #1b2430;
+}
+
+.segment:active,
+.startButton:active,
+.secondaryButton:active,
+.peekButton:active,
+.gotItButton:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #1b2430;
+}
+
+.segment:disabled,
+.startButton:disabled,
+.secondaryButton:disabled,
+.peekButton:disabled,
+.gotItButton:disabled,
+.questionBubble:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+.stage {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(300px, 1.2fr) minmax(180px, 0.55fr);
+  gap: 14px;
+  max-width: 1240px;
+  margin: 0 auto 16px;
+}
+
+.roulettePanel,
+.aiPanel,
+.statsPanel,
+.historyPanel,
+.guessPanel {
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid #1b2430;
+  border-radius: 8px;
+  box-shadow: 5px 5px 0 #1b2430;
+}
+
+.roulettePanel {
+  padding: 14px;
+}
+
+.secretDisplay {
+  min-height: 168px;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  padding: 18px;
+  background: #e8f7ff;
+  border: 2px solid #1b2430;
+  border-radius: 8px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.secretDisplay[data-phase="spinning"] {
+  background: #fff3bf;
+  animation: roulettePulse 420ms ease-in-out infinite alternate;
+}
+
+.secretDisplay[data-phase="finished"] {
+  background: #dcfce7;
+}
+
+.secretIcon {
+  width: 78px;
+  height: 78px;
+  display: grid;
+  place-items: center;
+  border: 2px solid #1b2430;
+  border-radius: 50%;
+  background: #ffffff;
+  font-size: 2.7rem;
+  line-height: 1;
+}
+
+.secretWord {
+  max-width: 100%;
+  font-size: 1.55rem;
+  overflow-wrap: anywhere;
+}
+
+.secretSub {
+  min-height: 1.4em;
+  color: #56616f;
+  font-size: 0.92rem;
+}
+
+.commandRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.startButton {
+  padding: 10px 15px;
+  background: #ff8a65;
+}
+
+.secondaryButton {
+  padding: 10px 14px;
+  background: #ffffff;
+}
+
+.teacherLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  min-height: 42px;
+}
+
+.peekButton {
+  padding: 8px 10px;
+  background: #d9ed92;
+  font-size: 0.86rem;
+}
+
+.peekAnswer {
+  min-width: 0;
+  color: #0e7c86;
+  overflow-wrap: anywhere;
+}
+
+.aiPanel {
+  min-height: 168px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px;
+  background: #f8f9ff;
+}
+
+.aiPanel[data-answer="yes"] {
+  background: #e8fff4;
+}
+
+.aiPanel[data-answer="no"] {
+  background: #fff0f0;
+}
+
+.aiLabel {
+  width: fit-content;
+  padding: 4px 8px;
+  border: 2px solid #1b2430;
+  border-radius: 999px;
+  background: #91e5f6;
+  font-size: 0.8rem;
+}
+
+.aiPanel strong {
+  font-size: 2.15rem;
+  line-height: 1.06;
+  overflow-wrap: anywhere;
+}
+
+.aiPanel span:last-child {
+  color: #56616f;
+  line-height: 1.4;
+}
+
+.statsPanel {
+  min-height: 168px;
+  display: grid;
+  align-content: center;
+  gap: 9px;
+  padding: 14px;
+  background: #fff7e6;
+}
+
+.statsPanel span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 6px 8px;
+  border: 2px solid #1b2430;
+  border-radius: 8px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.playArea {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 16px;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.questionCloud {
+  min-height: 470px;
+  display: flex;
+  align-content: flex-start;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px;
+  border: 2px dashed rgba(27, 36, 48, 0.45);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.3)),
+    repeating-linear-gradient(0deg, transparent 0 48px, rgba(27, 36, 48, 0.05) 48px 50px);
+}
+
+.questionBubble {
+  min-height: 72px;
+  max-width: 240px;
+  flex: 1 1 178px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 2px solid #1b2430;
+  border-radius: 999px;
+  color: #1b2430;
+  box-shadow: 3px 3px 0 #1b2430;
+  cursor: pointer;
+  font: inherit;
+  text-align: center;
+  animation: floaty 3.4s ease-in-out infinite;
+  animation-delay: var(--float-delay);
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    filter 140ms ease;
+}
+
+.questionBubble span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.questionBubble small {
+  display: block;
+  color: rgba(27, 36, 48, 0.72);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.questionBubble:hover {
+  filter: saturate(1.08);
+  transform: translate(-1px, -2px);
+  box-shadow: 5px 5px 0 #1b2430;
+}
+
+.category {
+  background: #caffbf;
+}
+
+.look {
+  background: #ffd6a5;
+}
+
+.action {
+  background: #bde0fe;
+}
+
+.place {
+  background: #ffc6ff;
+}
+
+.historyPanel {
+  min-height: 470px;
+  padding: 14px;
+  background: #f8f9ff;
+}
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.gotItButton {
+  padding: 9px 11px;
+  background: #52b788;
+  color: #ffffff;
+}
+
+.historyList {
+  display: grid;
+  gap: 8px;
+}
+
+.emptyHistory {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+.historyRow {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  padding: 8px 0;
+  border-bottom: 2px solid rgba(27, 36, 48, 0.12);
+}
+
+.historyRow span {
+  display: grid;
+  place-items: center;
+  min-height: 28px;
+  border: 2px solid #1b2430;
+  border-radius: 6px;
+  font-size: 0.72rem;
+}
+
+.historyRow[data-answer="yes"] span {
+  background: #95d5b2;
+}
+
+.historyRow[data-answer="no"] span {
+  background: #ffadad;
+}
+
+.historyRow p {
+  margin: 0;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.historyRow small {
+  display: block;
+  margin-top: 2px;
+  color: #667085;
+}
+
+.guessLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(20, 27, 38, 0.58);
+  backdrop-filter: blur(3px);
+}
+
+.guessPanel {
+  width: min(520px, 100%);
+  padding: 24px;
+  text-align: center;
+  background: #ffffff;
+}
+
+.guessLead,
+.revealLead {
+  margin: 0 0 8px;
+  color: #0e7c86;
+}
+
+.guessPanel h2 {
+  margin: 0 0 16px;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.guessForm {
+  display: grid;
+  gap: 14px;
+}
+
+.guessForm input {
+  width: 100%;
+  min-height: 54px;
+  padding: 10px 12px;
+  border: 2px solid #1b2430;
+  border-radius: 8px;
+  color: #1b2430;
+  font: inherit;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.guessActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.revealIcon {
+  width: 116px;
+  height: 116px;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 14px;
+  border: 2px solid #1b2430;
+  border-radius: 50%;
+  background: #fff3bf;
+  font-size: 4rem;
+  animation: revealPop 520ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+.revealJa {
+  margin: -6px 0 14px;
+  font-size: 1.15rem;
+  color: #0e7c86;
+}
+
+.lastGuess {
+  margin: 0 0 16px;
+  color: #667085;
+  overflow-wrap: anywhere;
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+
+  50% {
+    translate: 0 calc(var(--float-distance) * -1);
+  }
+}
+
+@keyframes roulettePulse {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes revealPop {
+  from {
+    transform: scale(0.7) rotate(-8deg);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 980px) {
+  .topBar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .modeStrip {
+    justify-content: flex-start;
+  }
+
+  .stage,
+  .playArea {
+    grid-template-columns: 1fr;
+  }
+
+  .historyPanel {
+    min-height: 260px;
+  }
+}
+
+@media (max-width: 620px) {
+  .shell {
+    padding: 10px;
+  }
+
+  .topBar,
+  .roulettePanel,
+  .aiPanel,
+  .statsPanel,
+  .historyPanel,
+  .guessPanel {
+    box-shadow: 3px 3px 0 #1b2430;
+  }
+
+  .title {
+    font-size: 1.55rem;
+  }
+
+  .stage {
+    gap: 10px;
+  }
+
+  .commandRow,
+  .teacherLine,
+  .historyHeader {
+    align-items: stretch;
+    flex-direction: column;
+    grid-template-columns: 1fr;
+  }
+
+  .aiPanel strong {
+    font-size: 1.55rem;
+  }
+
+  .questionCloud {
+    min-height: 400px;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .questionBubble {
+    min-height: 66px;
+    flex-basis: 146px;
+    max-width: none;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+  }
+
+  .guessPanel {
+    padding: 18px;
+  }
+
+  .guessPanel h2 {
+    font-size: 1.55rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .questionBubble,
+  .secretDisplay[data-phase="spinning"],
+  .revealIcon {
+    animation: none;
+  }
+}

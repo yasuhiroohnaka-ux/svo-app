@@ -59,6 +59,9 @@ export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComp
         clearTimeout(currentTimeout);
         currentTimeout = null;
       }
+      if (currentUtterance === u) {
+        currentUtterance = null;
+      }
 
       // Check ID again before scheduling next
       if (myQueueId !== activeQueueId) return;
@@ -80,8 +83,7 @@ export function speakQueue(texts: string[], interval = 0, lang = "en-US", onComp
       next();
     };
 
-    u.onerror = (e) => {
-      console.error("Speech error", e);
+    u.onerror = () => {
       next();
     };
 
@@ -104,6 +106,7 @@ export function cancelSpeech() {
   if (synth) {
     synth.cancel();
   }
+  currentUtterance = null;
 }
 
 export function unlockSpeech() {
