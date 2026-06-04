@@ -6,6 +6,15 @@ export type Phonic = {
     pronunciation?: string; // Text for TTS (e.g. "k" for "c")
 };
 
+export type WordVisualTone = "aqua" | "sun" | "leaf" | "rose" | "sky" | "orange";
+
+export type WordVisual = {
+    icon: string;
+    labelJa: string;
+    clueJa: string;
+    tone: WordVisualTone;
+};
+
 export type Word = {
     id: string;
     text: string;
@@ -24,6 +33,7 @@ export type LessonWord = {
     note?: string;
     audio?: string;
     wordAudio?: string;
+    visual?: WordVisual;
 };
 
 export type PhonicsLevel = {
@@ -72,38 +82,84 @@ export const PRIORITY_PHONICS_IDS = LEVEL4_TARGET_IDS;
 export const PHONICS_LEVELS: PhonicsLevel[] = [
     {
         id: "level-0",
-        label: "レベル0",
-        description: "おとを きいて、カードを おぼえよう",
+        label: "Level 0",
+        description: "音と文字カードを確認",
         targetIds: ["a", "e", "o", "p", "n", "t", "b", "d"],
         mode: "practice-first",
     },
     {
         id: "level-1",
-        label: "レベル1",
-        description: "3もじの クイズに ちょうせん！",
+        label: "Level 1",
+        description: "3文字CVCのスペリング",
         targetIds: ["a", "e", "o", "p", "n", "t", "b", "d"],
     },
     {
         id: "level-2",
-        label: "レベル2",
-        description: "にている おとを くらべよう",
+        label: "Level 2",
+        description: "母音と子音を比較",
         targetIds: ["a", "e", "i", "o", "u", "p", "n", "t", "b", "d", "g", "m"],
     },
     {
         id: "level-3",
-        label: "レベル3",
-        description: "ことばを ふやそう",
+        label: "Level 3",
+        description: "使える音を増やす",
         targetIds: LEVEL3_TARGET_IDS,
     },
     {
         id: "level-4",
-        label: "レベル4",
-        description: "あたらしい おとで クイズ！",
+        label: "Level 4",
+        description: "s / f / h を含む単語",
         targetIds: LEVEL4_TARGET_IDS,
     },
 ];
 
 export const DEFAULT_LESSON_TARGET_IDS = PHONICS_LEVELS[0].targetIds;
+
+const WORD_VISUALS: Record<string, WordVisual> = {
+    pen: { icon: "WRITE", labelJa: "筆記具", clueJa: "かくもの", tone: "sky" },
+    pet: { icon: "PAW", labelJa: "ペット", clueJa: "いっしょにいる なかま", tone: "leaf" },
+    ten: { icon: "10", labelJa: "10", clueJa: "かず", tone: "sun" },
+    net: { icon: "GRID", labelJa: "ネット", clueJa: "あみ", tone: "aqua" },
+    tap: { icon: "DROP", labelJa: "水道", clueJa: "みずを だす", tone: "sky" },
+    pan: { icon: "COOK", labelJa: "フライパン", clueJa: "料理のどうぐ", tone: "orange" },
+    nap: { icon: "Zzz", labelJa: "休憩", clueJa: "すこし ねる", tone: "sky" },
+    bat: { icon: "HIT", labelJa: "バット", clueJa: "ボールを打つ", tone: "orange" },
+    bed: { icon: "REST", labelJa: "ベッド", clueJa: "寝るところ", tone: "aqua" },
+    pot: { icon: "TEA", labelJa: "ポット", clueJa: "入れるどうぐ", tone: "orange" },
+    top: { icon: "SPIN", labelJa: "こま", clueJa: "くるくる回る", tone: "rose" },
+    bag: { icon: "PACK", labelJa: "バッグ", clueJa: "ものを入れる", tone: "orange" },
+    big: { icon: "XL", labelJa: "大きい", clueJa: "サイズが大きい", tone: "sun" },
+    dig: { icon: "SOIL", labelJa: "掘る", clueJa: "土を掘る", tone: "leaf" },
+    dog: { icon: "WOOF", labelJa: "犬", clueJa: "ワンワン", tone: "leaf" },
+    mop: { icon: "CLEAN", labelJa: "モップ", clueJa: "掃除する", tone: "aqua" },
+    map: { icon: "ROUTE", labelJa: "地図", clueJa: "道を見る", tone: "sky" },
+    bug: { icon: "INSECT", labelJa: "虫", clueJa: "小さい虫", tone: "leaf" },
+    mug: { icon: "CUP", labelJa: "マグ", clueJa: "飲むカップ", tone: "orange" },
+    gum: { icon: "CHEW", labelJa: "ガム", clueJa: "かむお菓子", tone: "rose" },
+    mud: { icon: "SOIL", labelJa: "泥", clueJa: "ぬれた土", tone: "leaf" },
+    cat: { icon: "MEOW", labelJa: "猫", clueJa: "ニャー", tone: "leaf" },
+    cap: { icon: "HEAD", labelJa: "キャップ", clueJa: "頭にかぶる", tone: "sky" },
+    cup: { icon: "DRINK", labelJa: "カップ", clueJa: "飲むうつわ", tone: "aqua" },
+    cut: { icon: "CUT", labelJa: "切る", clueJa: "はさみで切る", tone: "rose" },
+    kid: { icon: "Jr.", labelJa: "子ども", clueJa: "小さい人", tone: "sun" },
+    kit: { icon: "TOOLS", labelJa: "キット", clueJa: "道具セット", tone: "orange" },
+    leg: { icon: "WALK", labelJa: "脚", clueJa: "歩くところ", tone: "sun" },
+    lip: { icon: "MOUTH", labelJa: "くちびる", clueJa: "口のところ", tone: "rose" },
+    log: { icon: "WOOD", labelJa: "丸太", clueJa: "木の棒", tone: "leaf" },
+    red: { icon: "COLOR", labelJa: "赤", clueJa: "赤い色", tone: "rose" },
+    run: { icon: "GO!", labelJa: "走る", clueJa: "すばやく進む", tone: "sky" },
+    rat: { icon: "SQUEAK", labelJa: "ラット", clueJa: "小さい動物", tone: "leaf" },
+    sun: { icon: "LIGHT", labelJa: "太陽", clueJa: "明るく照らす", tone: "sun" },
+    sit: { icon: "CHAIR", labelJa: "座る", clueJa: "いすに座る", tone: "aqua" },
+    sad: { icon: ":(", labelJa: "悲しい", clueJa: "しょんぼり", tone: "sky" },
+    sip: { icon: "DRINK", labelJa: "ひと口", clueJa: "少し飲む", tone: "aqua" },
+    fan: { icon: "WIND", labelJa: "ファン", clueJa: "風を送る", tone: "sky" },
+    fin: { icon: "FISH", labelJa: "ひれ", clueJa: "すいすい動く", tone: "aqua" },
+    fog: { icon: "MIST", labelJa: "霧", clueJa: "景色が白い", tone: "sky" },
+    hat: { icon: "HEAD", labelJa: "帽子", clueJa: "頭にのせる", tone: "orange" },
+    hen: { icon: "EGG", labelJa: "めんどり", clueJa: "コッコッ", tone: "sun" },
+    hot: { icon: "HEAT", labelJa: "熱い", clueJa: "あつあつ", tone: "rose" },
+};
 
 const makeLessonWord = (text: string, phonics: string[], levelIds: string[], level: 1 | 2 | 3 | 4 = 1): LessonWord => ({
     id: text,
@@ -112,6 +168,7 @@ const makeLessonWord = (text: string, phonics: string[], levelIds: string[], lev
     soundParts: phonics.map((id) => `/${id}/`),
     level,
     levelIds,
+    visual: WORD_VISUALS[text],
 });
 
 export const LESSON_WORDS: LessonWord[] = [

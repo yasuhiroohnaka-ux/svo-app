@@ -20,11 +20,21 @@ type ViewMode = "setup" | "poster" | "challenge" | "soundQuiz";
 type FeedbackKind = "idle" | "correct" | "tryAgain" | "empty";
 type EntryMode = "direct" | "sound" | "word" | "set";
 type CorrectWordsByLevel = Record<string, string[]>;
+type WordVisualTone = NonNullable<LessonWord["visual"]>["tone"];
 
-const LOW_WORD_COUNT_HINT = "ことばが少ないときは、ほかのレベルも 見てみよう。";
-const WORD_AUDIO_GUIDE = "きいて、まねして、こえにだしてみよう。";
+const LOW_WORD_COUNT_HINT = "単語数が少ないときは、別のレベルも確認してください。";
+const WORD_AUDIO_GUIDE = "音声を聞いて、発音をまねしてみよう。";
 const CORRECT_WORDS_STORAGE_PREFIX = "phonics.correctWords.";
 const LEVEL_4_NEW_SOUND_IDS = ["s", "f", "h"];
+
+const WORD_VISUAL_TONE_CLASS: Record<WordVisualTone, string> = {
+    aqua: styles.visualAqua,
+    sun: styles.visualSun,
+    leaf: styles.visualLeaf,
+    rose: styles.visualRose,
+    sky: styles.visualSky,
+    orange: styles.visualOrange,
+};
 
 const getPhonicById = (id: string): Phonic | undefined => PHONICS_DATA.find((phonic) => phonic.id === id);
 
@@ -100,17 +110,11 @@ const getEntryMode = (entry: string | null): EntryMode => {
 };
 
 const HanamaruMark = ({ className }: { className?: string }) => (
-    <svg className={className} viewBox="0 0 520 260" aria-hidden="true" focusable="false">
-        <path
-            className={styles.hanamaruLine}
-            d="M260 37 C302 -8 372 12 372 70 C432 58 480 106 438 151 C462 206 385 229 338 195 C313 250 224 240 202 195 C145 224 82 181 116 129 C62 88 119 37 178 61 C190 8 242 -4 260 37 Z"
-        />
-        <path
-            className={styles.hanamaruInnerLine}
-            d="M301 86 C233 64 181 118 206 171 C233 228 344 196 344 125 C344 74 255 66 231 127 C213 173 274 192 308 154 C335 124 306 103 273 115"
-        />
-        <path className={styles.hanamaruAccentLine} d="M118 92 C136 81 153 75 174 72" />
-        <path className={styles.hanamaruAccentLine} d="M382 78 C406 80 425 89 440 105" />
+    <svg className={className} viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+        <path className={styles.hanamaruLine} d="M60 14 C85 14 106 35 106 60 C106 85 85 106 60 106 C35 106 14 85 14 60 C14 35 35 14 60 14 Z" />
+        <path className={styles.hanamaruInnerLine} d="M36 62 L53 78 L86 42" />
+        <path className={styles.hanamaruAccentLine} d="M33 25 L43 34" />
+        <path className={styles.hanamaruAccentLine} d="M87 86 L97 96" />
     </svg>
 );
 
@@ -125,9 +129,9 @@ const FeedbackBadge = ({ kind }: { kind: FeedbackKind }) => {
 
     if (kind === "tryAgain") {
         return (
-            <div className={`${styles.resultBadge} ${styles.questionBadge}`} aria-label="もういちど考えよう">
+            <div className={`${styles.resultBadge} ${styles.questionBadge}`} aria-label="もう一度考えよう">
                 <span>?</span>
-                <strong>もういちど</strong>
+                <strong>Retry</strong>
             </div>
         );
     }
@@ -149,13 +153,13 @@ export default function PhonicsPage() {
     const [usedWordIds, setUsedWordIds] = useState<string[]>([]);
     const [answerSlots, setAnswerSlots] = useState<(string | null)[]>([]);
     const [hintLevel, setHintLevel] = useState(0);
-    const [feedback, setFeedback] = useState("まずは ことばを きいてみよう。");
+    const [feedback, setFeedback] = useState("まずは単語を聞いてみよう。");
     const [feedbackKind, setFeedbackKind] = useState<FeedbackKind>("idle");
     const [notice, setNotice] = useState(WORD_AUDIO_GUIDE);
     const [currentSoundTargetId, setCurrentSoundTargetId] = useState<string | null>(null);
     const [usedSoundTargetIds, setUsedSoundTargetIds] = useState<string[]>([]);
     const [soundQuizAnswered, setSoundQuizAnswered] = useState(false);
-    const [soundQuizFeedback, setSoundQuizFeedback] = useState("きいて、どのカードか さがそう。");
+    const [soundQuizFeedback, setSoundQuizFeedback] = useState("音を聞いて、対応するカードを選ぼう。");
     const [soundQuizFeedbackKind, setSoundQuizFeedbackKind] = useState<FeedbackKind>("idle");
     const [entryMode, setEntryMode] = useState<EntryMode>("direct");
     const [correctWordsByLevel, setCorrectWordsByLevel] = useState<CorrectWordsByLevel>(() =>
@@ -244,7 +248,7 @@ export default function PhonicsPage() {
         const nextWord = pickRandomWord(getPreferredWordPool(selectedLevel.id, levelWords), []);
         setCurrentWord(nextWord);
         resetAnswerState(nextWord);
-        setNotice(nextWord ? "もういちど やってみよう。" : "レベルを えらびなおしてみよう。");
+        setNotice(nextWord ? "もう一度チャレンジできます。" : "レベルを選び直してください。");
     };
 
     useEffect(() => {
@@ -295,10 +299,10 @@ export default function PhonicsPage() {
                 setCurrentSoundTargetId(firstSoundId);
                 setUsedSoundTargetIds(firstSoundId ? [firstSoundId] : []);
                 setSoundQuizAnswered(false);
-                setSoundQuizFeedback("きいて、どのカードか さがそう。");
+                setSoundQuizFeedback("音を聞いて、対応するカードを選ぼう。");
                 setSoundQuizFeedbackKind("idle");
                 setMode("soundQuiz");
-                setNotice("きいてみよう を おしてね。");
+                setNotice("再生ボタンで音を確認しよう。");
                 return;
             }
 
@@ -318,13 +322,13 @@ export default function PhonicsPage() {
             setUsedWordIds(isWordEntry && firstWord ? [firstWord.id] : []);
             setAnswerSlots(isWordEntry ? makeEmptySlots(firstWord) : []);
             setHintLevel(0);
-            setFeedback("まずは ことばを きいてみよう。");
+            setFeedback("まずは単語を聞いてみよう。");
             setFeedbackKind("idle");
             setCurrentSoundTargetId(null);
             setUsedSoundTargetIds([]);
             setSoundQuizAnswered(false);
             setMode(isWordEntry ? "challenge" : "setup");
-            setNotice(isWordEntry ? "きいて、カードをならべてみよう。" : "レベル1のカードで はじめよう。");
+            setNotice(isWordEntry ? "音声を聞いて、カードを並べよう。" : "Level 1 のカードで始めよう。");
         };
 
         applyEntryMode();
@@ -363,14 +367,14 @@ export default function PhonicsPage() {
     const resetAnswerState = (word: LessonWord | null) => {
         setAnswerSlots(makeEmptySlots(word));
         setHintLevel(0);
-        setFeedback("まずは ことばを きいてみよう。");
+        setFeedback("まずは単語を聞いてみよう。");
         setFeedbackKind("idle");
     };
 
     const resetSoundQuizState = () => {
         setCurrentSoundTargetId(null);
         setSoundQuizAnswered(false);
-        setSoundQuizFeedback("きいて、どのカードか さがそう。");
+        setSoundQuizFeedback("音を聞いて、対応するカードを選ぼう。");
         setSoundQuizFeedbackKind("idle");
     };
 
@@ -406,6 +410,7 @@ export default function PhonicsPage() {
     const playPhonicSound = (phonic: Phonic, rate = 0.82) => {
         if (phonic.audio) {
             const audio = new Audio(phonic.audio);
+            audio.playbackRate = rate;
             audio.play().catch(() => {
                 playSpeech(phonic.pronunciation || phonic.symbol, rate);
             });
@@ -419,7 +424,7 @@ export default function PhonicsPage() {
         if (!currentSoundTargetId) return;
         const phonic = getPhonicById(currentSoundTargetId);
         if (!phonic) return;
-        setNotice("おとを きいて、カードを さがそう。");
+        setNotice("音を聞いて、対応するカードを探そう。");
         playPhonicSound(phonic, 0.76);
     };
 
@@ -447,10 +452,25 @@ export default function PhonicsPage() {
         const phonic = getPhonicById(phonicId);
         if (!phonic) return;
 
-        setFeedback(`${index + 1}ばんめの おとを きいてみよう。`);
+        setFeedback(`${index + 1}番目の音を確認しよう。`);
         setFeedbackKind("idle");
 
         playPhonicSound(phonic, 0.62);
+    };
+
+    const playWordParts = async () => {
+        if (!currentWord) return;
+
+        setHintLevel((level) => Math.max(level, 2));
+        setNotice("音をひとつずつ分解して確認します。");
+
+        for (const phonicId of currentWord.phonics) {
+            const phonic = getPhonicById(phonicId);
+            if (phonic) {
+                playPhonicSound(phonic, 0.68);
+                await new Promise((resolve) => window.setTimeout(resolve, 620));
+            }
+        }
     };
 
     const toggleTarget = (id: string) => {
@@ -480,21 +500,21 @@ export default function PhonicsPage() {
 
         if (nextWord) {
             setUsedWordIds((current) => (current.includes(nextWord.id) ? current : [...current, nextWord.id]));
-            setNotice("きいて、カードをならべてみよう。");
+            setNotice("音声を聞いて、カードを並べよう。");
         } else {
             setNotice(
                 selectedLevel.mode === "practice-first"
-                    ? "まずは おとカードで なんども きいてみよう。"
+                    ? "まずは Sound Cards で音を確認しよう。"
                     : isLevelCompleteToday
-                      ? "きょうの クイズは ぜんぶ できた！"
-                      : `つくれる ことばが まだないよ。${LOW_WORD_COUNT_HINT}`,
+                      ? "今日の Spelling Quiz は完了です。"
+                      : `出題できる単語がまだありません。${LOW_WORD_COUNT_HINT}`,
             );
             setFeedback(
                 selectedLevel.mode === "practice-first"
-                    ? "レベル0は、おとを きくところから はじめよう。"
+                    ? "Level 0 は音と文字の対応確認から始めます。"
                     : isLevelCompleteToday
-                      ? "また あした あそぼう。"
-                      : "レベルを えらびなおしてみよう。",
+                      ? "復習する場合はリセットできます。"
+                      : "レベルを選び直してください。",
             );
         }
     };
@@ -509,19 +529,30 @@ export default function PhonicsPage() {
         chooseNextWord(false);
     };
 
+    const startWordChallenge = (word: LessonWord) => {
+        setMode("challenge");
+        setCurrentWord(word);
+        setUsedWordIds((current) => (current.includes(word.id) ? current : [...current, word.id]));
+        setAnswerSlots(makeEmptySlots(word));
+        setHintLevel(0);
+        setFeedback("画像と音声をヒントに、カードを並べよう。");
+        setFeedbackKind("idle");
+        setNotice("画像を見て、音を聞いて、スペリングを組み立てよう。");
+    };
+
     const chooseNextSoundTarget = () => {
         const nextTargetId = pickRandomId(selectedIds, usedSoundTargetIds);
         setCurrentSoundTargetId(nextTargetId);
         setSoundQuizAnswered(false);
-        setSoundQuizFeedback("きいて、どのカードか さがそう。");
+        setSoundQuizFeedback("音を聞いて、対応するカードを選ぼう。");
         setSoundQuizFeedbackKind("idle");
 
         if (nextTargetId) {
             setUsedSoundTargetIds((current) => (current.includes(nextTargetId) ? current : [...current, nextTargetId]));
-            setNotice("きいてみよう を おしてね。");
+            setNotice("再生ボタンで音を確認しよう。");
         } else {
-            setNotice("おとカードを えらんでみよう。");
-            setSoundQuizFeedback("きょうの おとを えらんでね。");
+            setNotice("Sound Cards を選択してください。");
+            setSoundQuizFeedback("今日の音を選択してください。");
             setSoundQuizFeedbackKind("empty");
         }
     };
@@ -536,10 +567,10 @@ export default function PhonicsPage() {
         setSoundQuizAnswered(true);
 
         if (id === currentSoundTargetId) {
-            setSoundQuizFeedback("できた！");
+            setSoundQuizFeedback("Correct");
             setSoundQuizFeedbackKind("correct");
         } else {
-            setSoundQuizFeedback("もういちど きいてみよう。");
+            setSoundQuizFeedback("もう一度聞いて確認しよう。");
             setSoundQuizFeedbackKind("tryAgain");
         }
     };
@@ -562,7 +593,7 @@ export default function PhonicsPage() {
 
         const nextEmptyIndex = answerSlots.findIndex((slot) => slot === null);
         if (nextEmptyIndex === -1) {
-            setFeedback("いっぱいだよ。いらないカードを タップして はずそう。");
+            setFeedback("スロットがいっぱいです。不要なカードを外してください。");
             setFeedbackKind("empty");
             return;
         }
@@ -572,7 +603,7 @@ export default function PhonicsPage() {
             next[nextEmptyIndex] = id;
             return next;
         });
-        setFeedback("ならべてみよう。");
+        setFeedback("カードを並べよう。");
         setFeedbackKind("idle");
     };
 
@@ -584,7 +615,7 @@ export default function PhonicsPage() {
             next[slotIndex] = id;
             return next;
         });
-        setFeedback("ならべてみよう。");
+        setFeedback("カードを並べよう。");
         setFeedbackKind("idle");
     };
 
@@ -594,7 +625,7 @@ export default function PhonicsPage() {
             next[slotIndex] = null;
             return next;
         });
-        setFeedback("はずしたよ。もういちど えらんでね。");
+        setFeedback("カードを外しました。もう一度選んでください。");
         setFeedbackKind("idle");
     };
 
@@ -617,16 +648,16 @@ export default function PhonicsPage() {
         const isCorrect = currentWord.phonics.every((id, index) => answerSlots[index] === id);
         if (isCorrect) {
             markWordCorrectToday(selectedLevel.id, currentWord.id);
-            setFeedback("できた！");
+            setFeedback("Correct");
             setFeedbackKind("correct");
         } else {
-            setFeedback("もういちど きいてみよう。");
+            setFeedback("もう一度聞いて確認しよう。");
             setFeedbackKind("tryAgain");
         }
     };
 
     const retryWordAnswer = () => {
-        setFeedback("もういちど ならべてみよう。");
+        setFeedback("もう一度並べてみよう。");
         setFeedbackKind("idle");
     };
 
@@ -645,7 +676,7 @@ export default function PhonicsPage() {
 
     const resetUsedWords = () => {
         setUsedWordIds([]);
-        setNotice("でた ことばを リセットしたよ。");
+        setNotice("今日出た単語をリセットしました。");
     };
 
     const hintThreeText = currentWord ? [currentWord.text[0], ...currentWord.text.slice(1).split("").map(() => "?")].join(" ") : "";
@@ -659,6 +690,7 @@ export default function PhonicsPage() {
           })
         : [];
     const currentSoundPhonic = currentSoundTargetId ? getPhonicById(currentSoundTargetId) : null;
+    const currentWordVisual = currentWord?.visual;
 
     if (fallbackMode) {
         return (
@@ -700,8 +732,8 @@ export default function PhonicsPage() {
         <main className={styles.container}>
             <header className={styles.headerBar}>
                 <div>
-                    <p className={styles.kicker}>きいて ならべる フォニックス</p>
-                    <h1 className={styles.title}>oto-man</h1>
+                    <p className={styles.kicker}>LISTEN / VISUALIZE / SPELL</p>
+                    <h1 className={styles.title}>Spelling Lab</h1>
                 </div>
                 <nav className={styles.nav}>
                     <Link className={styles.navLink} href="/">
@@ -716,19 +748,19 @@ export default function PhonicsPage() {
                 </nav>
             </header>
 
-            <section className={styles.modeTabs} aria-label="あそびのながれ">
+            <section className={styles.modeTabs} aria-label="学習ステップ">
                 <button className={mode === "setup" ? styles.modeActive : styles.modeButton} onClick={() => setMode("setup")}>
-                    1. きょうの おと
+                    1. Sound Set
                 </button>
                 <button className={mode === "poster" ? styles.modeActive : styles.modeButton} onClick={() => setMode("poster")}>
-                    2. おとカード
+                    2. Sound Cards
                 </button>
                 <button
                     className={mode === "challenge" || mode === "soundQuiz" ? styles.modeActive : styles.modeButton}
                     onClick={startChallenge}
                     disabled={selectedLevel.mode !== "practice-first" && levelWords.length === 0}
                 >
-                    {selectedLevel.mode === "practice-first" ? "3. おとを さがそう" : "3. クイズに ちょうせん！"}
+                    {selectedLevel.mode === "practice-first" ? "3. Sound Check" : "3. Spelling Quiz"}
                 </button>
             </section>
 
@@ -736,8 +768,8 @@ export default function PhonicsPage() {
                 <section className={styles.panel}>
                     <div className={styles.sectionHeader}>
                         <div>
-                            <h2>きょうの おと</h2>
-                            <p>レベルをえらんで、おとをたしかめよう。レベル0は、おとカードから はじめるよ。</p>
+                            <h2>音のセットを選ぶ</h2>
+                            <p>今日扱うレベルと音カードを選択します。Level 0 は音と文字の対応確認から始めます。</p>
                         </div>
                         <div className={styles.countBadge}>{selectedLevel.label}</div>
                     </div>
@@ -776,11 +808,33 @@ export default function PhonicsPage() {
                     </div>
 
                     <div className={styles.summaryBar}>
-                        <span>つくれる ことば: {levelWords.length}</span>
-                        {selectedLevel.mode !== "practice-first" && <span>きょう のこり {availableWords.length}もん</span>}
-                        <span>{availableWords.map((word) => word.text).join(", ") || (isLevelCompleteToday ? "きょうは ぜんぶ できた！" : "まだないよ")}</span>
+                        <span>出題できる単語: {levelWords.length}</span>
+                        {selectedLevel.mode !== "practice-first" && <span>今日の残り {availableWords.length}問</span>}
+                        <span>{availableWords.map((word) => word.text).join(", ") || (isLevelCompleteToday ? "今日のQuizは完了" : "未設定")}</span>
                         {availableWords.length < 3 && !isLevelCompleteToday && <span className={styles.warningText}>{LOW_WORD_COUNT_HINT}</span>}
                     </div>
+
+                    {selectedLevel.mode !== "practice-first" && availableWords.length > 0 && (
+                        <div className={styles.wordPreviewGrid} aria-label="今日の単語">
+                            {availableWords.slice(0, 12).map((word) => {
+                                const visual = word.visual;
+                                return (
+                                    <button
+                                        key={word.id}
+                                        className={`${styles.wordPreviewCard} ${visual ? WORD_VISUAL_TONE_CLASS[visual.tone] : styles.visualSky}`}
+                                        onClick={() => startWordChallenge(word)}
+                                        type="button"
+                                    >
+                                        <span className={styles.wordPreviewIcon}>{visual?.icon ?? word.text[0]}</span>
+                                        <span className={styles.wordPreviewMeta}>
+                                            <strong>{visual?.labelJa ?? word.text}</strong>
+                                            <small>{word.phonics.join(" / ")}</small>
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
                 </section>
             )}
 
@@ -788,15 +842,15 @@ export default function PhonicsPage() {
                 <section className={styles.panel}>
                     <div className={styles.sectionHeader}>
                         <div>
-                            <h2>おとカード</h2>
-                            <p>カードをおすと、おとがなるよ。おぼえたら、つぎへすすもう。</p>
+                            <h2>Sound Cards</h2>
+                            <p>カードを押すと音声が再生されます。文字と音の対応を確認してからQuizへ進みます。</p>
                         </div>
                         <button
                             className={styles.primaryButton}
                             onClick={startChallenge}
                             disabled={selectedLevel.mode !== "practice-first" && levelWords.length === 0}
                         >
-                            {selectedLevel.mode === "practice-first" ? "おとあてへ" : "クイズへ"}
+                            {selectedLevel.mode === "practice-first" ? "Sound Checkへ" : "Quiz Start"}
                         </button>
                     </div>
 
@@ -815,8 +869,8 @@ export default function PhonicsPage() {
                 <section className={styles.panel}>
                     <div className={styles.sectionHeader}>
                         <div>
-                            <h2>おとを さがそう</h2>
-                            <p>ひとつの おとを きいて、どのカードか えらぼう。</p>
+                            <h2>Sound Check</h2>
+                            <p>再生された音を聞いて、対応するカードを選びます。</p>
                         </div>
                         <div className={styles.countBadge}>{selectedLevel.label}</div>
                     </div>
@@ -824,24 +878,24 @@ export default function PhonicsPage() {
                     {currentSoundPhonic ? (
                         <>
                             <div className={styles.soundQuizPanel}>
-                                <p className={styles.kicker}>おとあて</p>
-                                <h3>どのカードかな？</h3>
-                                <div className={styles.soundMysterySlot} aria-label="おとのもんだい">
+                                <p className={styles.kicker}>SOUND CHECK</p>
+                                <h3>Which sound?</h3>
+                                <div className={styles.soundMysterySlot} aria-label="音の問題">
                                     <span>[?]</span>
                                 </div>
                                 <div className={styles.bigActions}>
                                     <button className={styles.primaryButton} onClick={playCurrentSoundTarget}>
-                                        きいてみよう
+                                        Play sound
                                     </button>
                                     <button className={styles.secondaryButton} onClick={playCurrentSoundTarget}>
-                                        もういちど きく
+                                        Replay
                                     </button>
                                 </div>
                                 <FeedbackBadge kind={soundQuizFeedbackKind} />
                                 <p className={`${styles.feedback} ${styles[soundQuizFeedbackKind]}`}>{soundQuizFeedback}</p>
                             </div>
 
-                            <div className={styles.soundChoiceGrid} aria-label="おとあてカード">
+                            <div className={styles.soundChoiceGrid} aria-label="音あてカード">
                                 {selectedPhonics.map((phonic) => {
                                     const isCorrectAnswer = soundQuizAnswered && phonic.id === currentSoundTargetId && soundQuizFeedbackKind === "correct";
                                     return (
@@ -860,19 +914,19 @@ export default function PhonicsPage() {
 
                             <div className={styles.actions}>
                                 <button className={styles.primaryButton} onClick={chooseNextSoundTarget}>
-                                    つぎへ
+                                    Next
                                 </button>
                                 <button className={styles.secondaryButton} onClick={() => setMode("poster")}>
-                                    おとカードへ
+                                    Sound Cardsへ
                                 </button>
                             </div>
                         </>
                     ) : (
                         <div className={styles.emptyState}>
-                            <h2>おとカードを えらぼう</h2>
-                            <p>レベルを えらびなおしてみよう。</p>
+                            <h2>Sound Cards を選択してください</h2>
+                            <p>レベルを選び直してください。</p>
                             <button className={styles.primaryButton} onClick={() => setMode("setup")}>
-                                きょうの おとへ
+                                Sound Setへ
                             </button>
                         </div>
                     )}
@@ -882,8 +936,8 @@ export default function PhonicsPage() {
             {mode === "challenge" && (
                 <section className={styles.challengeLayout}>
                     <aside className={styles.sidePoster}>
-                        <h2>つかうカード</h2>
-                        <p className={styles.sideNote}>カードをタップすると、あいている ところに入るよ。</p>
+                        <h2>Sound Cards</h2>
+                        <p className={styles.sideNote}>カードをクリックまたはタップすると、空いているスロットに入ります。</p>
                         <div className={styles.sideGrid}>
                             {selectedPhonics.map((phonic) => {
                                 const usedInAnswer = feedbackKind === "correct" && currentWord?.phonics.includes(phonic.id);
@@ -908,37 +962,59 @@ export default function PhonicsPage() {
                     <section className={styles.challengePanel}>
                         <div className={styles.challengeTop}>
                             <div>
-                                <p className={styles.kicker}>クイズ</p>
-                                <h2>クイズに ちょうせん！</h2>
+                                <p className={styles.kicker}>SPELLING</p>
+                                <h2>Spelling Quiz</h2>
                             </div>
                             <div className={styles.countBadge}>
-                                のこり {availableWords.length}もん
+                                残り {availableWords.length}問
                             </div>
                         </div>
 
                         {currentWord ? (
                             <>
-                                <div className={styles.blankWord} aria-label="もじのかず">
-                                    {hiddenLetters.map((letter, index) => (
-                                        hintLevel >= 2 ? (
-                                            <button
-                                                key={`${letter}-${index}`}
-                                                className={styles.soundSlot}
-                                                onClick={() => playSoundPart(index)}
-                                                type="button"
-                                                aria-label={`${index + 1}ばんめの おと`}
-                                            >
-                                                {letter === "?" ? "[?]" : letter}
-                                            </button>
-                                        ) : (
-                                            <span key={`${letter}-${index}`}>{letter === "?" ? "[?]" : letter}</span>
-                                        )
-                                    ))}
+                                <div className={styles.wordQuizStage}>
+                                    <div
+                                        className={`${styles.wordPicture} ${
+                                            currentWordVisual ? WORD_VISUAL_TONE_CLASS[currentWordVisual.tone] : styles.visualSky
+                                        }`}
+                                        aria-label={currentWordVisual ? `${currentWordVisual.labelJa}の画像ヒント` : "画像ヒント"}
+                                    >
+                                        <span className={styles.wordPictureIcon}>{currentWordVisual?.icon ?? currentWord.text[0]}</span>
+                                        <span className={styles.wordPictureLabel}>{currentWordVisual?.labelJa ?? "画像ヒント"}</span>
+                                        <span className={styles.wordPictureClue}>{currentWordVisual?.clueJa ?? "音をよくきこう"}</span>
+                                    </div>
+
+                                    <div className={styles.wordSoundBoard}>
+                                        <p className={styles.promptLabel}>Picture + Sound → Spelling</p>
+                                        <div className={styles.blankWord} aria-label="文字数">
+                                            {hiddenLetters.map((letter, index) =>
+                                                hintLevel >= 2 ? (
+                                                    <button
+                                                        key={`${letter}-${index}`}
+                                                        className={styles.soundSlot}
+                                                        onClick={() => playSoundPart(index)}
+                                                        type="button"
+                                                        aria-label={`${index + 1}番目の音`}
+                                                    >
+                                                        {letter === "?" ? "[?]" : letter}
+                                                    </button>
+                                                ) : (
+                                                    <span key={`${letter}-${index}`}>{letter === "?" ? "[?]" : letter}</span>
+                                                ),
+                                            )}
+                                        </div>
+                                        {feedbackKind === "correct" && (
+                                            <div className={styles.wordReveal} aria-live="polite">
+                                                <strong>{currentWord.text}</strong>
+                                                <span>{currentWord.phonics.join(" + ")}</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className={styles.bigActions}>
                                     <button className={styles.primaryButton} onClick={() => playWord(false)}>
-                                        きいてみよう
+                                        Play word
                                     </button>
                                     <button
                                         className={styles.secondaryButton}
@@ -947,7 +1023,10 @@ export default function PhonicsPage() {
                                             playWord(false);
                                         }}
                                     >
-                                        もういちど きく
+                                        Replay
+                                    </button>
+                                    <button className={styles.secondaryButton} onClick={playWordParts}>
+                                        Break sounds
                                     </button>
                                     <button
                                         className={styles.secondaryButton}
@@ -955,18 +1034,18 @@ export default function PhonicsPage() {
                                             setHintLevel((level) => Math.max(level, 2));
                                         }}
                                     >
-                                        ヒント
+                                        Hint
                                     </button>
                                     <button className={styles.secondaryButton} onClick={() => setHintLevel((level) => Math.max(level, 3))}>
-                                        はじめをみる
+                                        First letter
                                     </button>
                                     <button className={styles.secondaryButton} onClick={() => setHintLevel((level) => Math.max(level, 4))}>
-                                        つかうカード
+                                        Sound list
                                     </button>
                                 </div>
 
                                 <section className={styles.slotPanel} aria-label="こたえスロット">
-                                    <h3>カードをならべよう</h3>
+                                    <h3>音カードを並べる</h3>
                                     <div className={styles.answerSlotsWrapper}>
                                         <div className={styles.answerSlots}>
                                             {answerSlots.map((slotId, index) => {
@@ -1003,17 +1082,17 @@ export default function PhonicsPage() {
                                             </div>
                                         )}
                                         {feedbackKind === "tryAgain" && (
-                                            <div className={styles.incorrectSlotBadge} aria-label="もういちど考えよう" role="img">
+                                            <div className={styles.incorrectSlotBadge} aria-label="もう一度考えよう" role="img">
                                                 ?
                                             </div>
                                         )}
                                     </div>
                                     <div className={styles.actions}>
                                         <button className={styles.primaryButton} onClick={checkAnswer}>
-                                            あわせてみる
+                                            Check
                                         </button>
                                         <button className={styles.secondaryButton} onClick={resetSlots}>
-                                            からにする
+                                            Clear
                                         </button>
                                     </div>
                                     <p className={`${styles.feedback} ${styles[feedbackKind]}`}>{feedback}</p>
@@ -1023,28 +1102,28 @@ export default function PhonicsPage() {
                                             onClick={retryWordAnswer}
                                             type="button"
                                         >
-                                            さいチャレンジ
+                                            Retry
                                         </button>
                                     )}
                                 </section>
 
                                 <div className={styles.hintBox}>
-                                    {hintLevel === 0 && <p>きこえた音を、カードでならべよう。</p>}
-                                    {hintLevel >= 1 && <p>もういちど きいて、口でもいってみよう。</p>}
-                                    {hintLevel >= 2 && <p>ヒント: 上の [?] をおすと、その場所のおとだけ聞けるよ。</p>}
-                                    {hintLevel >= 3 && <p className={styles.phonemeText}>はじめ: {hintThreeText}</p>}
-                                    {hintLevel >= 4 && <p className={styles.phonemeText}>つかうカード: {hintFourText}</p>}
+                                    {hintLevel === 0 && <p>画像と音声を手がかりに、音カードでスペルを組み立てよう。</p>}
+                                    {hintLevel >= 1 && <p>もう一度聞いて、口でも発音してみよう。</p>}
+                                    {hintLevel >= 2 && <p>Hint: 上の [?] を押すと、その位置の音だけ確認できます。</p>}
+                                    {hintLevel >= 3 && <p className={styles.phonemeText}>First letter: {hintThreeText}</p>}
+                                    {hintLevel >= 4 && <p className={styles.phonemeText}>Sound list: {hintFourText}</p>}
                                 </div>
 
                                 <div className={styles.actions}>
                                     <button className={styles.primaryButton} onClick={() => chooseNextWord(false)}>
-                                        つぎへ
+                                        Next
                                     </button>
                                     <button className={styles.secondaryButton} onClick={() => chooseNextWord(true)}>
-                                        もういっかい
+                                        Retry word
                                     </button>
                                     <button className={styles.secondaryButton} onClick={resetUsedWords}>
-                                        でたことば リセット
+                                        Reset today
                                     </button>
                                 </div>
                             </>
@@ -1052,18 +1131,18 @@ export default function PhonicsPage() {
                             <div className={styles.emptyState}>
                                 {isLevelCompleteToday ? (
                                     <>
-                                        <h2>きょうの クイズは ぜんぶ できた！</h2>
-                                        <p>また あした あそぼう。</p>
+                                        <h2>今日の Spelling Quiz は完了です</h2>
+                                        <p>必要ならリセットして復習できます。</p>
                                         <button className={styles.primaryButton} onClick={resetTodayCorrectWordsForLevel}>
-                                            もういちど やる
+                                            Reset and retry
                                         </button>
                                     </>
                                 ) : (
                                     <>
-                                        <h2>つくれる ことばが ないよ</h2>
-                                        <p>レベルを えらびなおしてみよう。</p>
+                                        <h2>出題できる単語がありません</h2>
+                                        <p>レベルを選び直してください。</p>
                                         <button className={styles.primaryButton} onClick={() => setMode("setup")}>
-                                            きょうの おとへ
+                                            Sound Setへ
                                         </button>
                                     </>
                                 )}
