@@ -119,6 +119,44 @@
   margin: 0 0 8px;
 }
 
+.storyChapterList {
+  display: grid;
+  gap: 34px;
+}
+
+.storyChapter {
+  border-top: 3px solid #18324a;
+  padding-top: 18px;
+}
+
+.storyChapterHeader {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.storyNumber {
+  background: #ef476f;
+  border: 2px solid #18324a;
+  color: #ffffff;
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  line-height: 1.4;
+  padding: 6px 8px;
+}
+
+.storyTitle {
+  color: #18324a;
+  font-family: "Press Start 2P", monospace;
+  font-size: 17px;
+  letter-spacing: 0;
+  line-height: 1.5;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 .partGrid {
   display: grid;
   gap: 18px;
@@ -715,6 +753,10 @@
 
   .title {
     font-size: 18px;
+  }
+
+  .storyTitle {
+    font-size: 14px;
   }
 
   .backLink {

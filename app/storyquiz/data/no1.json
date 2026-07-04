@@ -1,7 +1,7 @@
 {
   "issue": "no1",
   "title": "Story Quiz orange no.1",
-  "description": "MVP: Chapter 1 Thumbelina",
+  "description": "Thumbelina / The tinderbox",
   "parts": [
     {
       "id": "no1-ch1-p1",
@@ -861,6 +861,753 @@
           "feedbackCorrectJa": "あたり！a prince だね。",
           "feedbackIncorrectJa": "もういちど聞いてみよう。\"The boy was a prince.\" がヒントだよ。",
           "summaryJa": "boy は prince で、Thumbelina と幸せに暮らした"
+        }
+      ]
+    },
+    {
+      "id": "no1-ch2-p1",
+      "issue": "no1",
+      "chapterNo": 2,
+      "chapterTitle": "The tinderbox",
+      "partNo": 1,
+      "partTitle": "Meeting with a witch",
+      "recommendedGrade": "小2〜3",
+      "keywords": [
+        {
+          "id": "soldier",
+          "word": "soldier",
+          "ja": "兵士",
+          "emoji": "💂"
+        },
+        {
+          "id": "witch",
+          "word": "witch",
+          "ja": "魔女",
+          "emoji": "🧙"
+        },
+        {
+          "id": "coins",
+          "word": "coins",
+          "ja": "コイン",
+          "emoji": "🪙"
+        },
+        {
+          "id": "climb",
+          "word": "climb",
+          "ja": "のぼる",
+          "emoji": "🧗"
+        },
+        {
+          "id": "bright",
+          "word": "bright",
+          "ja": "明るい",
+          "emoji": "✨"
+        },
+        {
+          "id": "tinderbox",
+          "word": "tinderbox",
+          "ja": "火打ち箱",
+          "emoji": "📦"
+        }
+      ],
+      "segments": [
+        {
+          "id": "no1-ch2-p1-s1",
+          "text": "A soldier was walking in a forest. He saw an old woman standing near a big tree. She was a witch.",
+          "questionJa": "森を歩いていた兵士が、大きな木のそばで会ったのはだれ？",
+          "choices": [
+            {
+              "id": "witch",
+              "labelEn": "a witch",
+              "labelJa": "魔女",
+              "emoji": "🧙"
+            },
+            {
+              "id": "princess",
+              "labelEn": "a princess",
+              "labelJa": "お姫さま",
+              "emoji": "👸"
+            },
+            {
+              "id": "mouse",
+              "labelEn": "a mouse",
+              "labelJa": "ねずみ",
+              "emoji": "🐭"
+            }
+          ],
+          "correctChoiceId": "witch",
+          "feedbackCorrectJa": "そう！a witch だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"She was a witch.\" がヒントだよ。",
+          "summaryJa": "soldier は大きな木のそばで witch に会った"
+        },
+        {
+          "id": "no1-ch2-p1-s2",
+          "text": "The witch said, \"This big tree is empty. Climb up the tree and go inside.\"",
+          "questionJa": "魔女は兵士に、どこへ入るように言った？",
+          "choices": [
+            {
+              "id": "tree",
+              "labelEn": "inside the tree",
+              "labelJa": "木の中",
+              "emoji": "🌳"
+            },
+            {
+              "id": "castle",
+              "labelEn": "inside the castle",
+              "labelJa": "お城の中",
+              "emoji": "🏰"
+            },
+            {
+              "id": "house",
+              "labelEn": "inside the house",
+              "labelJa": "家の中",
+              "emoji": "🏠"
+            }
+          ],
+          "correctChoiceId": "tree",
+          "feedbackCorrectJa": "あたり！inside the tree だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"Climb up the tree and go inside.\" がヒントだよ。",
+          "summaryJa": "witch は soldier に木へ climb して中へ入るように言った"
+        },
+        {
+          "id": "no1-ch2-p1-s3",
+          "text": "The soldier asked, \"Is it dark inside?\" The witch said, \"No. It's bright inside.\"",
+          "questionJa": "木の中は、どんなところだと魔女は言った？",
+          "choices": [
+            {
+              "id": "bright",
+              "labelEn": "bright",
+              "labelJa": "明るい",
+              "emoji": "✨"
+            },
+            {
+              "id": "dark",
+              "labelEn": "dark",
+              "labelJa": "暗い",
+              "emoji": "🌑"
+            },
+            {
+              "id": "muddy",
+              "labelEn": "muddy",
+              "labelJa": "どろだらけ",
+              "emoji": "🟫"
+            }
+          ],
+          "correctChoiceId": "bright",
+          "feedbackCorrectJa": "そう！bright なんだね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"It's bright inside.\" がヒントだよ。",
+          "summaryJa": "木の中は dark ではなく bright だった"
+        },
+        {
+          "id": "no1-ch2-p1-s4",
+          "text": "The witch said, \"You can see three rooms. There are red coins in the first room, silver coins in the second room, and gold coins in the third room.\"",
+          "questionJa": "木の中の3つの部屋には、何があった？",
+          "choices": [
+            {
+              "id": "coins",
+              "labelEn": "coins",
+              "labelJa": "コイン",
+              "emoji": "🪙"
+            },
+            {
+              "id": "clothes",
+              "labelEn": "clothes",
+              "labelJa": "洋服",
+              "emoji": "👕"
+            },
+            {
+              "id": "flowers",
+              "labelEn": "flowers",
+              "labelJa": "花",
+              "emoji": "🌷"
+            }
+          ],
+          "correctChoiceId": "coins",
+          "feedbackCorrectJa": "あたり！coins があったね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"red coins, silver coins, and gold coins\" がヒントだよ。",
+          "summaryJa": "3つの部屋には赤・銀・金の coins があった"
+        },
+        {
+          "id": "no1-ch2-p1-s5",
+          "text": "The witch said, \"You can take the coins, but please get me a tinderbox.\" The soldier said, \"OK,\" and climbed up the tree.",
+          "questionJa": "魔女が兵士に取ってきてほしいと言ったものは何？",
+          "choices": [
+            {
+              "id": "tinderbox",
+              "labelEn": "a tinderbox",
+              "labelJa": "火打ち箱",
+              "emoji": "📦"
+            },
+            {
+              "id": "apron",
+              "labelEn": "an apron",
+              "labelJa": "エプロン",
+              "emoji": "👗"
+            },
+            {
+              "id": "crown",
+              "labelEn": "a crown",
+              "labelJa": "王冠",
+              "emoji": "👑"
+            }
+          ],
+          "correctChoiceId": "tinderbox",
+          "feedbackCorrectJa": "そう！a tinderbox だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"please get me a tinderbox\" がヒントだよ。",
+          "summaryJa": "witch は coins と引きかえに tinderbox をたのんだ"
+        }
+      ]
+    },
+    {
+      "id": "no1-ch2-p2",
+      "issue": "no1",
+      "chapterNo": 2,
+      "chapterTitle": "The tinderbox",
+      "partNo": 2,
+      "partTitle": "Inside of the tree",
+      "recommendedGrade": "小2〜3",
+      "keywords": [
+        {
+          "id": "apron",
+          "word": "apron",
+          "ja": "エプロン",
+          "emoji": "👗"
+        },
+        {
+          "id": "quiet",
+          "word": "quiet",
+          "ja": "おとなしい",
+          "emoji": "🤫"
+        },
+        {
+          "id": "coins",
+          "word": "coins",
+          "ja": "コイン",
+          "emoji": "🪙"
+        },
+        {
+          "id": "tinderbox",
+          "word": "tinderbox",
+          "ja": "火打ち箱",
+          "emoji": "📦"
+        },
+        {
+          "id": "pulled",
+          "word": "pulled",
+          "ja": "引っぱった",
+          "emoji": "💪"
+        },
+        {
+          "id": "big-dog",
+          "word": "big dog",
+          "ja": "大きな犬",
+          "emoji": "🐕"
+        }
+      ],
+      "segments": [
+        {
+          "id": "no1-ch2-p2-s1",
+          "text": "The witch told the soldier, \"There are three big dogs with big eyes in the tree, but don't be scared.\"",
+          "questionJa": "木の中にいた、大きな目の生きものは何？",
+          "choices": [
+            {
+              "id": "dogs",
+              "labelEn": "big dogs",
+              "labelJa": "大きな犬",
+              "emoji": "🐕"
+            },
+            {
+              "id": "birds",
+              "labelEn": "birds",
+              "labelJa": "鳥",
+              "emoji": "🐦"
+            },
+            {
+              "id": "frogs",
+              "labelEn": "frogs",
+              "labelJa": "かえる",
+              "emoji": "🐸"
+            }
+          ],
+          "correctChoiceId": "dogs",
+          "feedbackCorrectJa": "そう！big dogs だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"three big dogs\" がヒントだよ。",
+          "summaryJa": "木の中には大きな目の big dogs がいた"
+        },
+        {
+          "id": "no1-ch2-p2-s2",
+          "text": "The witch gave the soldier her apron. She said, \"Put the dogs on my apron, and they will be quiet.\"",
+          "questionJa": "犬たちをおとなしくするために使うものは何？",
+          "choices": [
+            {
+              "id": "apron",
+              "labelEn": "an apron",
+              "labelJa": "エプロン",
+              "emoji": "👗"
+            },
+            {
+              "id": "blanket",
+              "labelEn": "a blanket",
+              "labelJa": "毛布",
+              "emoji": "🛏️"
+            },
+            {
+              "id": "leaf",
+              "labelEn": "a leaf",
+              "labelJa": "葉っぱ",
+              "emoji": "🍃"
+            }
+          ],
+          "correctChoiceId": "apron",
+          "feedbackCorrectJa": "あたり！an apron だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"Put the dogs on my apron\" がヒントだよ。",
+          "summaryJa": "witch の apron に乗せると dogs はおとなしくなった"
+        },
+        {
+          "id": "no1-ch2-p2-s3",
+          "text": "It was bright inside the tree. The soldier found the three rooms. He put each dog on the apron and got red coins, silver coins, and gold coins.",
+          "questionJa": "兵士が3つの部屋で手に入れたものは何？",
+          "choices": [
+            {
+              "id": "coins",
+              "labelEn": "coins",
+              "labelJa": "コイン",
+              "emoji": "🪙"
+            },
+            {
+              "id": "flowers",
+              "labelEn": "flowers",
+              "labelJa": "花",
+              "emoji": "🌷"
+            },
+            {
+              "id": "clothes",
+              "labelEn": "clothes",
+              "labelJa": "洋服",
+              "emoji": "👕"
+            }
+          ],
+          "correctChoiceId": "coins",
+          "feedbackCorrectJa": "そう！coins を手に入れたね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"red coins, silver coins, and gold coins\" がヒントだよ。",
+          "summaryJa": "soldier は apron で dogs をおとなしくして coins を手に入れた"
+        },
+        {
+          "id": "no1-ch2-p2-s4",
+          "text": "The soldier also found the tinderbox. He called the witch, and she pulled him out of the tree. The soldier said, \"Thanks!\" He never saw the witch again.",
+          "questionJa": "コインのほかに、兵士が木の中で見つけたものは何？",
+          "choices": [
+            {
+              "id": "tinderbox",
+              "labelEn": "the tinderbox",
+              "labelJa": "火打ち箱",
+              "emoji": "📦"
+            },
+            {
+              "id": "crown",
+              "labelEn": "a crown",
+              "labelJa": "王冠",
+              "emoji": "👑"
+            },
+            {
+              "id": "wings",
+              "labelEn": "wings",
+              "labelJa": "つばさ",
+              "emoji": "🪽"
+            }
+          ],
+          "correctChoiceId": "tinderbox",
+          "feedbackCorrectJa": "あたり！the tinderbox だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"also found the tinderbox\" がヒントだよ。",
+          "summaryJa": "soldier は tinderbox も見つけ、witch に木から引き上げてもらった"
+        }
+      ]
+    },
+    {
+      "id": "no1-ch2-p3",
+      "issue": "no1",
+      "chapterNo": 2,
+      "chapterTitle": "The tinderbox",
+      "partNo": 3,
+      "partTitle": "The soldier used money",
+      "recommendedGrade": "小3〜4",
+      "keywords": [
+        {
+          "id": "bought",
+          "word": "bought",
+          "ja": "買った",
+          "emoji": "🛍️"
+        },
+        {
+          "id": "poor",
+          "word": "poor",
+          "ja": "まずしい",
+          "emoji": "🪙"
+        },
+        {
+          "id": "princess",
+          "word": "princess",
+          "ja": "お姫さま",
+          "emoji": "👸"
+        },
+        {
+          "id": "strict",
+          "word": "strict",
+          "ja": "きびしい",
+          "emoji": "🛡️"
+        },
+        {
+          "id": "tinderbox",
+          "word": "tinderbox",
+          "ja": "火打ち箱",
+          "emoji": "📦"
+        },
+        {
+          "id": "money",
+          "word": "money",
+          "ja": "お金",
+          "emoji": "💰"
+        }
+      ],
+      "segments": [
+        {
+          "id": "no1-ch2-p3-s1",
+          "text": "The soldier got lots of money. He bought a big house, nice boots, and good food.",
+          "questionJa": "たくさんのお金を手に入れた兵士は、何を買った？",
+          "choices": [
+            {
+              "id": "house",
+              "labelEn": "a big house",
+              "labelJa": "大きな家",
+              "emoji": "🏠"
+            },
+            {
+              "id": "ship",
+              "labelEn": "a paper ship",
+              "labelJa": "紙の船",
+              "emoji": "⛵"
+            },
+            {
+              "id": "apron",
+              "labelEn": "an apron",
+              "labelJa": "エプロン",
+              "emoji": "👗"
+            }
+          ],
+          "correctChoiceId": "house",
+          "feedbackCorrectJa": "そう！a big house を買ったね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"He bought a big house\" がヒントだよ。",
+          "summaryJa": "soldier は money で大きな家やくつ、食べ物を買った"
+        },
+        {
+          "id": "no1-ch2-p3-s2",
+          "text": "The soldier also spent money to help poor people. Many people said, \"Thanks!\" to the soldier.",
+          "questionJa": "兵士がお金を使って助けたのは、どんな人たち？",
+          "choices": [
+            {
+              "id": "poor-people",
+              "labelEn": "poor people",
+              "labelJa": "まずしい人たち",
+              "emoji": "🤝"
+            },
+            {
+              "id": "liars",
+              "labelEn": "liars",
+              "labelJa": "うそつき",
+              "emoji": "🤥"
+            },
+            {
+              "id": "dogs",
+              "labelEn": "big dogs",
+              "labelJa": "大きな犬",
+              "emoji": "🐕"
+            }
+          ],
+          "correctChoiceId": "poor-people",
+          "feedbackCorrectJa": "あたり！poor people を助けたね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"help poor people\" がヒントだよ。",
+          "summaryJa": "soldier は poor people のためにも money を使った"
+        },
+        {
+          "id": "no1-ch2-p3-s3",
+          "text": "One day, the soldier heard about a beautiful princess living in a castle. The security around the castle was very strict, but the soldier wanted to see her.",
+          "questionJa": "兵士が会いたいと思った、お城にいる人はだれ？",
+          "choices": [
+            {
+              "id": "princess",
+              "labelEn": "a princess",
+              "labelJa": "お姫さま",
+              "emoji": "👸"
+            },
+            {
+              "id": "witch",
+              "labelEn": "a witch",
+              "labelJa": "魔女",
+              "emoji": "🧙"
+            },
+            {
+              "id": "mouse",
+              "labelEn": "a mouse",
+              "labelJa": "ねずみ",
+              "emoji": "🐭"
+            }
+          ],
+          "correctChoiceId": "princess",
+          "feedbackCorrectJa": "そう！a princess だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"a beautiful princess living in a castle\" がヒントだよ。",
+          "summaryJa": "soldier は strict に守られた城の princess に会いたいと思った"
+        },
+        {
+          "id": "no1-ch2-p3-s4",
+          "text": "Soon, the soldier had a problem. His money ran out, and he became poor. He moved to an old house and could not eat good food anymore.",
+          "questionJa": "お金を使い切った兵士は、どうなった？",
+          "choices": [
+            {
+              "id": "poor",
+              "labelEn": "became poor",
+              "labelJa": "まずしくなった",
+              "emoji": "😟"
+            },
+            {
+              "id": "king",
+              "labelEn": "became a king",
+              "labelJa": "王さまになった",
+              "emoji": "🤴"
+            },
+            {
+              "id": "flew",
+              "labelEn": "flew away",
+              "labelJa": "飛んでいった",
+              "emoji": "🪽"
+            }
+          ],
+          "correctChoiceId": "poor",
+          "feedbackCorrectJa": "そう！became poor だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"His money ran out, and he became poor.\" がヒントだよ。",
+          "summaryJa": "money がなくなり、soldier は poor になった"
+        },
+        {
+          "id": "no1-ch2-p3-s5",
+          "text": "In the old house, the soldier suddenly found the tinderbox. He said, \"I don't know what this is, but I will open it!\"",
+          "questionJa": "古い家で、兵士が見つけたものは何？",
+          "choices": [
+            {
+              "id": "tinderbox",
+              "labelEn": "the tinderbox",
+              "labelJa": "火打ち箱",
+              "emoji": "📦"
+            },
+            {
+              "id": "princess",
+              "labelEn": "the princess",
+              "labelJa": "お姫さま",
+              "emoji": "👸"
+            },
+            {
+              "id": "coins",
+              "labelEn": "gold coins",
+              "labelJa": "金のコイン",
+              "emoji": "🪙"
+            }
+          ],
+          "correctChoiceId": "tinderbox",
+          "feedbackCorrectJa": "あたり！the tinderbox だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"found the tinderbox\" がヒントだよ。",
+          "summaryJa": "古い家で soldier は tinderbox を見つけ、開けることにした"
+        }
+      ]
+    },
+    {
+      "id": "no1-ch2-p4",
+      "issue": "no1",
+      "chapterNo": 2,
+      "chapterTitle": "The tinderbox",
+      "partNo": 4,
+      "partTitle": "What was the tinderbox?",
+      "recommendedGrade": "小3〜4",
+      "keywords": [
+        {
+          "id": "wish",
+          "word": "wish",
+          "ja": "願う",
+          "emoji": "🌟"
+        },
+        {
+          "id": "money",
+          "word": "money",
+          "ja": "お金",
+          "emoji": "💰"
+        },
+        {
+          "id": "princess",
+          "word": "princess",
+          "ja": "お姫さま",
+          "emoji": "👸"
+        },
+        {
+          "id": "helped",
+          "word": "helped",
+          "ja": "助けた",
+          "emoji": "🤝"
+        },
+        {
+          "id": "married",
+          "word": "married",
+          "ja": "結婚した",
+          "emoji": "💍"
+        },
+        {
+          "id": "big-dog",
+          "word": "big dog",
+          "ja": "大きな犬",
+          "emoji": "🐕"
+        }
+      ],
+      "segments": [
+        {
+          "id": "no1-ch2-p4-s1",
+          "text": "The soldier opened the tinderbox. He was surprised. There was a big dog with big eyes. It was the dog he saw in the tree.",
+          "questionJa": "火打ち箱を開けると、だれが出てきた？",
+          "choices": [
+            {
+              "id": "dog",
+              "labelEn": "a big dog",
+              "labelJa": "大きな犬",
+              "emoji": "🐕"
+            },
+            {
+              "id": "witch",
+              "labelEn": "a witch",
+              "labelJa": "魔女",
+              "emoji": "🧙"
+            },
+            {
+              "id": "princess",
+              "labelEn": "a princess",
+              "labelJa": "お姫さま",
+              "emoji": "👸"
+            }
+          ],
+          "correctChoiceId": "dog",
+          "feedbackCorrectJa": "そう！a big dog だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"There was a big dog\" がヒントだよ。",
+          "summaryJa": "tinderbox を開けると、木の中にいた big dog が出てきた"
+        },
+        {
+          "id": "no1-ch2-p4-s2",
+          "text": "The dog asked, \"What do you wish?\" The soldier said, \"I want money!\" The dog ran away and came back with a bag of money.",
+          "questionJa": "兵士が最初に犬へお願いしたものは何？",
+          "choices": [
+            {
+              "id": "money",
+              "labelEn": "money",
+              "labelJa": "お金",
+              "emoji": "💰"
+            },
+            {
+              "id": "princess",
+              "labelEn": "the princess",
+              "labelJa": "お姫さま",
+              "emoji": "👸"
+            },
+            {
+              "id": "apron",
+              "labelEn": "an apron",
+              "labelJa": "エプロン",
+              "emoji": "👗"
+            }
+          ],
+          "correctChoiceId": "money",
+          "feedbackCorrectJa": "あたり！money だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"I want money!\" がヒントだよ。",
+          "summaryJa": "soldier が money を wish すると、dog が袋を持ってきた"
+        },
+        {
+          "id": "no1-ch2-p4-s3",
+          "text": "The soldier remembered the beautiful princess in the castle. He said, \"I want the princess.\" The big dog ran away and came back with the princess.",
+          "questionJa": "次のお願いで、大きな犬が連れてきたのはだれ？",
+          "choices": [
+            {
+              "id": "princess",
+              "labelEn": "the princess",
+              "labelJa": "お姫さま",
+              "emoji": "👸"
+            },
+            {
+              "id": "witch",
+              "labelEn": "the witch",
+              "labelJa": "魔女",
+              "emoji": "🧙"
+            },
+            {
+              "id": "mouse",
+              "labelEn": "a mouse",
+              "labelJa": "ねずみ",
+              "emoji": "🐭"
+            }
+          ],
+          "correctChoiceId": "princess",
+          "feedbackCorrectJa": "そう！the princess だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"came back with the princess\" がヒントだよ。",
+          "summaryJa": "次の wish で dog は castle の princess を連れてきた"
+        },
+        {
+          "id": "no1-ch2-p4-s4",
+          "text": "The princess was happy because she was tired of living in the castle. She knew the soldier had helped poor people.",
+          "questionJa": "お姫さまは、兵士がどんなことをしたと知っていた？",
+          "choices": [
+            {
+              "id": "helped",
+              "labelEn": "helped poor people",
+              "labelJa": "まずしい人を助けた",
+              "emoji": "🤝"
+            },
+            {
+              "id": "made-clothes",
+              "labelEn": "made new clothes",
+              "labelJa": "新しい服を作った",
+              "emoji": "👕"
+            },
+            {
+              "id": "flew",
+              "labelEn": "flew with a bird",
+              "labelJa": "鳥と飛んだ",
+              "emoji": "🐦"
+            }
+          ],
+          "correctChoiceId": "helped",
+          "feedbackCorrectJa": "あたり！helped poor people だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"the soldier had helped poor people\" がヒントだよ。",
+          "summaryJa": "princess は soldier が poor people を助けたことを知っていた"
+        },
+        {
+          "id": "no1-ch2-p4-s5",
+          "text": "The princess and the soldier got married. They had a happy life together. The tinderbox was never used again.",
+          "questionJa": "お姫さまと兵士は、そのあとどうなった？",
+          "choices": [
+            {
+              "id": "married",
+              "labelEn": "got married",
+              "labelJa": "結婚した",
+              "emoji": "💍"
+            },
+            {
+              "id": "witch",
+              "labelEn": "lived with the witch",
+              "labelJa": "魔女とくらした",
+              "emoji": "🧙"
+            },
+            {
+              "id": "tree",
+              "labelEn": "went back to the tree",
+              "labelJa": "木へもどった",
+              "emoji": "🌳"
+            }
+          ],
+          "correctChoiceId": "married",
+          "feedbackCorrectJa": "そう！got married だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"got married\" がヒントだよ。",
+          "summaryJa": "princess と soldier は married して、幸せにくらした"
         }
       ]
     }

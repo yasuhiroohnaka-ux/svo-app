@@ -11,6 +11,7 @@ export type AnswerResult = {
 export type AnswerPanelProps = {
   mode: AnswerMode;
   segment: StorySegment;
+  choiceOrderSeed: string;
   /** Wrong picks so far this segment — visually locked, not clickable. */
   wrongChoiceIds: ReadonlySet<string>;
   /** When true (after a correct pick), reveal the correct choice in green and disable all. */
@@ -18,6 +19,8 @@ export type AnswerPanelProps = {
   onAnswer: (result: AnswerResult) => void;
   disabled?: boolean;
 };
+
+const CHOICE_ORDER_SALT = "storyquiz-choice-order-v1|";
 
 function ChoiceLabel({ choice }: { choice: StoryChoice }) {
   return (
@@ -33,13 +36,56 @@ function ChoiceLabel({ choice }: { choice: StoryChoice }) {
   );
 }
 
+function hashString(value: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function createSeededRandom(seed: number) {
+  let value = seed;
+  return () => {
+    value += 0x6d2b79f5;
+    let result = value;
+    result = Math.imul(result ^ (result >>> 15), result | 1);
+    result ^= result + Math.imul(result ^ (result >>> 7), result | 61);
+    return ((result ^ (result >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function orderChoicesForSegment(
+  segment: StorySegment,
+  choiceOrderSeed: string,
+): StoryChoice[] {
+  const orderedChoices = [...segment.choices];
+  const random = createSeededRandom(
+    hashString(`${CHOICE_ORDER_SALT}${choiceOrderSeed}|${segment.id}`),
+  );
+
+  for (let index = orderedChoices.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [orderedChoices[index], orderedChoices[swapIndex]] = [
+      orderedChoices[swapIndex],
+      orderedChoices[index],
+    ];
+  }
+
+  return orderedChoices;
+}
+
 function ChoicePanel({
   segment,
+  choiceOrderSeed,
   wrongChoiceIds,
   revealCorrect,
   onAnswer,
   disabled,
 }: Omit<AnswerPanelProps, "mode">) {
+  const orderedChoices = orderChoicesForSegment(segment, choiceOrderSeed);
+
   function handlePick(choiceId: string) {
     if (disabled || revealCorrect || wrongChoiceIds.has(choiceId)) return;
     onAnswer({
@@ -50,7 +96,7 @@ function ChoicePanel({
 
   return (
     <div className={styles.choiceGrid}>
-      {segment.choices.map((choice) => {
+      {orderedChoices.map((choice) => {
         const isWrong = wrongChoiceIds.has(choice.id);
         const isAnswer = choice.id === segment.correctChoiceId;
         const showCorrect = revealCorrect && isAnswer;

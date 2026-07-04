@@ -7,6 +7,12 @@ import KeywordReview from "../../components/KeywordReview";
 import { getPartById } from "../../lib/data";
 import styles from "../../storyquiz.module.css";
 
+function createRunSeed() {
+  return Array.from(crypto.getRandomValues(new Uint32Array(2)))
+    .map((value) => value.toString(36))
+    .join("-");
+}
+
 export default function WordsPage({ params }: { params: Promise<{ partId: string }> }) {
   const { partId } = use(params);
   const router = useRouter();
@@ -41,7 +47,10 @@ export default function WordsPage({ params }: { params: Promise<{ partId: string
 
       <KeywordReview
         keywords={part.keywords}
-        onStart={() => router.push(`/storyquiz/${part.id}/play`)}
+        onStart={() => {
+          const runSeed = createRunSeed();
+          router.push(`/storyquiz/${part.id}/play?run=${runSeed}`);
+        }}
       />
     </main>
   );

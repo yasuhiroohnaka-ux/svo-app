@@ -4,14 +4,38 @@ import Link from "next/link";
 import { useState } from "react";
 import { getIssues } from "./lib/data";
 import { useAllProgress } from "./lib/progress";
-import type { IssueId } from "./types";
+import type { IssueId, StoryPart } from "./types";
 import styles from "./storyquiz.module.css";
+
+function groupPartsByChapter(parts: StoryPart[]) {
+  const chapters = new Map<
+    number,
+    { chapterNo: number; chapterTitle: string; parts: StoryPart[] }
+  >();
+
+  parts.forEach((part) => {
+    const chapter = chapters.get(part.chapterNo);
+    if (chapter) {
+      chapter.parts.push(part);
+      return;
+    }
+
+    chapters.set(part.chapterNo, {
+      chapterNo: part.chapterNo,
+      chapterTitle: part.chapterTitle,
+      parts: [part],
+    });
+  });
+
+  return Array.from(chapters.values());
+}
 
 export default function StoryQuizHome() {
   const issues = getIssues();
   const [activeIssue, setActiveIssue] = useState<IssueId>("no1");
   const progress = useAllProgress();
   const currentIssue = issues.find((issue) => issue.issue === activeIssue) ?? issues[0];
+  const chapters = groupPartsByChapter(currentIssue.parts);
 
   return (
     <main className={styles.page}>
@@ -49,33 +73,44 @@ export default function StoryQuizHome() {
           <p className={styles.issueDescription}>{currentIssue.description}</p>
         </div>
 
-        {currentIssue.parts.length > 0 ? (
-          <div className={styles.partGrid}>
-            {currentIssue.parts.map((part) => {
-              const completed = progress[part.id]?.completed;
-              return (
-                <Link
-                  key={part.id}
-                  href={`/storyquiz/${part.id}/words`}
-                  className={styles.partCard}
-                >
-                  {completed && <span className={styles.partClearStar}>⭐</span>}
-                  <div className={styles.partLabel}>
-                    {part.chapterNo}-{part.partNo}
-                  </div>
-                  <p className={styles.partName}>{part.partTitle}</p>
-                  <div className={styles.partMeta}>
-                    <span className={styles.partTag}>{part.recommendedGrade}</span>
-                    <span className={styles.partTag}>
-                      WORDS {part.keywords.length}
-                    </span>
-                    <span className={styles.partTag}>
-                      QUIZ {part.segments.length}
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
+        {chapters.length > 0 ? (
+          <div className={styles.storyChapterList}>
+            {chapters.map((chapter) => (
+              <section key={chapter.chapterNo} className={styles.storyChapter}>
+                <header className={styles.storyChapterHeader}>
+                  <span className={styles.storyNumber}>STORY {chapter.chapterNo}</span>
+                  <h3 className={styles.storyTitle}>{chapter.chapterTitle}</h3>
+                </header>
+
+                <div className={styles.partGrid}>
+                  {chapter.parts.map((part) => {
+                    const completed = progress[part.id]?.completed;
+                    return (
+                      <Link
+                        key={part.id}
+                        href={`/storyquiz/${part.id}/words`}
+                        className={styles.partCard}
+                      >
+                        {completed && <span className={styles.partClearStar}>⭐</span>}
+                        <div className={styles.partLabel}>
+                          {part.chapterNo}-{part.partNo}
+                        </div>
+                        <p className={styles.partName}>{part.partTitle}</p>
+                        <div className={styles.partMeta}>
+                          <span className={styles.partTag}>{part.recommendedGrade}</span>
+                          <span className={styles.partTag}>
+                            WORDS {part.keywords.length}
+                          </span>
+                          <span className={styles.partTag}>
+                            QUIZ {part.segments.length}
+                          </span>
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
           </div>
         ) : (
           <div className={styles.comingSoonPanel}>

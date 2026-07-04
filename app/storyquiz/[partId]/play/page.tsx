@@ -8,8 +8,17 @@ import { getPartById } from "../../lib/data";
 import { savePartProgress } from "../../lib/progress";
 import styles from "../../storyquiz.module.css";
 
-export default function PlayPage({ params }: { params: Promise<{ partId: string }> }) {
+type SearchParams = Promise<{ run?: string }>;
+
+export default function PlayPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ partId: string }>;
+  searchParams: SearchParams;
+}) {
   const { partId } = use(params);
+  const sp = use(searchParams);
   const router = useRouter();
   const part = getPartById(partId);
 
@@ -54,7 +63,11 @@ export default function PlayPage({ params }: { params: Promise<{ partId: string 
         </Link>
       </header>
 
-      <StoryPlayer part={part} onComplete={handleComplete} />
+      <StoryPlayer
+        part={part}
+        choiceOrderSeed={sp.run ?? part.id}
+        onComplete={handleComplete}
+      />
     </main>
   );
 }

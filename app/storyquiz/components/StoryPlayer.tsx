@@ -15,6 +15,7 @@ type Phase = "intro" | "reading" | "question" | "feedback" | "done";
 
 type Props = {
   part: StoryPart;
+  choiceOrderSeed: string;
   onComplete: (summary: { correct: number; total: number }) => void;
 };
 
@@ -22,7 +23,7 @@ function getCorrectChoice(segment: StorySegment) {
   return segment.choices.find((choice) => choice.id === segment.correctChoiceId);
 }
 
-export default function StoryPlayer({ part, onComplete }: Props) {
+export default function StoryPlayer({ part, choiceOrderSeed, onComplete }: Props) {
   const [segmentIndex, setSegmentIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>("intro");
   const [wrongChoiceIds, setWrongChoiceIds] = useState<ReadonlySet<string>>(new Set());
@@ -184,6 +185,7 @@ export default function StoryPlayer({ part, onComplete }: Props) {
           <AnswerPanel
             mode="choice"
             segment={segment}
+            choiceOrderSeed={choiceOrderSeed}
             wrongChoiceIds={wrongChoiceIds}
             revealCorrect={phase === "feedback"}
             onAnswer={handleAnswer}
