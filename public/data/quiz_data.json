@@ -222,5 +222,229 @@
             "有一只鳄鱼。",
             "鳄鱼很虚弱。"
         ]
+    },
+    {
+        "id": "page_16",
+        "image": "/images/quiz/img_16.jpg",
+        "target": "The pencils are running faster than the apples.",
+        "target_zh": "铅笔跑得比苹果快。",
+        "sentences": [
+            "The pencils are running faster than the apples.",
+            "The apples are running slower than the pencils."
+        ],
+        "sentences_zh": [
+            "铅笔跑得比苹果快。",
+            "苹果跑得比铅笔慢。"
+        ]
+    },
+    {
+        "id": "page_17",
+        "image": "/images/quiz/img_17.jpg",
+        "target": "The apples are running as fast as the pencils.",
+        "target_zh": "苹果跑得和铅笔一样快。",
+        "sentences": [
+            "The apples are running as fast as the pencils."
+        ],
+        "sentences_zh": [
+            "苹果跑得和铅笔一样快。"
+        ]
+    },
+    {
+        "id": "page_18",
+        "image": "/images/quiz/img_18.jpg",
+        "target": "The apples are running faster than the pencils.",
+        "target_zh": "苹果跑得比铅笔快。",
+        "sentences": [
+            "The apples are running faster than the pencils.",
+            "The pencils are running slower than the apples."
+        ],
+        "sentences_zh": [
+            "苹果跑得比铅笔快。",
+            "铅笔跑得比苹果慢。"
+        ]
+    },
+    {
+        "id": "page_19",
+        "image": "/images/quiz/img_19.jpg",
+        "target": "The boys are younger than the girls.",
+        "target_zh": "男孩们比女孩们年轻。",
+        "sentences": [
+            "The boys are younger than the girls.",
+            "The girls are older than the boys."
+        ],
+        "sentences_zh": [
+            "男孩们比女孩们年轻。",
+            "女孩们比男孩们年长。"
+        ]
+    },
+    {
+        "id": "page_20",
+        "image": "/images/quiz/img_20.jpg",
+        "target": "The girls are younger than the boys.",
+        "target_zh": "女孩们比男孩们年轻。",
+        "sentences": [
+            "The girls are younger than the boys.",
+            "The boys are older than the girls."
+        ],
+        "sentences_zh": [
+            "女孩们比男孩们年轻。",
+            "男孩们比女孩们年长。"
+        ]
+    },
+    {
+        "id": "page_21",
+        "image": "/images/quiz/img_21.jpg",
+        "target": "The boys are stronger than the girls.",
+        "target_zh": "男孩们比女孩们强壮。",
+        "sentences": [
+            "The boys are stronger than the girls.",
+            "The girls are weaker than the boys."
+        ],
+        "sentences_zh": [
+            "男孩们比女孩们强壮。",
+            "女孩们比男孩们弱。"
+        ]
+    },
+    {
+        "id": "page_22",
+        "image": "/images/quiz/img_22.jpg",
+        "target": "The girls are stronger than the boys.",
+        "target_zh": "女孩们比男孩们强壮。",
+        "sentences": [
+            "The girls are stronger than the boys.",
+            "The boys are weaker than the girls."
+        ],
+        "sentences_zh": [
+            "女孩们比男孩们强壮。",
+            "男孩们比女孩们弱。"
+        ]
+    },
+    {
+        "id": "page_23",
+        "image": "/images/quiz/img_23.jpg",
+        "target": "The eagles are running faster than the snakes.",
+        "target_zh": "老鹰跑得比蛇快。",
+        "sentences": [
+            "The eagles are running faster than the snakes.",
+            "The snakes are running slower than the eagles."
+        ],
+        "sentences_zh": [
+            "老鹰跑得比蛇快。",
+            "蛇跑得比老鹰慢。"
+        ]
+    },
+    {
+        "id": "page_24",
+        "image": "/images/quiz/img_24.jpg",
+        "target": "The snakes are running faster than the eagles.",
+        "target_zh": "蛇跑得比老鹰快。",
+        "sentences": [
+            "The snakes are running faster than the eagles.",
+            "The eagles are running slower than the snakes."
+        ],
+        "sentences_zh": [
+            "蛇跑得比老鹰快。",
+            "老鹰跑得比蛇慢。"
+        ]
+    },
+    {
+        "id": "page_25",
+        "image": "/images/quiz/img_25.jpg",
+        "target": "Ball B is older than Ball A.",
+        "target_zh": "B球比A球旧。",
+        "sentences": [
+            "Ball B is older than Ball A.",
+            "Ball A is newer than Ball B.",
+            "Ball A is as old as Ball E."
+        ],
+        "sentences_zh": [
+            "B球比A球旧。",
+            "A球比B球新。",
+            "A球和E球一样旧。"
+        ]
+    },
+    {
+        "id": "page_26",
+        "image": "/images/quiz/img_26.jpg",
+        "target": "Ball A is older than Ball B.",
+        "target_zh": "A球比B球旧。",
+        "sentences": [
+            "Ball A is older than Ball B.",
+            "Ball B is newer than Ball A."
+        ],
+        "sentences_zh": [
+            "A球比B球旧。",
+            "B球比A球新。"
+        ]
+    },
+    {
+        "id": "page_27",
+        "image": "/images/quiz/img_27.jpg",
+        "target": "Shirt B is larger than Shirt A.",
+        "target_zh": "B号衬衫比A号衬衫大。",
+        "sentences": [
+            "Shirt B is larger than Shirt A.",
+            "Shirt A is smaller than Shirt B.",
+            "Shirt A is as old as Shirt C."
+        ],
+        "sentences_zh": [
+            "B号衬衫比A号衬衫大。",
+            "A号衬衫比B号衬衫小。",
+            "A号衬衫和C号衬衫一样旧。"
+        ]
+    },
+    {
+        "id": "page_28",
+        "image": "/images/quiz/img_28.jpg",
+        "target": "Shirt A is larger than Shirt B.",
+        "target_zh": "A号衬衫比B号衬衫大。",
+        "sentences": [
+            "Shirt A is larger than Shirt B.",
+            "Shirt B is smaller than Shirt A."
+        ],
+        "sentences_zh": [
+            "A号衬衫比B号衬衫大。",
+            "B号衬衫比A号衬衫小。"
+        ]
+    },
+    {
+        "id": "page_29",
+        "image": "/images/quiz/img_29.jpg",
+        "target": "The pencils are stronger than the apples.",
+        "target_zh": "铅笔比苹果强壮。",
+        "sentences": [
+            "The pencils are stronger than the apples.",
+            "The apples are weaker than the pencils."
+        ],
+        "sentences_zh": [
+            "铅笔比苹果强壮。",
+            "苹果比铅笔弱。"
+        ]
+    },
+    {
+        "id": "page_30",
+        "image": "/images/quiz/img_30.jpg",
+        "target": "The apples are stronger than the pencils.",
+        "target_zh": "苹果比铅笔强壮。",
+        "sentences": [
+            "The apples are stronger than the pencils.",
+            "The pencils are weaker than the apples."
+        ],
+        "sentences_zh": [
+            "苹果比铅笔强壮。",
+            "铅笔比苹果弱。"
+        ]
+    },
+    {
+        "id": "page_31",
+        "image": "/images/quiz/img_31.jpg",
+        "target": "The snakes are running as fast as the eagles.",
+        "target_zh": "蛇跑得和老鹰一样快。",
+        "sentences": [
+            "The snakes are running as fast as the eagles."
+        ],
+        "sentences_zh": [
+            "蛇跑得和老鹰一样快。"
+        ]
     }
 ]

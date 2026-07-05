@@ -1,7 +1,7 @@
 {
   "issue": "no1",
   "title": "Story Quiz orange no.1",
-  "description": "Thumbelina / The tinderbox",
+  "description": "Thumbelina / The tinderbox / Little Eda's Flower",
   "parts": [
     {
       "id": "no1-ch1-p1",
@@ -1608,6 +1608,365 @@
           "feedbackCorrectJa": "そう！got married だね。",
           "feedbackIncorrectJa": "もういちど聞いてみよう。\"got married\" がヒントだよ。",
           "summaryJa": "princess と soldier は married して、幸せにくらした"
+        }
+      ]
+    },
+    {
+      "id": "no1-ch3-p1",
+      "issue": "no1",
+      "chapterNo": 3,
+      "chapterTitle": "Little Eda's Flower",
+      "partNo": 1,
+      "partTitle": "The secret of flowers",
+      "recommendedGrade": "小2〜3",
+      "keywords": [
+        {
+          "id": "blooming",
+          "word": "blooming",
+          "ja": "咲いている",
+          "emoji": "🌼"
+        },
+        {
+          "id": "wilted",
+          "word": "wilted",
+          "ja": "しおれた",
+          "emoji": "🥀"
+        },
+        {
+          "id": "student",
+          "word": "student",
+          "ja": "学生",
+          "emoji": "🧑‍🎓"
+        },
+        {
+          "id": "tired",
+          "word": "tired",
+          "ja": "つかれた",
+          "emoji": "😴"
+        },
+        {
+          "id": "enjoy",
+          "word": "enjoy",
+          "ja": "楽しむ",
+          "emoji": "😊"
+        },
+        {
+          "id": "dance-party",
+          "word": "dance party",
+          "ja": "ダンスパーティー",
+          "emoji": "💃"
+        }
+      ],
+      "segments": [
+        {
+          "id": "no1-ch3-p1-s1",
+          "text": "\"Those flowers were blooming beautifully yesterday, but they wilted today. Why is that?\" Little Eda asked a student.",
+          "questionJa": "きのうきれいに咲いていた花は、今日はどうなっていた？",
+          "choices": [
+            {
+              "id": "wilted",
+              "labelEn": "wilted",
+              "labelJa": "しおれていた",
+              "emoji": "🥀"
+            },
+            {
+              "id": "blooming",
+              "labelEn": "blooming",
+              "labelJa": "咲いていた",
+              "emoji": "🌼"
+            },
+            {
+              "id": "taller",
+              "labelEn": "grew taller",
+              "labelJa": "背が高くなった",
+              "emoji": "🌱"
+            }
+          ],
+          "correctChoiceId": "wilted",
+          "feedbackCorrectJa": "そう！wilted だったね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"they wilted today\" がヒントだよ。",
+          "summaryJa": "きのう blooming だった花が、今日は wilted になっていた"
+        },
+        {
+          "id": "no1-ch3-p1-s2",
+          "text": "The student said, \"These flowers have a dance party at midnight. They dance until they get tired. That is why they hang their heads down.\"",
+          "questionJa": "学生は、花がしおれているのはなぜだと言った？",
+          "choices": [
+            {
+              "id": "danced",
+              "labelEn": "danced until tired",
+              "labelJa": "つかれるまで踊った",
+              "emoji": "💃"
+            },
+            {
+              "id": "cold",
+              "labelEn": "it was cold",
+              "labelJa": "寒かった",
+              "emoji": "❄️"
+            },
+            {
+              "id": "rain",
+              "labelEn": "it rained",
+              "labelJa": "雨がふった",
+              "emoji": "🌧️"
+            }
+          ],
+          "correctChoiceId": "danced",
+          "feedbackCorrectJa": "あたり！danced until tired だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"They dance until they get tired.\" がヒントだよ。",
+          "summaryJa": "花は midnight の dance party で踊り、tired になっていた"
+        },
+        {
+          "id": "no1-ch3-p1-s3",
+          "text": "The student said, \"It's true! When it gets dark, flowers enjoy dancing.\" Eda said, \"I see. But I should check!\"",
+          "questionJa": "花の話を聞いたEdaは、どうすることにした？",
+          "choices": [
+            {
+              "id": "check",
+              "labelEn": "check at night",
+              "labelJa": "夜にたしかめる",
+              "emoji": "🔎"
+            },
+            {
+              "id": "pick",
+              "labelEn": "pick the flowers",
+              "labelJa": "花をつむ",
+              "emoji": "💐"
+            },
+            {
+              "id": "school",
+              "labelEn": "go to school",
+              "labelJa": "学校へ行く",
+              "emoji": "🏫"
+            }
+          ],
+          "correctChoiceId": "check",
+          "feedbackCorrectJa": "そう！check at night だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"I should check!\" がヒントだよ。",
+          "summaryJa": "Eda は花の dance party を夜にたしかめることにした"
+        },
+        {
+          "id": "no1-ch3-p1-s4",
+          "text": "That night, Eda couldn't sleep. She was thinking about the flowers and their dance party. Eda looked at Sophie, her doll. \"I wonder if Sophie can dance, too.\"",
+          "questionJa": "Edaは、だれがいっしょに踊れるかなと考えた？",
+          "choices": [
+            {
+              "id": "sophie",
+              "labelEn": "Sophie",
+              "labelJa": "人形のSophie",
+              "emoji": "🪆"
+            },
+            {
+              "id": "student",
+              "labelEn": "the student",
+              "labelJa": "学生",
+              "emoji": "🧑‍🎓"
+            },
+            {
+              "id": "princess",
+              "labelEn": "the princess",
+              "labelJa": "お姫さま",
+              "emoji": "👸"
+            }
+          ],
+          "correctChoiceId": "sophie",
+          "feedbackCorrectJa": "あたり！Sophie だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"I wonder if Sophie can dance\" がヒントだよ。",
+          "summaryJa": "Eda は人形の Sophie も踊れるか考えながら夜を待った"
+        }
+      ]
+    },
+    {
+      "id": "no1-ch3-p2",
+      "issue": "no1",
+      "chapterNo": 3,
+      "chapterTitle": "Little Eda's Flower",
+      "partNo": 2,
+      "partTitle": "The doll dancing with flowers",
+      "recommendedGrade": "小3〜4",
+      "keywords": [
+        {
+          "id": "piano",
+          "word": "piano",
+          "ja": "ピアノ",
+          "emoji": "🎹"
+        },
+        {
+          "id": "holding",
+          "word": "holding",
+          "ja": "にぎっている",
+          "emoji": "🤝"
+        },
+        {
+          "id": "leaves",
+          "word": "leaves",
+          "ja": "葉っぱ",
+          "emoji": "🍃"
+        },
+        {
+          "id": "lily",
+          "word": "lily",
+          "ja": "ユリ",
+          "emoji": "🌼"
+        },
+        {
+          "id": "peas",
+          "word": "peas",
+          "ja": "エンドウ豆",
+          "emoji": "🫛"
+        },
+        {
+          "id": "tired",
+          "word": "tired",
+          "ja": "つかれた",
+          "emoji": "😴"
+        }
+      ],
+      "segments": [
+        {
+          "id": "no1-ch3-p2-s1",
+          "text": "It was late at night, but Eda was still awake. Suddenly, she heard the sound of a piano. \"It's time for a dance party!\"",
+          "questionJa": "夜おそく、Edaに聞こえてきた音は何？",
+          "choices": [
+            {
+              "id": "piano",
+              "labelEn": "a piano",
+              "labelJa": "ピアノ",
+              "emoji": "🎹"
+            },
+            {
+              "id": "birds",
+              "labelEn": "birds",
+              "labelJa": "鳥の声",
+              "emoji": "🐦"
+            },
+            {
+              "id": "wind",
+              "labelEn": "the wind",
+              "labelJa": "風の音",
+              "emoji": "🌬️"
+            }
+          ],
+          "correctChoiceId": "piano",
+          "feedbackCorrectJa": "そう！a piano の音だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"the sound of a piano\" がヒントだよ。",
+          "summaryJa": "夜おそく、Eda に piano の音が聞こえた"
+        },
+        {
+          "id": "no1-ch3-p2-s2",
+          "text": "Eda looked into the playroom. It was bright with moonlight. The flowers stood in two lines, made a circle, and danced while holding each other's leaves.",
+          "questionJa": "花たちは、何をにぎって踊っていた？",
+          "choices": [
+            {
+              "id": "leaves",
+              "labelEn": "each other's leaves",
+              "labelJa": "おたがいの葉っぱ",
+              "emoji": "🍃"
+            },
+            {
+              "id": "coins",
+              "labelEn": "gold coins",
+              "labelJa": "金のコイン",
+              "emoji": "🪙"
+            },
+            {
+              "id": "wings",
+              "labelEn": "white wings",
+              "labelJa": "白いつばさ",
+              "emoji": "🪽"
+            }
+          ],
+          "correctChoiceId": "leaves",
+          "feedbackCorrectJa": "あたり！each other's leaves だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"holding each other's leaves\" がヒントだよ。",
+          "summaryJa": "花たちはおたがいの leaves をにぎって輪になり、踊っていた"
+        },
+        {
+          "id": "no1-ch3-p2-s3",
+          "text": "A yellow lily was playing the piano. Then the doll Sophie jumped onto the floor and started dancing. Eda said, \"I didn't know Sophie was a friend of the flowers!\"",
+          "questionJa": "花たちといっしょに踊り始めたのはだれ？",
+          "choices": [
+            {
+              "id": "sophie",
+              "labelEn": "Sophie",
+              "labelJa": "人形のSophie",
+              "emoji": "🪆"
+            },
+            {
+              "id": "student",
+              "labelEn": "the student",
+              "labelJa": "学生",
+              "emoji": "🧑‍🎓"
+            },
+            {
+              "id": "princess",
+              "labelEn": "the princess",
+              "labelJa": "お姫さま",
+              "emoji": "👸"
+            }
+          ],
+          "correctChoiceId": "sophie",
+          "feedbackCorrectJa": "そう！Sophie だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"Sophie ... started dancing\" がヒントだよ。",
+          "summaryJa": "yellow lily が piano をひき、人形の Sophie も踊り始めた"
+        },
+        {
+          "id": "no1-ch3-p2-s4",
+          "text": "Many dancing flowers came into the hall. The flower band played trumpets made of peas. They danced all night.",
+          "questionJa": "花の楽団のトランペットは、何でできていた？",
+          "choices": [
+            {
+              "id": "peas",
+              "labelEn": "peas",
+              "labelJa": "エンドウ豆",
+              "emoji": "🫛"
+            },
+            {
+              "id": "petals",
+              "labelEn": "flower petals",
+              "labelJa": "花びら",
+              "emoji": "🌸"
+            },
+            {
+              "id": "silver",
+              "labelEn": "silver coins",
+              "labelJa": "銀のコイン",
+              "emoji": "🪙"
+            }
+          ],
+          "correctChoiceId": "peas",
+          "feedbackCorrectJa": "あたり！peas だね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"trumpets made of peas\" がヒントだよ。",
+          "summaryJa": "花の楽団は peas でできたトランペットを鳴らした"
+        },
+        {
+          "id": "no1-ch3-p2-s5",
+          "text": "The next morning, the flowers looked very tired. Eda looked at her doll Sophie, but Sophie said nothing.",
+          "questionJa": "朝になった花たちは、どんなようすだった？",
+          "choices": [
+            {
+              "id": "tired",
+              "labelEn": "very tired",
+              "labelJa": "とてもつかれていた",
+              "emoji": "😴"
+            },
+            {
+              "id": "angry",
+              "labelEn": "very angry",
+              "labelJa": "とてもおこっていた",
+              "emoji": "😠"
+            },
+            {
+              "id": "hungry",
+              "labelEn": "very hungry",
+              "labelJa": "とてもおなかがすいていた",
+              "emoji": "🍽️"
+            }
+          ],
+          "correctChoiceId": "tired",
+          "feedbackCorrectJa": "そう！very tired だったね。",
+          "feedbackIncorrectJa": "もういちど聞いてみよう。\"the flowers looked very tired\" がヒントだよ。",
+          "summaryJa": "朝になると花たちは very tired。Sophie は何も言わなかった"
         }
       ]
     }

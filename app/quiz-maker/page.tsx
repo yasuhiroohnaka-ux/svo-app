@@ -13,6 +13,8 @@ type Card = {
     id: string;
     sentences: string[];
     sentences_zh?: string[];
+    target?: string;
+    target_zh?: string;
     image: string;
 };
 
@@ -326,6 +328,8 @@ export default function Page() {
                     image: x.image,
                     sentences: Array.isArray(x.sentences) ? x.sentences : [x.sentence || ""],
                     sentences_zh: Array.isArray(x.sentences_zh) ? x.sentences_zh : undefined,
+                    target: typeof x.target === "string" ? x.target : undefined,
+                    target_zh: typeof x.target_zh === "string" ? x.target_zh : undefined,
                 })).filter(c => c.image && c.sentences.length > 0);
 
                 if (normalized.length === 0) {
@@ -361,7 +365,12 @@ export default function Page() {
     // Helper to get text (content-language aware)
     const getSentences = (c: Card) =>
         contentLang === "zh" && c.sentences_zh ? c.sentences_zh : c.sentences;
-    const getTargetText = (c: Card) => { const s = getSentences(c); return s[2] || s[0]; };
+    const getTargetText = (c: Card) => {
+        if (contentLang === "zh" && c.target_zh) return c.target_zh;
+        if (c.target) return c.target;
+        const s = getSentences(c);
+        return s[2] || s[0];
+    };
     const getFullText = (c: Card) => getSentences(c).join(" ");
 
     const toggleUiLang = () => {
