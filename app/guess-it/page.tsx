@@ -673,8 +673,8 @@ export default function GuessItPage() {
     <main className={styles.shell}>
       <header className={styles.topBar}>
         <div>
-          <p className={styles.kicker}>Guess It!</p>
-          <h1 className={styles.title}>なにかなクイズ</h1>
+          <p className={styles.kicker}>Word Detective</p>
+          <h1 className={styles.title}>ことばたんてい</h1>
         </div>
 
         <div className={styles.modeStrip} aria-label="settings">
