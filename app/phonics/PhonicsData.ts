@@ -10,7 +10,7 @@ export type Word = {
     id: string;
     text: string;
     phonics: string[]; // sequence of phonic IDs
-    level: 1 | 2 | 3 | 4;
+    level: 1 | 2 | 3 | 4 | 5;
     image?: string;
 };
 
@@ -19,7 +19,7 @@ export type LessonWord = {
     text: string;
     phonics: string[];
     soundParts: string[];
-    level: 1 | 2 | 3 | 4;
+    level: 1 | 2 | 3 | 4 | 5;
     levelIds: string[];
     note?: string;
     audio?: string;
@@ -62,12 +62,23 @@ export const PHONICS_DATA: Phonic[] = [
     { id: "x", symbol: "x", image: "/images/phonics/cards/x.png", audio: "/audio/phonics/x.m4a", pronunciation: "x" },
     { id: "y", symbol: "y", image: "/images/phonics/cards/y.png", audio: "/audio/phonics/y.m4a", pronunciation: "y" },
     { id: "z", symbol: "z", image: "/images/phonics/cards/z.png", audio: "/audio/phonics/z.m4a", pronunciation: "z" },
+    // 2文字以上のパターン。ar/ir/ear は専用音声が未収録なので TTS の pronunciation で代用する。
+    { id: "ar", symbol: "ar", image: "/images/phonics/cards/ar.png", pronunciation: "ar" },
+    { id: "ir", symbol: "ir", image: "/images/phonics/cards/ir.png", pronunciation: "er" },
+    { id: "ear", symbol: "ear", image: "/images/phonics/cards/ear.png", pronunciation: "ear" },
+    { id: "oo", symbol: "oo", image: "/images/phonics/cards/oo.png", audio: "/audio/phonics/oo_long.m4a", pronunciation: "oo" },
+    { id: "ow", symbol: "ow", image: "/images/phonics/cards/ow.png", audio: "/audio/phonics/ou_ow.m4a", pronunciation: "ow" },
+    { id: "th", symbol: "th", image: "/images/phonics/cards/th.png", audio: "/audio/phonics/th_breath.m4a", pronunciation: "th" },
+    { id: "wh", symbol: "wh", image: "/images/phonics/cards/wh.png", audio: "/audio/phonics/w.m4a", pronunciation: "w" },
+    { id: "ph", symbol: "ph", image: "/images/phonics/cards/ph.png", audio: "/audio/phonics/f.m4a", pronunciation: "f" },
 ];
 
 const LEVEL3_TARGET_IDS = ["a", "e", "i", "o", "u", "p", "n", "t", "b", "d", "g", "c", "k", "m", "l", "r"];
 const LEVEL4_TARGET_IDS = [...LEVEL3_TARGET_IDS, "s", "f", "h"];
+const LEVEL5_PATTERN_IDS = ["ar", "ir", "ear", "oo", "ow", "th", "wh", "ph"];
+const LEVEL5_TARGET_IDS = [...LEVEL4_TARGET_IDS, ...LEVEL5_PATTERN_IDS];
 
-export const PRIORITY_PHONICS_IDS = LEVEL4_TARGET_IDS;
+export const PRIORITY_PHONICS_IDS = LEVEL5_TARGET_IDS;
 
 export const PHONICS_LEVELS: PhonicsLevel[] = [
     {
@@ -101,11 +112,17 @@ export const PHONICS_LEVELS: PhonicsLevel[] = [
         description: "あたらしい おとで クイズ！",
         targetIds: LEVEL4_TARGET_IDS,
     },
+    {
+        id: "level-5",
+        label: "レベル5",
+        description: "ふたつもじの おとに ちょうせん！",
+        targetIds: LEVEL5_TARGET_IDS,
+    },
 ];
 
 export const DEFAULT_LESSON_TARGET_IDS = PHONICS_LEVELS[0].targetIds;
 
-const makeLessonWord = (text: string, phonics: string[], levelIds: string[], level: 1 | 2 | 3 | 4 = 1): LessonWord => ({
+const makeLessonWord = (text: string, phonics: string[], levelIds: string[], level: 1 | 2 | 3 | 4 | 5 = 1): LessonWord => ({
     id: text,
     text,
     phonics,
@@ -165,6 +182,28 @@ export const LESSON_WORDS: LessonWord[] = [
     makeLessonWord("hat", ["h", "a", "t"], ["level-4"], 4),
     makeLessonWord("hen", ["h", "e", "n"], ["level-4"], 4),
     makeLessonWord("hot", ["h", "o", "t"], ["level-4"], 4),
+
+    // Level 5 introduces two-letter patterns (ar/ir/ear/oo/ow/th/wh/ph).
+    makeLessonWord("car", ["c", "ar"], ["level-5"], 5),
+    makeLessonWord("star", ["s", "t", "ar"], ["level-5"], 5),
+    makeLessonWord("park", ["p", "ar", "k"], ["level-5"], 5),
+    makeLessonWord("bird", ["b", "ir", "d"], ["level-5"], 5),
+    makeLessonWord("girl", ["g", "ir", "l"], ["level-5"], 5),
+    makeLessonWord("ear", ["ear"], ["level-5"], 5),
+    makeLessonWord("hear", ["h", "ear"], ["level-5"], 5),
+    makeLessonWord("near", ["n", "ear"], ["level-5"], 5),
+    makeLessonWord("moon", ["m", "oo", "n"], ["level-5"], 5),
+    makeLessonWord("food", ["f", "oo", "d"], ["level-5"], 5),
+    makeLessonWord("cool", ["c", "oo", "l"], ["level-5"], 5),
+    makeLessonWord("cow", ["c", "ow"], ["level-5"], 5),
+    makeLessonWord("now", ["n", "ow"], ["level-5"], 5),
+    makeLessonWord("down", ["d", "ow", "n"], ["level-5"], 5),
+    makeLessonWord("thin", ["th", "i", "n"], ["level-5"], 5),
+    makeLessonWord("bath", ["b", "a", "th"], ["level-5"], 5),
+    makeLessonWord("math", ["m", "a", "th"], ["level-5"], 5),
+    makeLessonWord("when", ["wh", "e", "n"], ["level-5"], 5),
+    makeLessonWord("whip", ["wh", "i", "p"], ["level-5"], 5),
+    makeLessonWord("graph", ["g", "r", "a", "ph"], ["level-5"], 5),
 ];
 
 export const WORDS_DATA: Word[] = [

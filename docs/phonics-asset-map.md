@@ -38,8 +38,24 @@ PDF pages are first exported to `public/images/phonics/generated`, then copied b
 | y | `cards/y.png` | `フォニックスフラッシュカード (1).pdf` page 24 | `audio/phonics/y.m4a` |
 | z | `cards/z.png` | `フォニックスフラッシュカード (1).pdf` page 25 | `audio/phonics/z.m4a` |
 
+## Pattern Cards (2026-07, illustrator-supplied PNGs)
+
+Two-letter (and `ear`) pattern cards were supplied directly as PNGs by the illustrator (入江さん), not extracted from the PDFs. The same batch also included re-exports of `d/g/j/l/r/v/w`, which replaced the PDF-extracted versions of those letter cards.
+
+| Card | Source PNG | Audio |
+| --- | --- | --- |
+| ar | `cards/ar.png` | none — TTS fallback (`pronunciation: "ar"`) |
+| ir | `cards/ir.png` (from `ir (1).png`) | none — TTS fallback (`pronunciation: "er"`) |
+| ear | `cards/ear.png` | none — TTS fallback (`pronunciation: "ear"`) |
+| oo | `cards/oo.png` | `audio/phonics/oo_long.m4a` |
+| ow | `cards/ow.png` (from `ow_アートボード 1.png`) | `audio/phonics/ou_ow.m4a` |
+| th | `cards/th.png` | `audio/phonics/th_breath.m4a` (voiceless th) |
+| wh | `cards/wh.png` | `audio/phonics/w.m4a` (taught as /w/) |
+| ph | `cards/ph.png` | `audio/phonics/f.m4a` (ph = /f/) |
+
 ## Notes
 
 - The flashcard PDF appears to skip `n`; `n.png` is deliberately taken from `【2回】フォニックス.pdf` page 9.
 - The current mapping is table-driven on purpose. It does not use OCR or image recognition.
-- Long vowels and blended sounds (`a_long`, `e_long`, `i_long`, `o_long`, `u_long`, `ch`, `sh`, `th_*`, `oo_*`, `ou_ow`) have audio files but no dedicated card images in this first mapping.
+- Long vowels and remaining blended sounds (`a_long`, `e_long`, `i_long`, `o_long`, `u_long`, `ch`, `oo_short`, `th_sound`) have audio files but no dedicated card images yet.
+- Dedicated recordings for `ar`, `ir`, and `ear` are still missing; those cards currently fall back to speech synthesis.
