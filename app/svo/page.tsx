@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
@@ -188,7 +188,8 @@ export default function Page() {
 
   const t = translations[uiLang];
 
-  // 繝・・繧ｿ隱ｭ縺ｿ霎ｼ縺ｿ・・ublic/data/svo_cards.json 繧呈Φ螳夲ｼ・  // cache: "no-store" might fail on some older Android WebViews / browsers?
+  // データ読み込み(public/data/svo_cards.json を想定)
+  // cache: "no-store" might fail on some older Android WebViews / browsers?
   // Using timestamp query param instead for cache busting compatibility.
   // Debug State
   const [step, setStep] = useState<string>("boot");
@@ -989,7 +990,7 @@ export default function Page() {
         )}
       </div>
 
-      {/* 蝠城｡後お繝ｪ繧｢ */}
+      {/* 問題エリア */}
       <div className={styles.gameArea}>
         {mode === "flash" ? (
           <div className={styles.flashGrid}>
@@ -1016,7 +1017,7 @@ export default function Page() {
               </div>
             </div>
 
-            {/* 蜿ｳ: 驕ｸ謚櫁い or 髻ｳ螢ｰ隱崎ｭ・*/}
+            {/* 右: 選択肢 or 音声認識 */}
             <div>
               {voiceMode ? (
                 /* Voice recognition mode */
@@ -1116,7 +1117,7 @@ export default function Page() {
               </div>
             </div>
 
-            {/* 逕ｻ蜒丞呵｣・窶・dynamic sizing via CSS variable */}
+            {/* 画像候補 — dynamic sizing via CSS variable */}
             <div
               className={styles.karutaGrid}
               style={{ "--card-count": choices.length } as React.CSSProperties}

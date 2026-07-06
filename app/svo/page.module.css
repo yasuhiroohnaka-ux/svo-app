@@ -1,36 +1,59 @@
+/* =============================================
+   Puzzle Grammar (SVO) — Portal-family theme
+   Grid-paper background, dark ink borders, hard
+   offset shadows, heavy Nunito, coral accent
+   (portal card color #ff6b6b), yellow highlight.
+   Fonts are loaded globally in app/layout.tsx.
+   ============================================= */
+
 /* Main Container */
 .container {
   padding: 16px;
-  font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, system-ui, sans-serif;
+  font-family: 'Nunito', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, system-ui, sans-serif;
+  font-weight: 800;
   max-width: 1400px;
   margin: 0 auto;
-  background-color: #f1f8e9;
+  background:
+    linear-gradient(rgba(84, 38, 47, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(84, 38, 47, 0.06) 1px, transparent 1px),
+    #fff6f2;
+  background-size: 28px 28px;
   min-height: 100vh;
-  color: #1b5e20;
+  color: #1d2f45;
 }
 
 .header {
   margin: 0;
-  color: #2e7d32;
+  color: #1d2f45;
   text-align: center;
   font-size: 1.6rem;
-  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-shadow: 3px 3px 0 #ffe27a;
+}
+
+/* Score & Status */
+.statusRow {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 900;
+  color: #a4453f;
+  margin-top: 6px;
 }
 
 /* Controls Area */
 .controls {
   margin-top: 10px;
   background-color: #ffffff;
-  border: 2px solid #a5d6a7;
-  border-radius: 16px;
-  padding: 12px 16px;
+  border: 2px solid #1d2f45;
+  border-radius: 10px;
+  padding: 10px 14px;
   display: flex;
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-  /* Center content */
-  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.1);
+  box-shadow: 4px 4px 0 rgba(29, 47, 69, 0.18);
 }
 
 .controlGroup {
@@ -39,22 +62,21 @@
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-  /* Center items */
 }
 
 .button {
   padding: 6px 12px;
-  border: 2px solid #81c784;
-  border-radius: 12px;
+  border: 2px solid #1d2f45;
+  border-radius: 8px;
   background: #ffffff;
-  color: #2e7d32;
+  color: #1d2f45;
   cursor: pointer;
   font-size: 14px;
-  font-weight: bold;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  font-weight: 800;
+  font-family: inherit;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  box-shadow: 3px 3px 0 #1d2f45;
 }
-
 
 .tapTarget {
   min-width: 44px;
@@ -65,95 +87,92 @@
 }
 
 .button:hover {
-  background: #e8f5e9;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: #ffe3e0;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #1d2f45;
 }
 
 .button:active {
-  transform: translateY(0);
-  box-shadow: none;
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 #1d2f45;
 }
 
 .buttonActive {
-  background: #4caf50;
-  color: #ffffff;
-  border-color: #388e3c;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  background: #ff6b6b;
+  color: #1d2f45;
+  border-color: #1d2f45;
+  box-shadow: 3px 3px 0 #1d2f45;
 }
 
-/* Survival Mode Button Special Style */
+.buttonActive:hover {
+  background: #ff8787;
+}
+
+/* Survival Mode Button */
 .buttonSurvival {
-  background: #fff3e0;
-  border-color: #ffcc80;
-  color: #e65100;
+  background: #fff1d6;
+  color: #9a4a00;
 }
 
 .buttonSurvival.buttonActive {
-  background: #ff9800;
-  color: white;
-  border-color: #f57c00;
+  background: #ffa94d;
+  color: #1d2f45;
 }
 
-/* Trick Mode Button Special Style */
+/* Trick Mode Button */
 .buttonTrick {
-  background: #e1f5fe;
-  border-color: #81d4fa;
-  color: #0277bd;
-}
-
-.buttonTrick.buttonActive {
-  background: #03a9f4;
-  color: white;
-  border-color: #0288d1;
+  background: #4dabf7;
+  color: #1d2f45;
 }
 
 .select {
   padding: 6px 10px;
   border-radius: 8px;
-  border: 2px solid #a5d6a7;
+  border: 2px solid #1d2f45;
   font-size: 14px;
-  color: #1b5e20;
+  font-weight: 800;
+  font-family: inherit;
+  color: #1d2f45;
   background: #ffffff;
   cursor: pointer;
+  box-shadow: 3px 3px 0 #1d2f45;
 }
 
 .choiceButton {
   width: 44px;
   height: 44px;
-  border: 2px solid #a5d6a7;
+  border: 2px solid #1d2f45;
   border-radius: 50%;
   background: #ffffff;
-  color: #2e7d32;
+  color: #1d2f45;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
+  font-weight: 800;
+  font-family: inherit;
   font-size: 14px;
-  transition: all 0.2s;
+  transition: transform 0.12s, background 0.12s;
+  box-shadow: 3px 3px 0 #1d2f45;
 }
 
 .choiceButton:hover {
-  background: #e8f5e9;
-  border-color: #66bb6a;
+  background: #ffe3e0;
 }
 
 .choiceButtonActive {
-  background: #4caf50;
-  color: #ffffff;
-  border-color: #388e3c;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  background: #ff6b6b;
+  color: #1d2f45;
 }
 
 /* Game Area */
 .gameArea {
   margin-top: 12px;
   background: #ffffff;
-  border: 2px solid #a5d6a7;
-  border-radius: 16px;
+  border: 2px solid #1d2f45;
+  border-radius: 12px;
   padding: 16px;
-  box-shadow: 0 8px 16px rgba(46, 125, 50, 0.08);
+  box-shadow: 6px 6px 0 rgba(29, 47, 69, 0.18);
 }
 
 /* Flash Mode Layout */
@@ -164,54 +183,62 @@
 }
 
 .flashImageContainer {
-  border: 2px solid #c8e6c9;
-  border-radius: 16px;
+  border: 2px solid #1d2f45;
+  border-radius: 12px;
   padding: 16px;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 300px;
-  background: #f1f8e9;
+  background: #fffcfa;
+  box-shadow: inset 0 0 0 4px #ffe3e0;
 }
 
 .flashImage {
   max-width: 100%;
   max-height: 360px;
   object-fit: contain;
-  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.1));
 }
 
 .sentenceList {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .sentenceButton {
   text-align: left;
   padding: 14px;
-  border: 2px solid #a5d6a7;
-  border-radius: 12px;
+  border: 2px solid #1d2f45;
+  border-radius: 10px;
   background: #ffffff;
   cursor: pointer;
   font-size: 16px;
+  font-weight: 800;
+  font-family: inherit;
   width: 100%;
-  color: #1b5e20;
-  transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: #1d2f45;
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+  box-shadow: 4px 4px 0 #1d2f45;
+  line-height: 1.4;
 }
 
 .sentenceButton:hover {
-  background: #f1f8e9;
-  transform: translateX(4px);
-  border-color: #66bb6a;
+  background: #ffe3e0;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 #1d2f45;
+}
+
+.sentenceButton:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 #1d2f45;
 }
 
 /* Karuta Mode Layout */
 .karutaHeader {
-  background: #e8f5e9;
-  border: 2px solid #c8e6c9;
-  border-radius: 12px;
+  background: #fff8e3;
+  border: 2px solid #1d2f45;
+  border-radius: 10px;
   padding: 10px 16px;
   display: flex;
   gap: 10px;
@@ -219,12 +246,13 @@
   justify-content: space-between;
   flex-wrap: wrap;
   margin-bottom: 12px;
+  box-shadow: 4px 4px 0 rgba(29, 47, 69, 0.18);
 }
 
 .targetSentence {
   font-size: 18px;
-  font-weight: bold;
-  color: #1b5e20;
+  font-weight: 900;
+  color: #1d2f45;
 }
 
 /* Karuta Grid — dynamic sizing based on card count */
@@ -235,14 +263,14 @@
   grid-template-columns: repeat(auto-fill,
       minmax(clamp(140px, calc(300px - var(--card-count) * 5px), 280px),
         1fr));
-  gap: 8px;
+  gap: 10px;
   justify-content: center;
   align-content: start;
   padding-bottom: 40px;
 }
 
 .karutaCard {
-  border: 2px solid #c8e6c9;
+  border: 2px solid #1d2f45;
   border-radius: 10px;
   background: #ffffff;
   cursor: pointer;
@@ -251,15 +279,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.12s, box-shadow 0.12s;
+  box-shadow: 4px 4px 0 rgba(29, 47, 69, 0.22);
   overflow: hidden;
 }
 
 .karutaCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 10px rgba(46, 125, 50, 0.15);
-  border-color: #66bb6a;
+  transform: translate(-3px, -3px);
+  box-shadow: 7px 7px 0 rgba(29, 47, 69, 0.22);
+  background: #fff6f2;
+}
+
+.karutaCard:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 rgba(29, 47, 69, 0.22);
 }
 
 .karutaImage {
@@ -284,53 +317,56 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  border: 3px solid #81c784;
-  background: #e8f5e9;
+  border: 2px solid #1d2f45;
+  background: #ffe3e0;
   cursor: pointer;
   font-size: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.12s, background 0.12s;
+  box-shadow: 4px 4px 0 #1d2f45;
 }
 
 .voiceButton:hover {
-  background: #c8e6c9;
-  transform: scale(1.05);
+  background: #ff8787;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 #1d2f45;
 }
 
 .voiceButtonListening {
-  border-color: #ef5350;
-  background: #ffebee;
+  border-color: #c92a2a;
+  background: #ffe3e3;
   animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(239, 83, 80, 0.4);
+    box-shadow: 4px 4px 0 #1d2f45, 0 0 0 0 rgba(201, 42, 42, 0.4);
   }
 
   70% {
-    box-shadow: 0 0 0 15px rgba(239, 83, 80, 0);
+    box-shadow: 4px 4px 0 #1d2f45, 0 0 0 15px rgba(201, 42, 42, 0);
   }
 
   100% {
-    box-shadow: 0 0 0 0 rgba(239, 83, 80, 0);
+    box-shadow: 4px 4px 0 #1d2f45, 0 0 0 0 rgba(201, 42, 42, 0);
   }
 }
 
 .spokenResult {
   margin-top: 8px;
   padding: 12px 20px;
-  border: 2px solid #a5d6a7;
-  border-radius: 12px;
+  border: 2px solid #1d2f45;
+  border-radius: 10px;
   font-size: 18px;
-  font-weight: bold;
-  color: #1b5e20;
-  background: #f9fbe7;
+  font-weight: 800;
+  font-family: inherit;
+  color: #1d2f45;
+  background: #fff8e3;
   text-align: center;
   min-width: 200px;
+  box-shadow: 4px 4px 0 rgba(29, 47, 69, 0.18);
 }
 
 /* ===================== */
@@ -396,6 +432,7 @@
   .sentenceButton {
     padding: 10px;
     font-size: 15px;
+    box-shadow: 3px 3px 0 #1d2f45;
   }
 
   /* Karuta: smaller cards for tablet */
@@ -406,8 +443,7 @@
 
   .karutaCard {
     padding: 4px;
-    border-radius: 8px;
-    border-width: 1px;
+    box-shadow: 3px 3px 0 rgba(29, 47, 69, 0.22);
   }
 
   .karutaImage {
@@ -431,37 +467,38 @@
   }
 
   .header {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
+    text-shadow: 2px 2px 0 #ffe27a;
   }
 
   .controls {
     padding: 8px;
     gap: 6px;
-    border-radius: 10px;
   }
 
   .button {
     padding: 5px 8px;
     font-size: 12px;
-    border-radius: 8px;
+    box-shadow: 2px 2px 0 #1d2f45;
   }
 
   .choiceButton {
     width: 28px;
     height: 28px;
     font-size: 12px;
-    border-width: 1px;
+    box-shadow: 2px 2px 0 #1d2f45;
   }
 
   .select {
     padding: 4px 8px;
     font-size: 12px;
+    box-shadow: 2px 2px 0 #1d2f45;
   }
 
   .gameArea {
     padding: 6px;
-    border-radius: 10px;
     margin-top: 8px;
+    box-shadow: 4px 4px 0 rgba(29, 47, 69, 0.18);
   }
 
   .targetSentence {
@@ -481,7 +518,6 @@
 
   .karutaCard {
     padding: 3px;
-    border-radius: 6px;
   }
 
   .karutaImage {
@@ -538,7 +574,6 @@
     margin-top: 4px;
     padding: 6px;
     gap: 6px;
-    border-radius: 8px;
   }
 
   .controlGroup {
@@ -549,7 +584,7 @@
   .select {
     padding: 4px 8px;
     font-size: 12px;
-    border-radius: 6px;
+    box-shadow: 2px 2px 0 #1d2f45;
   }
 
   .choiceButton {
@@ -561,7 +596,7 @@
   .gameArea {
     margin-top: 4px;
     padding: 6px;
-    border-radius: 8px;
+    box-shadow: 4px 4px 0 rgba(29, 47, 69, 0.18);
   }
 
   .karutaHeader {
@@ -582,7 +617,6 @@
 
   .karutaCard {
     padding: 3px;
-    border-radius: 6px;
   }
 
   .karutaCard:hover {
@@ -627,30 +661,33 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(29, 26, 46, 0.72);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  backdrop-filter: blur(2px);
 }
 
 .overlayText {
-  font-size: 80px;
-  color: #ffffff;
-  font-weight: bold;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  font-family: 'Press Start 2P', monospace;
+  font-size: 72px;
+  color: #ffe27a;
+  text-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45);
   animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .overlaySubText {
-  font-size: 32px;
-  color: #ffffff;
-  margin-top: 20px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 10px 20px;
-  border-radius: 12px;
+  font-size: 28px;
+  font-weight: 900;
+  font-family: inherit;
+  color: #1d2f45;
+  margin-top: 24px;
+  background: #ffffff;
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: 2px solid #1d2f45;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
 }
 
 @keyframes popIn {
@@ -670,19 +707,19 @@
   margin-top: 24px;
   padding: 12px;
   text-align: center;
-  font-size: 11px;
-  color: #a5d6a7;
-  opacity: 0.7;
-  letter-spacing: 0.5px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  color: #c39a92;
+  letter-spacing: 1px;
 }
 
 /* Timer */
 .timer {
-  font-size: 24px;
-  font-weight: bold;
-  color: #ffca28;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 18px;
+  color: #e8590c;
   margin-left: 12px;
-  font-family: monospace;
+  text-shadow: 2px 2px 0 #ffe27a;
 }
 
 /* Ranking Modal */
@@ -692,7 +729,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(29, 26, 46, 0.72);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -701,21 +738,23 @@
 }
 
 .rankingModal {
-  background: white;
+  background: #ffffff;
   padding: 24px;
   border-radius: 12px;
   width: 90%;
   max-width: 400px;
   text-align: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  border: 3px solid #1d2f45;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.35);
   animation: slideUp 0.3s ease;
 }
 
 .rankingHeader {
   font-size: 20px;
-  font-weight: bold;
-  color: #333;
+  font-weight: 900;
+  color: #1d2f45;
   margin-bottom: 16px;
+  text-shadow: 2px 2px 0 #ffe27a;
 }
 
 .rankingTable {
@@ -725,62 +764,104 @@
 }
 
 .rankingTable th {
-  background: #f5f5f5;
+  background: #ffe3e0;
   padding: 8px;
   font-size: 14px;
-  color: #666;
+  color: #1d2f45;
+  font-weight: 900;
+  border-bottom: 2px solid #1d2f45;
 }
 
 .rankingTable td {
   padding: 8px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #f1c8c2;
   font-size: 14px;
-  color: #333;
+  color: #1d2f45;
+  font-weight: 700;
 }
 
 .rankingTable tr:nth-child(1) td {
-  font-weight: bold;
-  color: #d84315;
-  /* Gold-ish/Red for 1st */
+  font-weight: 900;
+  color: #9a4a00;
+  background: #fff1d6;
 }
 
 .rankingRowNew {
-  background-color: #fff9c4;
-  /* Light yellow highlight */
+  background-color: #fff8e3;
 }
 
 .rankingInput {
   width: 80%;
   padding: 10px;
   font-size: 16px;
-  border: 2px solid #ddd;
-  border-radius: 6px;
+  border: 2px solid #1d2f45;
+  border-radius: 8px;
   margin-bottom: 16px;
+  font-family: inherit;
+  font-weight: 800;
+  text-align: center;
+  color: #1d2f45;
+  box-shadow: inset 3px 3px 0 rgba(29, 47, 69, 0.12);
+}
+
+.rankingInput:focus {
+  outline: none;
+  background: #fff6f2;
+  border-color: #ff6b6b;
 }
 
 .rankingButton {
-  background: #4caf50;
-  color: white;
-  border: none;
+  background: #ff6b6b;
+  color: #1d2f45;
+  border: 2px solid #1d2f45;
   padding: 10px 20px;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 16px;
+  font-weight: 800;
+  font-family: inherit;
   cursor: pointer;
-  transition: opacity 0.2s;
+  box-shadow: 3px 3px 0 #1d2f45;
+  transition: transform 0.12s, box-shadow 0.12s;
 }
 
 .rankingButton:hover {
-  opacity: 0.9;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #1d2f45;
+}
+
+.rankingButton:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 #1d2f45;
 }
 
 .rankingCloseButton {
   margin-top: 12px;
-  background: #999;
-  color: white;
-  border: none;
+  background: #ffffff;
+  color: #1d2f45;
+  border: 2px solid #1d2f45;
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-family: inherit;
   cursor: pointer;
+  box-shadow: 3px 3px 0 #1d2f45;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.rankingCloseButton:hover {
+  background: #ffe3e0;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #1d2f45;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
@@ -793,109 +874,4 @@
     transform: translateY(0);
     opacity: 1;
   }
-}
-
-/* =============================================
-   Portal Theme Overrides (Pixel)
-   ============================================= */
-.container {
-  background-color: #f1f8e9;
-  color: #1b5e20;
-  font-family: 'Nunito', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, system-ui, sans-serif;
-}
-
-.header {
-  font-family: 'Press Start 2P', monospace;
-  color: #2e7d32;
-  text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.9);
-  letter-spacing: 2px;
-}
-
-.controls,
-.gameArea {
-  background: #ffffff;
-  border: 2px solid #a5d6a7;
-  border-radius: 0;
-  box-shadow: 0 4px 10px rgba(46, 125, 50, 0.1);
-}
-
-.button,
-.select,
-.choiceButton,
-.sentenceButton,
-.spokenResult,
-.nameInput {
-  border-radius: 0;
-  background: #ffffff;
-  color: #2e7d32;
-  border-color: #81c784;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.buttonActive,
-.choiceButtonActive {
-  background: #4caf50;
-  color: #ffffff;
-  border-color: #388e3c;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.sentenceButton,
-.flashImageContainer,
-.karutaHeader {
-  background: #f1f8e9;
-  border-color: #c8e6c9;
-  border-radius: 0;
-}
-
-.karutaCard {
-  background: #ffffff;
-  border: 2.5px solid #c8e6c9;
-  border-radius: 0;
-  box-shadow: 0 2px 6px rgba(46, 125, 50, 0.08);
-}
-
-.karutaCard:hover {
-  border-color: #66bb6a;
-}
-
-.overlay,
-.rankingOverlay {
-  background: rgba(27, 94, 32, 0.5);
-}
-
-.overlayText,
-.rankingHeader,
-.timer {
-  font-family: 'Press Start 2P', monospace;
-  color: #2e7d32;
-  text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.9);
-}
-
-.overlaySubText {
-  border-radius: 0;
-  background: #ffffff;
-  border: 2px solid #a5d6a7;
-  color: #2e7d32;
-}
-
-.rankingTable th,
-.rankingTable td {
-  border-bottom-color: #e8f5e9;
-}
-
-.rankingTable th {
-  background: #e8f5e9;
-  color: #2e7d32;
-}
-
-.rankingTable tr:nth-child(1) td {
-  background: #fff8e1;
-  color: #e65100;
-}
-
-.copyright {
-  font-family: 'Press Start 2P', monospace;
-  color: #66bb6a;
-  letter-spacing: 1px;
 }
