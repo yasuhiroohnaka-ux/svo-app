@@ -1,78 +1,75 @@
 /* =============================================
-   Quiz Maker — Blue / Sky-Blue / White Theme
-   Target: ~Grade 4 (age 9-10), friendly & clear
+   Quiz Maker — Portal-family theme
+   Grid-paper background, dark ink borders, hard
+   offset shadows, heavy Nunito, teal accent
+   (portal card color #4ecdc4), yellow highlight.
+   Fonts are loaded globally in app/layout.tsx.
    ============================================= */
-
-/* Google Fonts: Nunito — rounded, friendly, legible */
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap');
 
 /* Main Container */
 .container {
-    padding: 8px;
-    /* Reduced from 16px */
+    padding: 12px;
     font-family: 'Nunito', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, system-ui, sans-serif;
-    font-weight: 700;
+    font-weight: 800;
     max-width: 1400px;
     margin: 0 auto;
-    background: linear-gradient(160deg, #e3f2fd 0%, #f0f8ff 60%, #ffffff 100%);
+    background:
+        linear-gradient(rgba(19, 70, 84, 0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(19, 70, 84, 0.06) 1px, transparent 1px),
+        #f2fbf9;
+    background-size: 28px 28px;
     min-height: 100vh;
-    color: #0d47a1;
+    color: #143743;
     display: flex;
     flex-direction: column;
 }
 
 .header {
     margin: 0;
-    color: #1565c0;
+    color: #143743;
     text-align: center;
-    font-size: 1.4rem;
-    /* Reduced from 1.8rem */
+    font-size: 1.6rem;
     font-weight: 900;
-    letter-spacing: 0.02em;
-    text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.9), 0 2px 8px rgba(21, 101, 192, 0.2);
-    /* Compact header */
+    letter-spacing: 0.04em;
+    text-shadow: 3px 3px 0 #ffe27a;
     padding-bottom: 4px;
 }
 
-/* Controls Area - Compact */
+/* Controls Area */
 .controls {
-    margin-top: 4px;
-    /* Reduced from 10px */
+    margin-top: 6px;
     background-color: #ffffff;
-    border: 2px solid #90caf9;
-    border-radius: 16px;
-    padding: 6px 12px;
-    /* Reduced padding */
+    border: 2px solid #143743;
+    border-radius: 10px;
+    padding: 8px 12px;
     display: flex;
     gap: 8px;
     align-items: center;
     flex-wrap: wrap;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(21, 101, 192, 0.1);
+    box-shadow: 4px 4px 0 rgba(20, 55, 67, 0.18);
 }
 
 .controlGroup {
     display: flex;
-    gap: 4px;
+    gap: 6px;
     align-items: center;
     flex-wrap: wrap;
     justify-content: center;
 }
 
 .button {
-    padding: 5px 10px;
-    /* Smaller padding */
-    border: 2px solid #64b5f6;
-    border-radius: 12px;
+    padding: 6px 12px;
+    border: 2px solid #143743;
+    border-radius: 8px;
     background: #ffffff;
-    color: #1565c0;
+    color: #143743;
     cursor: pointer;
     font-size: 14px;
-    /* Smaller font */
     font-weight: 800;
     font-family: inherit;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(21, 101, 192, 0.1);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+    box-shadow: 3px 3px 0 #143743;
 }
 
 .tapTarget {
@@ -84,71 +81,69 @@
 }
 
 .button:hover {
-    background: #e3f2fd;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(21, 101, 192, 0.15);
-    border-color: #42a5f5;
+    background: #d9f6f1;
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 #143743;
 }
 
 .button:active {
-    transform: translateY(0);
-    box-shadow: none;
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 #143743;
 }
 
 .buttonActive {
-    background: #1e88e5;
-    color: #ffffff;
-    border-color: #1565c0;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    background: #4ecdc4;
+    color: #143743;
+    border-color: #143743;
+    box-shadow: 3px 3px 0 #143743;
+}
+
+.buttonActive:hover {
+    background: #63d6ce;
 }
 
 /* Survival Mode Button */
 .buttonSurvival {
-    background: #fff8e1;
-    border-color: #ffd54f;
-    color: #e65100;
+    background: #fff1d6;
+    color: #9a4a00;
 }
 
 .buttonSurvival.buttonActive {
-    background: #ff9800;
-    color: white;
-    border-color: #f57c00;
+    background: #ffa94d;
+    color: #143743;
 }
 
 /* Trick Mode Button */
 .buttonTrick {
-    background: #e8eaf6;
-    border-color: #9fa8da;
-    color: #283593;
+    background: #ece9fb;
+    color: #3b2f80;
 }
 
 .buttonTrick.buttonActive {
-    background: #3f51b5;
-    color: white;
-    border-color: #283593;
+    background: #7c6ce0;
+    color: #ffffff;
 }
 
 .select {
-    padding: 4px 8px;
-    /* Compact */
+    padding: 6px 10px;
     border-radius: 8px;
-    border: 2px solid #90caf9;
+    border: 2px solid #143743;
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 800;
     font-family: inherit;
-    color: #1565c0;
+    color: #143743;
     background: #ffffff;
     cursor: pointer;
+    box-shadow: 3px 3px 0 #143743;
 }
 
 .choiceButton {
     width: 44px;
-    /* Smaller */
     height: 44px;
-    border: 2px solid #90caf9;
+    border: 2px solid #143743;
     border-radius: 50%;
     background: #ffffff;
-    color: #1565c0;
+    color: #143743;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -156,44 +151,38 @@
     font-weight: 800;
     font-family: inherit;
     font-size: 14px;
-    transition: all 0.2s;
+    transition: transform 0.12s, background 0.12s;
+    box-shadow: 3px 3px 0 #143743;
 }
 
 .choiceButton:hover {
-    background: #e3f2fd;
-    border-color: #42a5f5;
+    background: #d9f6f1;
 }
 
 .choiceButtonActive {
-    background: #1e88e5;
-    color: #ffffff;
-    border-color: #1565c0;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    background: #4ecdc4;
+    color: #143743;
 }
 
 /* Status Row */
 .statusRow {
     text-align: center;
     font-size: 14px;
-    font-weight: 800;
-    color: #1565c0;
-    margin-top: 4px;
-    opacity: 0.85;
+    font-weight: 900;
+    color: #2b6f66;
+    margin-top: 6px;
 }
 
 /* Game Area */
 .gameArea {
-    margin-top: 8px;
-    /* Reduced */
+    margin-top: 10px;
     background: #ffffff;
-    border: 2px solid #90caf9;
-    border-radius: 16px;
-    padding: 12px;
-    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.1);
+    border: 2px solid #143743;
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 6px 6px 0 rgba(20, 55, 67, 0.18);
     flex: 1;
-    /* Take remaining height */
     overflow-y: auto;
-    /* Scroll if needed */
 }
 
 /* Flash Mode Layout */
@@ -204,101 +193,93 @@
 }
 
 .flashImageContainer {
-    border: 2.5px solid #bbdefb;
-    border-radius: 18px;
+    border: 2px solid #143743;
+    border-radius: 12px;
     padding: 16px;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 300px;
-    background: linear-gradient(135deg, #e3f2fd, #f5f9ff);
+    background: #f7fdfc;
+    box-shadow: inset 0 0 0 4px #d9f6f1;
 }
 
 .flashImage {
     max-width: 100%;
     max-height: 360px;
     object-fit: contain;
-    filter: drop-shadow(0 4px 6px rgba(21, 101, 192, 0.15));
 }
 
 .sentenceList {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .sentenceButton {
     text-align: left;
     padding: 16px;
-    border: 2.5px solid #90caf9;
-    border-radius: 14px;
+    border: 2px solid #143743;
+    border-radius: 10px;
     background: #ffffff;
     cursor: pointer;
     font-size: 17px;
     font-weight: 800;
     font-family: inherit;
     width: 100%;
-    color: #0d47a1;
-    transition: all 0.2s;
-    box-shadow: 0 2px 6px rgba(21, 101, 192, 0.08);
+    color: #143743;
+    transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+    box-shadow: 4px 4px 0 #143743;
     line-height: 1.4;
 }
 
 .sentenceButton:hover {
-    background: #e3f2fd;
-    transform: translateX(5px);
-    border-color: #42a5f5;
-    box-shadow: 0 4px 10px rgba(21, 101, 192, 0.15);
+    background: #d9f6f1;
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 #143743;
+}
+
+.sentenceButton:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 #143743;
 }
 
 /* Karuta Mode Layout */
 .karutaHeader {
-    background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
-    border: 2px solid #bbdefb;
-    border-radius: 12px;
-    padding: 8px 12px;
-    /* Compact */
+    background: #fff8e3;
+    border: 2px solid #143743;
+    border-radius: 10px;
+    padding: 10px 14px;
     display: flex;
     gap: 10px;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    box-shadow: 4px 4px 0 rgba(20, 55, 67, 0.18);
 }
 
 .targetSentence {
     font-size: 18px;
-    /* Slightly smaller */
     font-weight: 900;
-    color: #0d47a1;
+    color: #143743;
     line-height: 1.4;
 }
 
-/* Karuta Grid — Flexbox for Centered Layout (6-6-4) */
+/* Karuta Grid — Flexbox for Centered Layout */
 .karutaGrid {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    /* Center the last row */
-    gap: 10px;
-    /* Keep gap reasonable */
+    gap: 12px;
     padding-bottom: 20px;
 }
 
 .karutaCard {
-    /* 
-       Target: 5 cards per row (5 + 5 + 5 + 1).
-       100% / 5 = 20%.
-       Subtract margins/gaps.
-       Let's try 19% width.
-    */
     width: 19%;
-    /* Fits 5 comfortably with gap */
     min-width: 160px;
-    /* Prevent too small */
-
-    border: 2.5px solid #bbdefb;
-    border-radius: 12px;
+    border: 2px solid #143743;
+    border-radius: 10px;
     background: #ffffff;
     cursor: pointer;
     padding: 4px;
@@ -306,30 +287,32 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: all 0.15s;
-    box-shadow: 0 2px 6px rgba(21, 101, 192, 0.08);
+    transition: transform 0.12s, box-shadow 0.12s;
+    box-shadow: 4px 4px 0 rgba(20, 55, 67, 0.22);
     overflow: hidden;
     aspect-ratio: 1 / 0.85;
-    /* Maintain shape */
 }
 
 .karutaCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 16px rgba(21, 101, 192, 0.2);
-    border-color: #42a5f5;
+    transform: translate(-3px, -3px);
+    box-shadow: 7px 7px 0 rgba(20, 55, 67, 0.22);
+    background: #f2fbf9;
+}
+
+.karutaCard:active {
+    transform: translate(2px, 2px);
+    box-shadow: 0 0 0 rgba(20, 55, 67, 0.22);
 }
 
 .karutaImage {
     width: 100%;
     height: 100%;
-    /* Increase size for 5-col layout */
     max-height: 180px;
-    /* Larger max height */
     object-fit: contain;
     display: block;
-    /* Enhance line visibility: Use high contrast only. removed brightness reduction to avoid grey background. */
+    /* Enhance line visibility of the artwork and blend its white
+       background into the card. */
     filter: contrast(1.5);
-    /* Ensure the white background of the image matches the card background perfectly */
     mix-blend-mode: multiply;
 }
 
@@ -338,26 +321,21 @@
 /* Huge Layout (<= 6 cards) */
 .gridHuge .karutaCard {
     width: 30%;
-    /* 3 cards per row comfortably */
     min-width: 260px;
-    /* Force large size */
 }
 
 .gridHuge .karutaImage {
     max-height: 280px;
-    /* Huge image */
 }
 
 /* Big Layout (<= 12 cards) */
 .gridBig .karutaCard {
     width: 23%;
-    /* 4 cards per row */
     min-width: 200px;
 }
 
 .gridBig .karutaImage {
     max-height: 220px;
-    /* Big image */
 }
 
 /* Voice Recognition Styles */
@@ -373,54 +351,56 @@
     width: 84px;
     height: 84px;
     border-radius: 50%;
-    border: 3px solid #64b5f6;
-    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    border: 2px solid #143743;
+    background: #d9f6f1;
     cursor: pointer;
     font-size: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s;
-    box-shadow: 0 4px 10px rgba(21, 101, 192, 0.15);
+    transition: transform 0.12s, background 0.12s;
+    box-shadow: 4px 4px 0 #143743;
 }
 
 .voiceButton:hover {
-    background: linear-gradient(135deg, #bbdefb, #90caf9);
-    transform: scale(1.07);
+    background: #4ecdc4;
+    transform: translate(-1px, -1px);
+    box-shadow: 5px 5px 0 #143743;
 }
 
 .voiceButtonListening {
-    border-color: #ef5350;
-    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+    border-color: #c92a2a;
+    background: #ffe3e3;
     animation: pulse 1.5s infinite;
 }
 
 @keyframes pulse {
     0% {
-        box-shadow: 0 0 0 0 rgba(239, 83, 80, 0.4);
+        box-shadow: 4px 4px 0 #143743, 0 0 0 0 rgba(201, 42, 42, 0.4);
     }
 
     70% {
-        box-shadow: 0 0 0 15px rgba(239, 83, 80, 0);
+        box-shadow: 4px 4px 0 #143743, 0 0 0 15px rgba(201, 42, 42, 0);
     }
 
     100% {
-        box-shadow: 0 0 0 0 rgba(239, 83, 80, 0);
+        box-shadow: 4px 4px 0 #143743, 0 0 0 0 rgba(201, 42, 42, 0);
     }
 }
 
 .spokenResult {
     margin-top: 8px;
     padding: 12px 20px;
-    border: 2.5px solid #90caf9;
-    border-radius: 14px;
+    border: 2px solid #143743;
+    border-radius: 10px;
     font-size: 18px;
     font-weight: 800;
     font-family: inherit;
-    color: #0d47a1;
-    background: #f0f8ff;
+    color: #143743;
+    background: #fff8e3;
     text-align: center;
     min-width: 200px;
+    box-shadow: 4px 4px 0 rgba(20, 55, 67, 0.18);
 }
 
 /* ===================== */
@@ -433,9 +413,7 @@
     }
 
     .karutaCard {
-        /* Tablet: 4 or 5 per row */
         width: 18.5%;
-        /* 5 per row */
         min-width: 110px;
     }
 
@@ -455,7 +433,7 @@
     }
 
     .header {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
     }
 
     .controls {
@@ -465,7 +443,7 @@
 
     .gameArea {
         padding: 8px;
-        margin-top: 6px;
+        margin-top: 8px;
     }
 
     .flashGrid {
@@ -488,7 +466,6 @@
     }
 
     .karutaCard {
-        /* Phone Landscape/Big phone: 4 per row */
         width: 23%;
         min-width: 90px;
     }
@@ -513,37 +490,38 @@
     }
 
     .header {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
+        text-shadow: 2px 2px 0 #ffe27a;
     }
 
     .controls {
         padding: 6px;
         gap: 4px;
-        border-radius: 12px;
     }
 
     .button {
         padding: 4px 8px;
         font-size: 12px;
-        border-radius: 10px;
+        box-shadow: 2px 2px 0 #143743;
     }
 
     .choiceButton {
         width: 28px;
         height: 28px;
         font-size: 12px;
-        border-width: 2px;
+        box-shadow: 2px 2px 0 #143743;
     }
 
     .select {
         padding: 3px 6px;
         font-size: 12px;
+        box-shadow: 2px 2px 0 #143743;
     }
 
     .gameArea {
         padding: 6px;
-        border-radius: 12px;
         margin-top: 6px;
+        box-shadow: 4px 4px 0 rgba(20, 55, 67, 0.18);
     }
 
     .targetSentence {
@@ -556,9 +534,9 @@
     }
 
     .karutaCard {
-        /* Small Phone: 3 per row */
         width: 31%;
         min-width: 80px;
+        box-shadow: 3px 3px 0 rgba(20, 55, 67, 0.22);
     }
 
     .karutaImage {
@@ -577,6 +555,7 @@
     .sentenceButton {
         padding: 10px;
         font-size: 14px;
+        box-shadow: 3px 3px 0 #143743;
     }
 
     .sentenceList {
@@ -587,7 +566,6 @@
 @media (max-width: 360px) {
     .karutaCard {
         width: 48%;
-        /* 2 per row */
     }
 
     .karutaImage {
@@ -609,7 +587,6 @@
         margin-top: 2px;
         padding: 4px;
         gap: 4px;
-        border-radius: 8px;
     }
 
     .controlGroup {
@@ -620,7 +597,7 @@
     .select {
         padding: 3px 6px;
         font-size: 11px;
-        border-radius: 6px;
+        box-shadow: 2px 2px 0 #143743;
     }
 
     .choiceButton {
@@ -632,7 +609,7 @@
     .gameArea {
         margin-top: 4px;
         padding: 4px;
-        border-radius: 8px;
+        box-shadow: 4px 4px 0 rgba(20, 55, 67, 0.18);
     }
 
     .karutaHeader {
@@ -645,7 +622,6 @@
     }
 
     .karutaCard {
-        /* Landscape mobile: try to fit more horizontally */
         width: 15%;
         min-width: 70px;
         padding: 2px;
@@ -667,7 +643,6 @@
 
     .flashImage {
         max-height: 160px;
-        padding: 2px;
     }
 
     .sentenceButton {
@@ -687,34 +662,34 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(13, 71, 161, 0.55);
+    background: rgba(20, 43, 53, 0.72);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     z-index: 1000;
-    backdrop-filter: blur(3px);
 }
 
 .overlayText {
-    font-size: 90px;
-    color: #ffffff;
-    font-weight: 900;
-    font-family: inherit;
-    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 72px;
+    color: #ffe27a;
+    text-shadow: 6px 6px 0 rgba(0, 0, 0, 0.45);
     animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .overlaySubText {
-    font-size: 32px;
-    font-weight: 800;
+    font-size: 28px;
+    font-weight: 900;
     font-family: inherit;
-    color: #ffffff;
-    margin-top: 20px;
-    background: rgba(255, 255, 255, 0.2);
+    color: #143743;
+    margin-top: 24px;
+    background: #ffffff;
     padding: 10px 24px;
-    border-radius: 14px;
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    border: 2px solid #143743;
+    box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+    cursor: pointer;
 }
 
 @keyframes popIn {
@@ -734,20 +709,19 @@
     margin-top: 24px;
     padding: 12px;
     text-align: center;
-    font-size: 11px;
-    color: #90caf9;
-    opacity: 0.7;
-    letter-spacing: 0.5px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: #7ba8a1;
+    letter-spacing: 1px;
 }
 
 /* Timer */
 .timer {
-    font-size: 24px;
-    font-weight: 800;
-    color: #ff9800;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 18px;
+    color: #e8590c;
     margin-left: 12px;
-    font-family: monospace;
-    text-shadow: 1px 1px 0px white;
+    text-shadow: 2px 2px 0 #ffe27a;
 }
 
 /* Survival Text (3 sentences) */
@@ -756,12 +730,13 @@
     text-align: center;
     font-size: 20px;
     font-weight: 800;
-    color: #0d47a1;
+    color: #143743;
     line-height: 1.6;
-    background: #f0f4f8;
+    background: #fff8e3;
     padding: 15px;
-    border-radius: 12px;
-    border: 2.5px solid #bbdefb;
+    border-radius: 10px;
+    border: 2px solid #143743;
+    box-shadow: 4px 4px 0 rgba(20, 55, 67, 0.18);
 }
 
 /* Ranking Modal */
@@ -771,32 +746,32 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(13, 71, 161, 0.6);
+    background: rgba(20, 43, 53, 0.72);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
     animation: fadeIn 0.3s ease;
-    backdrop-filter: blur(2px);
 }
 
 .rankingModal {
-    background: white;
+    background: #ffffff;
     padding: 24px;
-    border-radius: 16px;
+    border-radius: 12px;
     width: 90%;
     max-width: 450px;
     text-align: center;
-    box-shadow: 0 10px 30px rgba(13, 71, 161, 0.3);
+    border: 3px solid #143743;
+    box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.35);
     animation: slideUp 0.3s ease;
-    border: 4px solid #90caf9;
 }
 
-.rankingHeader {
-    font-size: 24px;
+.rankingModal h2 {
+    margin: 0 0 16px;
+    font-size: 22px;
     font-weight: 900;
-    color: #1565c0;
-    margin-bottom: 20px;
+    color: #143743;
+    text-shadow: 2px 2px 0 #ffe27a;
 }
 
 .rankingTable {
@@ -806,30 +781,30 @@
 }
 
 .rankingTable th {
-    background: #e3f2fd;
+    background: #d9f6f1;
     padding: 10px;
     font-size: 15px;
-    color: #1e88e5;
-    font-weight: 800;
-    border-bottom: 2px solid #bbdefb;
+    color: #143743;
+    font-weight: 900;
+    border-bottom: 2px solid #143743;
 }
 
 .rankingTable td {
     padding: 10px;
-    border-bottom: 1px solid #e3f2fd;
+    border-bottom: 1px solid #b9e6df;
     font-size: 15px;
-    color: #333;
+    color: #143743;
     font-weight: 700;
 }
 
 .rankingTable tr:nth-child(1) td {
     font-weight: 900;
-    color: #e65100;
-    background: #fff8e1;
+    color: #9a4a00;
+    background: #fff1d6;
 }
 
 .rankingTable tr.newRecordRow {
-    background-color: #fff9c4 !important;
+    background-color: #fff8e3 !important;
     animation: pulseHighlight 2s infinite;
 }
 
@@ -837,19 +812,20 @@
     width: 80%;
     padding: 12px;
     font-size: 18px;
-    border: 3px solid #90caf9;
-    border-radius: 10px;
+    border: 2px solid #143743;
+    border-radius: 8px;
     margin-bottom: 20px;
     font-family: inherit;
-    font-weight: 700;
+    font-weight: 800;
     text-align: center;
-    color: #1565c0;
+    color: #143743;
+    box-shadow: inset 3px 3px 0 rgba(20, 55, 67, 0.12);
 }
 
 .nameInput:focus {
-    border-color: #1e88e5;
     outline: none;
-    background: #e3f2fd;
+    background: #f2fbf9;
+    border-color: #4ecdc4;
 }
 
 .modalButtons {
@@ -882,143 +858,14 @@
 
 @keyframes pulseHighlight {
     0% {
-        background-color: #fff9c4;
+        background-color: #fff8e3;
     }
 
     50% {
-        background-color: #fff59d;
+        background-color: #ffe27a;
     }
 
     100% {
-        background-color: #fff9c4;
+        background-color: #fff8e3;
     }
-}
-
-/* Force re-deployment: 2026-02-20 */
-
-/* =============================================
-   Portal Theme Overrides (Pixel)
-   ============================================= */
-.container {
-    padding: 8px;
-    color: #0d47a1;
-    background: linear-gradient(160deg, #e3f2fd 0%, #f0f8ff 60%, #ffffff 100%);
-}
-
-.header {
-    color: #1565c0;
-    font-family: 'Press Start 2P', monospace;
-    letter-spacing: 1px;
-    text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.9), 0 2px 8px rgba(21, 101, 192, 0.2);
-}
-
-.controls,
-.gameArea,
-.flashImageContainer,
-.karutaHeader,
-.rankingModal {
-    background: #ffffff;
-    border: 2px solid #90caf9;
-    border-radius: 0;
-    box-shadow: 0 4px 12px rgba(21, 101, 192, 0.1);
-}
-
-.button,
-.select,
-.choiceButton,
-.sentenceButton,
-.spokenResult,
-.nameInput {
-    border-radius: 0;
-    background: #ffffff;
-    color: #1565c0;
-    border-color: #64b5f6;
-    box-shadow: 0 2px 4px rgba(21, 101, 192, 0.1);
-}
-
-.buttonActive,
-.choiceButtonActive {
-    background: #1e88e5;
-    color: #ffffff;
-    border-color: #1565c0;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.buttonSurvival {
-    background: #fff8e1;
-    color: #e65100;
-    border-color: #ffd54f;
-}
-
-.buttonSurvival.buttonActive {
-    background: #ff9800;
-    color: #ffffff;
-}
-
-.buttonTrick {
-    background: #e8eaf6;
-    color: #283593;
-    border-color: #9fa8da;
-}
-
-.buttonTrick.buttonActive {
-    background: #3f51b5;
-    color: #ffffff;
-}
-
-.sentenceButton {
-    background: #ffffff;
-    border-color: #90caf9;
-}
-
-.karutaCard {
-    background: #ffffff;
-    border: 2.5px solid #bbdefb;
-    border-radius: 0;
-    box-shadow: 0 2px 6px rgba(21, 101, 192, 0.08);
-}
-
-.karutaCard:hover {
-    border-color: #42a5f5;
-}
-
-.overlay,
-.rankingOverlay {
-    background: rgba(13, 71, 161, 0.55);
-}
-
-.overlayText,
-.rankingHeader,
-.timer {
-    font-family: 'Press Start 2P', monospace;
-    color: #1565c0;
-    text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.9);
-}
-
-.overlaySubText {
-    border-radius: 0;
-    background: #ffffff;
-    border: 2px solid #90caf9;
-    color: #1565c0;
-}
-
-.rankingTable th,
-.rankingTable td {
-    border-bottom-color: #e3f2fd;
-}
-
-.rankingTable th {
-    background: #e3f2fd;
-    color: #1e88e5;
-}
-
-.rankingTable tr:nth-child(1) td {
-    background: #fff8e1;
-    color: #e65100;
-}
-
-.copyright {
-    font-family: 'Press Start 2P', monospace;
-    color: #90caf9;
-    letter-spacing: 1px;
 }

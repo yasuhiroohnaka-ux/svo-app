@@ -309,7 +309,7 @@ export default function Page() {
 
     const t = translations[uiLang];
 
-    // 繝・・繧ｿ隱ｭ縺ｿ霎ｼ縺ｿ
+    // データ読み込み
     useEffect(() => {
         if (isAuthorized === false) return; // Skip fetch if not authorized
         setBootStep("fetch");
@@ -958,14 +958,14 @@ export default function Page() {
                         <button
                             onClick={startGame}
                             className={`${styles.button} ${styles.tapTarget} ${styles.buttonActive}`}
-                            style={{ background: "#ff7043", borderColor: "#f4511e" }}
+                            style={{ background: "#ff9f43" }}
                         >
                             START
                         </button>
                     )}
                     {gameState === "playing" && (
                         <button onClick={togglePause} className={`${styles.button} ${styles.tapTarget}`}>
-                            竢ｸ PAUSE
+                            ⏸ PAUSE
                         </button>
                     )}
                     {gameState === "paused" && (
@@ -1264,7 +1264,7 @@ export default function Page() {
                                     clearRanking(APP_KEY);
                                     setRankingData([]);
                                 }
-                            }} className={styles.button} style={{ background: "#ef5350" }}>
+                            }} className={styles.button} style={{ background: "#ff8787" }}>
                                 {t.clearRanking}
                             </button>
                             <button onClick={() => setShowRanking(false)} className={styles.button}>
@@ -1276,7 +1276,7 @@ export default function Page() {
             )}
 
             <footer className={styles.copyright}>
-                ﾂｩ 2026 Yasuhiro Ohnaka 窶・All rights reserved
+                (c) 2026 Yasuhiro Ohnaka - All rights reserved
             </footer>
             <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
         </main >
