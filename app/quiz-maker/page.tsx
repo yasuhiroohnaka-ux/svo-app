@@ -201,30 +201,9 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export default function Page() {
-    const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
     const [bootStep, setBootStep] = useState<BootStep>("boot");
     const [fallbackMode, setFallbackMode] = useState(false);
     const [debugEnabled, setDebugEnabled] = useState(false);
-    const [storageError, setStorageError] = useState<string | null>(null);
-
-    const safeGetLocalStorage = (key: string): string | null => {
-        try {
-            return localStorage.getItem(key);
-        } catch (err) {
-            const message = err instanceof Error ? err.message : "storage_access_failed";
-            setStorageError(message);
-            return null;
-        }
-    };
-
-    const safeSetLocalStorage = (key: string, value: string): void => {
-        try {
-            localStorage.setItem(key, value);
-        } catch (err) {
-            const message = err instanceof Error ? err.message : "storage_access_failed";
-            setStorageError(message);
-        }
-    };
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -234,24 +213,7 @@ export default function Page() {
         if (hasFatalFeatureGap(features)) {
             setFallbackMode(true);
             setBootStep("error");
-            setIsAuthorized(false);
-            return;
         }
-
-        setBootStep("auth");
-        const checkAuth = () => {
-            const secret = params.get("p");
-            const stored = safeGetLocalStorage("auth_quiz");
-
-            // Allow access without query param; keep storage-based allow for compatibility.
-            if (secret === "quiz" || secret === null || stored === "true") {
-                safeSetLocalStorage("auth_quiz", "true");
-                setIsAuthorized(true);
-            } else {
-                setIsAuthorized(false);
-            }
-        };
-        checkAuth();
     }, []);
 
     const [cards, setCards] = useState<Card[]>([]);
@@ -311,7 +273,6 @@ export default function Page() {
 
     // データ読み込み
     useEffect(() => {
-        if (isAuthorized === false) return; // Skip fetch if not authorized
         setBootStep("fetch");
         (async () => {
             try {
@@ -349,7 +310,7 @@ export default function Page() {
                 setBootStep("error");
             }
         })();
-    }, [isAuthorized]);
+    }, []);
 
     // Cleanup speech on unmount
     useEffect(() => {
@@ -815,31 +776,7 @@ export default function Page() {
                 <button onClick={() => (window.location.href = "/")} style={{ minWidth: 44, minHeight: 44, padding: "10px 20px", borderRadius: 20, border: "none", background: "#333", color: "white", cursor: "pointer" }}>
                     Back to Portal
                 </button>
-                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
-            </main>
-        );
-    }
-
-    if (isAuthorized === null) {
-        return (
-            <main className={styles.container} style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "100vh", textAlign: "center", gap: 8 }}>
-                <h1 style={{ fontSize: "1.2rem", margin: 0 }}>Checking access...</h1>
-                <p style={{ margin: 0, color: "#666" }}>step: {bootStep}</p>
-                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
-            </main>
-        );
-    }
-
-    if (!isAuthorized) {
-        return (
-            <main className={styles.container} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', textAlign: 'center', gap: '20px' }}>
-                <div style={{ fontSize: '5rem' }}>⚠</div>
-                <h1 style={{ fontSize: '2rem', margin: 0 }}>Under Maintenance</h1>
-                <p style={{ color: '#666' }}>This page is currently restricted.<br />Please contact the administrator for access.</p>
-                <button onClick={() => window.location.href = "/"} style={{ minWidth: 44, minHeight: 44, padding: '10px 20px', borderRadius: '20px', border: 'none', background: '#333', color: 'white', cursor: 'pointer' }}>
-                    Back to Portal
-                </button>
-                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
+                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={null} />
             </main>
         );
     }
@@ -855,7 +792,7 @@ export default function Page() {
                 >
                     Reload
                 </button>
-                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
+                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={null} />
             </main>
         );
     }
@@ -866,7 +803,7 @@ export default function Page() {
                 <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✨</div>
                 <h1 style={{ fontSize: '1.5rem', fontWeight: 'normal' }}>{t.loading || "Preparing cards..."}</h1>
                 <p style={{ marginTop: 8, color: "#666" }}>step: {bootStep}</p>
-                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
+                <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={null} />
             </main>
         );
     }
@@ -1278,7 +1215,7 @@ export default function Page() {
             <footer className={styles.copyright}>
                 (c) 2026 Yasuhiro Ohnaka - All rights reserved
             </footer>
-            <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={debugEnabled ? storageError : null} />
+            <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={null} />
         </main >
     );
 }
