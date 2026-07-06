@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import {
   cancelSpeech,
   speak,
@@ -39,8 +40,7 @@ export default function KeywordReview({ keywords, onStart }: Props) {
           <article key={keyword.id} className={styles.wordCard}>
             <div className={styles.wordImageSlot} aria-hidden="true">
               {keyword.image ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={keyword.image} alt="" className={styles.wordImage} />
+                <Image src={keyword.image} alt="" className={styles.wordImage} fill sizes="120px" />
               ) : (
                 <span>{keyword.emoji ?? "◻"}</span>
               )}

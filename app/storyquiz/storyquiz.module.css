@@ -300,6 +300,7 @@
   font-size: 34px;
   justify-content: center;
   overflow: hidden;
+  position: relative;
 }
 
 .wordImage {

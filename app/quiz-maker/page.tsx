@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { speak, speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
@@ -1011,8 +1012,15 @@ export default function Page() {
                                         }}
                                         style={{ cursor: "pointer" }}
                                     >
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={current.image} alt="card" className={styles.flashImage} />
+                                        <Image
+                                            src={current.image}
+                                            alt="card"
+                                            className={styles.flashImage}
+                                            width={545}
+                                            height={771}
+                                            sizes="(max-width: 768px) 90vw, 380px"
+                                            priority
+                                        />
                                     </div>
                                 </div>
 
@@ -1112,8 +1120,14 @@ export default function Page() {
                                                 border: feedback?.value === String(img) ? `2px solid ${feedback.isCorrect ? "green" : "red"}` : "1px solid #222",
                                             }}
                                         >
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img src={String(img)} alt={`choice-${i}`} className={styles.karutaImage} />
+                                            <Image
+                                                src={String(img)}
+                                                alt={`choice-${i}`}
+                                                className={styles.karutaImage}
+                                                width={545}
+                                                height={771}
+                                                sizes="(max-width: 480px) 30vw, (max-width: 1024px) 20vw, 180px"
+                                            />
                                         </button>
                                     ))}
                                 </div>

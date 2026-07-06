@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { cancelSpeech, unlockSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
@@ -1008,11 +1009,14 @@ export default function Page() {
                 }}
                 style={{ cursor: "pointer" }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={current.image}
                   alt="card"
                   className={styles.flashImage}
+                  width={544}
+                  height={387}
+                  sizes="(max-width: 768px) 90vw, 380px"
+                  priority
                 />
               </div>
             </div>
@@ -1133,11 +1137,13 @@ export default function Page() {
                       : "1px solid #222",
                   }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
+                  <Image
                     src={String(img)}
                     alt={`choice-${i}`}
                     className={styles.karutaImage}
+                    width={544}
+                    height={387}
+                    sizes="(max-width: 480px) 45vw, (max-width: 1024px) 20vw, 200px"
                   />
                 </button>
               ))}

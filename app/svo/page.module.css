@@ -195,6 +195,8 @@
 }
 
 .flashImage {
+  width: auto;
+  height: auto;
   max-width: 100%;
   max-height: 360px;
   object-fit: contain;
