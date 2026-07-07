@@ -45,7 +45,7 @@ const translations = {
     english: "English",
     chinese: "Chinese",
     japanese: "Japanese",
-    appTitle: "Puzzle Grammar",
+    appTitle: "SVO Karuta",
     voiceMode: "voice",
     articleEasy: "easy",
     articleHard: "hard",
@@ -93,7 +93,7 @@ const translations = {
     english: "英語",
     chinese: "中国語",
     japanese: "日本語",
-    appTitle: "パズルグラマー",
+    appTitle: "SVOカルタ",
     voiceMode: "音声",
     articleEasy: "かんたん",
     articleHard: "むずかしい",
@@ -141,7 +141,7 @@ const translations = {
     english: "英语",
     chinese: "中文",
     japanese: "日语",
-    appTitle: "Puzzle Grammar",
+    appTitle: "SVO 图卡",
     voiceMode: "语音",
     articleEasy: "简单",
     articleHard: "困难",
@@ -740,7 +740,7 @@ export default function Page() {
   if (!current) {
     return (
       <main className={styles.container}>
-        <h1 className={styles.header}>{t.appTitle || "Puzzle Grammar"}</h1>
+        <h1 className={styles.header}>{t.appTitle || "SVO Karuta"}</h1>
         <p style={{ marginTop: 12 }}>{t.loading}</p>
       </main>
     );

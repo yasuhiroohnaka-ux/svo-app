@@ -1,0 +1,23 @@
+.hanamaruLine,
+.hanamaruInnerLine,
+.hanamaruAccentLine {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.hanamaruLine {
+    stroke: #f04445;
+    stroke-width: 18;
+}
+
+.hanamaruInnerLine {
+    stroke: #ff514f;
+    stroke-width: 15;
+}
+
+.hanamaruAccentLine {
+    stroke: #ff8075;
+    stroke-width: 8;
+    opacity: 0.62;
+}

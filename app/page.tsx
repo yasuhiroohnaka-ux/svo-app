@@ -9,11 +9,20 @@ export const metadata: Metadata = {
 
 const apps = [
   {
-    href: "/svo",
-    className: styles.cardSvo,
+    href: "/puzzle-grammar",
+    className: styles.cardPuzzle,
     icon: "🧩",
     title: "Puzzle\nGrammar",
-    desc: "主語・動詞・目的語のカードを組み合わせて、英語の文を楽しく学びます。",
+    desc: "絵に合わせて主語・動詞・目的語のピースをつなげて、英語の文を完成させるパズルです。",
+    tags: ["SVO", "PUZZLE"],
+    soon: false,
+  },
+  {
+    href: "/svo",
+    className: styles.cardSvo,
+    icon: "🎴",
+    title: "SVO\nKaruta",
+    desc: "読み上げられた英語の文に合う絵をすばやく取る、かるた形式のゲームです。",
     tags: ["SVO", "FLASH", "KARUTA"],
     soon: false,
   },

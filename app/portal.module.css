@@ -114,6 +114,10 @@
 }
 
 /* Card accent colors per app */
+.cardPuzzle {
+    --card-accent: #a78bfa;
+}
+
 .cardSvo {
     --card-accent: #ff6b6b;
 }
