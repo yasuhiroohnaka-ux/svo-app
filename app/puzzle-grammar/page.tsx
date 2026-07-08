@@ -11,6 +11,7 @@ import { speak, cancelSpeech, unlockSpeech } from "@/utils/speak";
 import HanamaruMark from "@/app/components/HanamaruMark";
 
 import PuzzlePiece, { pieceWidth, type Role } from "./PuzzlePiece";
+import { loadLv2Cards, type Pattern, type PuzzleCard } from "./lv2Data";
 import styles from "./page.module.css";
 
 const ROLES: Role[] = ["subject", "verb", "object"];
@@ -19,6 +20,29 @@ const ROLE_LABEL: Record<Role, string> = {
   subject: "だれが",
   verb: "する",
   object: "なにを",
+};
+
+type Level = 1 | 2;
+
+/**
+ * 第3スロットのラベル。SVC のときだけ「なにを」→「どんな」になる。
+ * ピース形状・色は object のものをそのまま流用する。
+ */
+function roleLabel(role: Role, pattern: Pattern): string {
+  if (role === "object" && pattern === "svc") return "どんな";
+  return ROLE_LABEL[role];
+}
+
+/** レベル2の文法トラップ用: 動詞の数(単数形↔複数形)の反転マップ */
+const NUMBER_FLIP: Record<string, string> = {
+  eats: "eat",
+  eat: "eats",
+  washes: "wash",
+  wash: "washes",
+  has: "have",
+  have: "has",
+  is: "are",
+  are: "is",
 };
 
 /** ゲームで扱う 1 ピース分のデータ */
@@ -37,27 +61,56 @@ function correctLabel(card: Card, role: Role): string {
 }
 
 /**
- * 現在カードの正解 3 ピース + ダミー 3 ピース(他カードから同じ役割の語を
- * 1 つずつ。ラベルは正解と重複しない)を作ってシャッフルして返す。
+ * 役割ごとのダミーラベルを 1 つ選ぶ。
+ *  - レベル2の動詞: 正解動詞の「数の反転形」を必ず使う(eats↔eat, is↔are など)。
+ *    反転が未定義の動詞のみ従来どおり他カードから選ぶ。
+ *  - SVC の第3スロット(補語): デッキ内の svc カード群の補語から正解と異なるものを選ぶ。
+ *  - それ以外(レベル1すべて・主語・svo の目的語)は従来どおり:
+ *    デッキ内の他カードの同じ役割の語から正解と異なるものを選ぶ。
  */
-function buildTray(card: Card, allCards: Card[]): Piece[] {
+function pickDummy(card: PuzzleCard, allCards: PuzzleCard[], role: Role, level: Level): string {
+  const answer = correctLabel(card, role);
+
+  // レベル2の動詞は「数の反転形」を最優先(文法トラップ)
+  if (level === 2 && role === "verb") {
+    const flipped = NUMBER_FLIP[answer];
+    if (flipped) return flipped;
+  }
+
+  // SVC の補語ダミーは svc カード群の補語から選ぶ
+  if (role === "object" && card.pattern === "svc") {
+    const complements = shuffle(
+      allCards
+        .filter((c) => c.pattern === "svc")
+        .map((c) => c.object)
+        .filter((label) => label !== answer),
+    );
+    if (complements.length > 0) return complements[0];
+    // 候補がない場合は下の従来ロジックにフォールバック
+  }
+
+  // 従来ロジック: 他カードの同じ役割で、正解と違うラベルを 1 つ拾う
+  const candidates = shuffle(
+    allCards
+      .map((c) => correctLabel(c, role))
+      .filter((label) => label !== answer),
+  );
+  // 重複ラベルを避けつつ最初の 1 つを採用(動詞は 3 種なので必ず 1 つは出せる)
+  return candidates.find((label) => label !== answer) ?? answer;
+}
+
+/**
+ * 現在カードの正解 3 ピース + ダミー 3 ピースを作ってシャッフルして返す。
+ * ダミーの選び方は pickDummy を参照。
+ */
+function buildTray(card: PuzzleCard, allCards: PuzzleCard[], level: Level): Piece[] {
   const pieces: Piece[] = [];
 
   for (const role of ROLES) {
-    const answer = correctLabel(card, role);
-
     // 正解ピース
-    pieces.push({ key: `correct-${role}`, role, label: answer });
-
-    // ダミー: 他カードの同じ役割で、正解と違うラベルを 1 つ拾う
-    const candidates = shuffle(
-      allCards
-        .map((c) => correctLabel(c, role))
-        .filter((label) => label !== answer),
-    );
-    // 重複ラベルを避けつつ最初の 1 つを採用(動詞は 3 種なので必ず 1 つは出せる)
-    const dummy = candidates.find((label) => label !== answer) ?? answer;
-    pieces.push({ key: `dummy-${role}`, role, label: dummy });
+    pieces.push({ key: `correct-${role}`, role, label: correctLabel(card, role) });
+    // ダミーピース
+    pieces.push({ key: `dummy-${role}`, role, label: pickDummy(card, allCards, role, level) });
   }
 
   return shuffle(pieces);
@@ -66,7 +119,13 @@ function buildTray(card: Card, allCards: Card[]): Piece[] {
 type LoadState = "loading" | "ready" | "error";
 
 export default function Page() {
-  const [cards, setCards] = useState<Card[]>([]);
+  /** レベル1デッキ(既存35枚。pattern: "svo" 扱い) */
+  const [baseCards, setBaseCards] = useState<PuzzleCard[]>([]);
+  /** レベル2追加カード(enabled: true のもののみ。0枚ならレベル2は選べない) */
+  const [lv2Cards, setLv2Cards] = useState<PuzzleCard[]>([]);
+  /** 現在プレイ中のデッキ */
+  const [cards, setCards] = useState<PuzzleCard[]>([]);
+  const [level, setLevel] = useState<Level>(1);
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -95,6 +154,12 @@ export default function Page() {
   const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rejectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const clearAdvanceTimer = useCallback(() => {
+    if (!advanceTimer.current) return;
+    clearTimeout(advanceTimer.current);
+    advanceTimer.current = null;
+  }, []);
+
   // 最初のポインタ操作で自動再生制限を解除する
   const unlockOnce = useCallback(() => {
     if (audioUnlocked.current) return;
@@ -104,12 +169,17 @@ export default function Page() {
   }, []);
 
   // カード読み込み
+  // lv2 は loadLv2Cards が内部で空配列フォールバックするので、レベル1の可用性に影響しない
   const load = useCallback(async () => {
     setLoadState("loading");
     setErrorMessage("");
     try {
-      const loaded = await loadCards();
-      setCards(loaded);
+      const [loaded, lv2] = await Promise.all([loadCards(), loadLv2Cards()]);
+      const base: PuzzleCard[] = loaded.map((card) => ({ ...card, pattern: "svo" as const }));
+      setBaseCards(base);
+      setLv2Cards(lv2);
+      setLevel(1);
+      setCards(base);
       setIndex(0);
       setScore(0);
       setStreak(0);
@@ -128,14 +198,14 @@ export default function Page() {
   // カードが変わるたびにトレイ/スロットを組み直す
   useEffect(() => {
     if (!current || cards.length === 0) return;
-    setTray(buildTray(current, cards));
+    setTray(buildTray(current, cards, level));
     setSlots({});
     setPlacedKeys(new Set());
     setCompleted(false);
     setSelectedKey(null);
     setRejectKey(null);
     setFlashSlot(null);
-  }, [current, cards]);
+  }, [current, cards, level]);
 
   // アンマウント時のクリーンアップ
   useEffect(() => {
@@ -161,13 +231,14 @@ export default function Page() {
 
   /** 次のカードへ進む(全部終わっていればクリア画面) */
   const goNext = useCallback(() => {
+    clearAdvanceTimer();
     cancelSpeech();
     if (index + 1 >= cards.length) {
       setAllCleared(true);
       return;
     }
     setIndex((i) => i + 1);
-  }, [cards.length, index]);
+  }, [cards.length, clearAdvanceTimer, index]);
 
   /**
    * ピースをスロットに置こうとしたときの判定。
@@ -339,18 +410,43 @@ export default function Page() {
   // -------- コントロール --------
   const skip = useCallback(() => {
     unlockOnce();
+    clearAdvanceTimer();
     goNext();
-  }, [goNext, unlockOnce]);
+  }, [clearAdvanceTimer, goNext, unlockOnce]);
 
   const restart = useCallback(() => {
     unlockOnce();
+    clearAdvanceTimer();
     cancelSpeech();
     setCards((prev) => shuffle(prev));
     setIndex(0);
     setScore(0);
     setStreak(0);
     setAllCleared(false);
-  }, [unlockOnce]);
+  }, [clearAdvanceTimer, unlockOnce]);
+
+  /**
+   * レベル切り替え。ゲームをリセットして新しいデッキで最初から。
+   *  - レベル1: 既存35枚のみ
+   *  - レベル2: 既存35枚 + enabled な lv2 カード(シャッフル)
+   */
+  const switchLevel = useCallback(
+    (next: Level) => {
+      if (next === level) return;
+      if (next === 2 && lv2Cards.length === 0) return;
+      unlockOnce();
+      cancelSpeech();
+      clearAdvanceTimer();
+      const deck = next === 1 ? shuffle(baseCards) : shuffle([...baseCards, ...lv2Cards]);
+      setLevel(next);
+      setCards(deck);
+      setIndex(0);
+      setScore(0);
+      setStreak(0);
+      setAllCleared(false);
+    },
+    [level, baseCards, lv2Cards, clearAdvanceTimer, unlockOnce],
+  );
 
   // 表示待ちのトレイピース(まだ置かれていないもの)
   const visibleTray = useMemo(
@@ -374,6 +470,35 @@ export default function Page() {
     </header>
   );
 
+  // enabled な lv2 カードが 1 枚もない間はレベル2を選べない
+  const lv2Ready = lv2Cards.length > 0;
+
+  const levelSwitcher = (
+    <div className={styles.levelRow} role="group" aria-label="レベルせんたく">
+      <button
+        type="button"
+        className={[styles.levelButton, level === 1 ? styles.levelButtonActive : ""]
+          .filter(Boolean)
+          .join(" ")}
+        onClick={() => switchLevel(1)}
+        aria-pressed={level === 1}
+      >
+        レベル1
+      </button>
+      <button
+        type="button"
+        className={[styles.levelButton, level === 2 ? styles.levelButtonActive : ""]
+          .filter(Boolean)
+          .join(" ")}
+        onClick={() => switchLevel(2)}
+        disabled={!lv2Ready}
+        aria-pressed={level === 2}
+      >
+        {lv2Ready ? "レベル2" : "レベル2(じゅんびちゅう)"}
+      </button>
+    </div>
+  );
+
   if (loadState === "loading") {
     return (
       <main className={styles.container}>
@@ -394,7 +519,7 @@ export default function Page() {
           <div className={styles.statusEmoji}>😢</div>
           <p className={styles.statusText}>よみこみに しっぱいしました</p>
           <p className={styles.errorDetail}>{errorMessage}</p>
-          <button className={styles.primaryButton} onClick={() => void load()}>
+          <button type="button" className={styles.primaryButton} onClick={() => void load()}>
             もういちど よみこむ
           </button>
         </div>
@@ -406,13 +531,14 @@ export default function Page() {
     return (
       <main className={styles.container}>
         {header}
+        {levelSwitcher}
         <div className={styles.clearPanel}>
           <div className={styles.clearHanamaru}>
             <HanamaruMark className={styles.clearHanamaruSvg} />
           </div>
           <h2 className={styles.clearTitle}>ぜんぶ クリア!</h2>
           <p className={styles.clearScore}>スコア: {score} / {cards.length}</p>
-          <button className={styles.primaryButton} onClick={restart}>
+          <button type="button" className={styles.primaryButton} onClick={restart}>
             もういちど
           </button>
         </div>
@@ -434,6 +560,7 @@ export default function Page() {
   return (
     <main className={styles.container}>
       {header}
+      {levelSwitcher}
 
       <div className={styles.statusRow}>
         <span>スコア: {score}</span>
@@ -469,7 +596,9 @@ export default function Page() {
           const filled = slots[role];
           const isHover = hoverSlotState === role;
           const isFlash = flashSlot === role;
-          const w = pieceWidth(filled ?? ROLE_LABEL[role]);
+          // SVC のときは第3スロットが「どんな」になる(形・色は object を流用)
+          const slotLabel = roleLabel(role, current.pattern);
+          const w = pieceWidth(filled ?? slotLabel);
           return (
             <div
               key={role}
@@ -488,12 +617,12 @@ export default function Page() {
               onClick={() => handleTapSlot(role)}
               role="button"
               tabIndex={0}
-              aria-label={`${ROLE_LABEL[role]} のスロット`}
+              aria-label={`${slotLabel} のスロット`}
             >
               {filled ? (
                 <PuzzlePiece role={role} label={filled} />
               ) : (
-                <PuzzlePiece role={role} label={ROLE_LABEL[role]} ghost />
+                <PuzzlePiece role={role} label={slotLabel} ghost />
               )}
             </div>
           );
@@ -536,7 +665,7 @@ export default function Page() {
       </div>
 
       <div className={styles.controls}>
-        <button className={styles.secondaryButton} onClick={skip}>
+        <button type="button" className={styles.secondaryButton} onClick={skip}>
           スキップ
         </button>
       </div>

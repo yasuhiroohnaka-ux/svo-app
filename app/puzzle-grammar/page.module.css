@@ -63,6 +63,49 @@
   box-shadow: 1px 1px 0 #1d2f45;
 }
 
+/* ---- レベル切り替え ---- */
+.levelRow {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 0 0 12px;
+}
+
+.levelButton {
+  min-height: 44px;
+  padding: 8px 18px;
+  border: 2px solid #1d2f45;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #1d2f45;
+  font-size: 0.95rem;
+  font-weight: 900;
+  font-family: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 3px 3px 0 #1d2f45;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.levelButton:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #1d2f45;
+}
+
+.levelButtonActive {
+  background: #ffe27a;
+}
+
+.levelButton:disabled {
+  cursor: not-allowed;
+  background: #eceff1;
+  color: #78909c;
+  border-color: #90a4ae;
+  box-shadow: 3px 3px 0 #90a4ae;
+}
+
 /* ---- ステータス ---- */
 .statusRow {
   display: flex;

@@ -1,0 +1,24 @@
+{
+  "cards": [
+    { "cardId": 100, "pattern": "svo", "subject": "Two snakes", "verb": "eat", "object": "a tomato", "sentence": "Two snakes eat a tomato.", "imageFile": "lv2_100_two_snakes_eat_a_tomato.png", "enabled": true },
+    { "cardId": 101, "pattern": "svo", "subject": "Two boys", "verb": "wash", "object": "a car", "sentence": "Two boys wash a car.", "imageFile": "lv2_101_two_boys_wash_a_car.png", "enabled": true },
+    { "cardId": 102, "pattern": "svo", "subject": "Three apples", "verb": "eat", "object": "a fish", "sentence": "Three apples eat a fish.", "imageFile": "lv2_102_three_apples_eat_a_fish.png", "enabled": true },
+    { "cardId": 103, "pattern": "svo", "subject": "Two girls", "verb": "wash", "object": "a cup", "sentence": "Two girls wash a cup.", "imageFile": "lv2_103_two_girls_wash_a_cup.png", "enabled": true },
+    { "cardId": 104, "pattern": "svo", "subject": "Two dogs", "verb": "wash", "object": "a boy", "sentence": "Two dogs wash a boy.", "imageFile": "lv2_104_two_dogs_wash_a_boy.png", "enabled": true },
+    { "cardId": 105, "pattern": "svo", "subject": "Three tomatoes", "verb": "eat", "object": "a snake", "sentence": "Three tomatoes eat a snake.", "imageFile": "lv2_105_three_tomatoes_eat_a_snake.png", "enabled": true },
+    { "cardId": 106, "pattern": "svo", "subject": "Two bananas", "verb": "have", "object": "a pen", "sentence": "Two bananas have a pen.", "imageFile": "lv2_106_two_bananas_have_a_pen.png", "enabled": true },
+    { "cardId": 107, "pattern": "svo", "subject": "Three carrots", "verb": "eat", "object": "a mushroom", "sentence": "Three carrots eat a mushroom.", "imageFile": "lv2_107_three_carrots_eat_a_mushroom.png", "enabled": true },
+    { "cardId": 108, "pattern": "svo", "subject": "Two spoons", "verb": "wash", "object": "a girl", "sentence": "Two spoons wash a girl.", "imageFile": "lv2_108_two_spoons_wash_a_girl.png", "enabled": true },
+    { "cardId": 109, "pattern": "svo", "subject": "Three lemons", "verb": "have", "object": "an apple", "sentence": "Three lemons have an apple.", "imageFile": "lv2_109_three_lemons_have_an_apple.png", "enabled": true },
+    { "cardId": 110, "pattern": "svc", "subject": "A tomato", "verb": "is", "object": "red", "sentence": "A tomato is red.", "imageFile": "lv2_110_a_tomato_is_red.png", "enabled": true },
+    { "cardId": 111, "pattern": "svc", "subject": "The bananas", "verb": "are", "object": "yellow", "sentence": "The bananas are yellow.", "imageFile": "lv2_111_the_bananas_are_yellow.png", "enabled": true },
+    { "cardId": 112, "pattern": "svc", "subject": "A carrot", "verb": "is", "object": "orange", "sentence": "A carrot is orange.", "imageFile": "lv2_112_a_carrot_is_orange.png", "enabled": true },
+    { "cardId": 113, "pattern": "svc", "subject": "The apples", "verb": "are", "object": "green", "sentence": "The apples are green.", "imageFile": "lv2_113_the_apples_are_green.png", "enabled": true },
+    { "cardId": 114, "pattern": "svc", "subject": "A fish", "verb": "is", "object": "blue", "sentence": "A fish is blue.", "imageFile": "lv2_114_a_fish_is_blue.png", "enabled": true },
+    { "cardId": 115, "pattern": "svc", "subject": "A snake", "verb": "is", "object": "happy", "sentence": "A snake is happy.", "imageFile": "lv2_115_a_snake_is_happy.png", "enabled": true },
+    { "cardId": 116, "pattern": "svc", "subject": "The dogs", "verb": "are", "object": "sad", "sentence": "The dogs are sad.", "imageFile": "lv2_116_the_dogs_are_sad.png", "enabled": true },
+    { "cardId": 117, "pattern": "svc", "subject": "A boy", "verb": "is", "object": "happy", "sentence": "A boy is happy.", "imageFile": "lv2_117_a_boy_is_happy.png", "enabled": true },
+    { "cardId": 118, "pattern": "svc", "subject": "A snake", "verb": "is", "object": "long", "sentence": "A snake is long.", "imageFile": "lv2_118_a_snake_is_long.png", "enabled": true },
+    { "cardId": 119, "pattern": "svc", "subject": "A mushroom", "verb": "is", "object": "big", "sentence": "A mushroom is big.", "imageFile": "lv2_119_a_mushroom_is_big.png", "enabled": true }
+  ]
+}
