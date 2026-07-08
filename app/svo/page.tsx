@@ -8,6 +8,7 @@ import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { formatTime } from "@/utils/ranking";
 
 import { loadCards, pickRandomIndex, shuffle } from "./data";
+import { loadLv2Cards } from "@/app/lib/lv2Cards";
 import type { Card, ContentLang, Feedback, Mode, TrickSentence, UiLang } from "./types";
 import { useGameTimer } from "./useGameTimer";
 import { useRanking } from "./useRanking";
@@ -65,6 +66,7 @@ const translations = {
     noRecords: "No records yet!",
     newRecord: "New Record!",
     yourTime: "Your time",
+    level2Cards: "Level 2 cards",
   },
   ja: {
     loading: "じゅんびちゅう...",
@@ -113,6 +115,7 @@ const translations = {
     noRecords: "まだ記録がありません",
     newRecord: "新記録！",
     yourTime: "あなたのタイム",
+    level2Cards: "レベル2カード",
   },
   zh: {
     loading: "加载中...",
@@ -161,11 +164,19 @@ const translations = {
     noRecords: "暂无记录",
     newRecord: "新纪录！",
     yourTime: "你的时间",
+    level2Cards: "第2级卡片",
   }
 };
 
 
 export default function Page() {
+  // ベースの35枚(レベル1)。lv2 と合成して cards を作る
+  const [baseCards, setBaseCards] = useState<Card[]>([]);
+  // レベル2追加カード(enabled かつ画像ありのもの。0枚ならトグル自体を出さない)
+  const [lv2Cards, setLv2Cards] = useState<Card[]>([]);
+  // レベル2カードを混ぜるか。既定オフ(現行と完全同一のデッキ)
+  const [level2On, setLevel2On] = useState<boolean>(false);
+  // 実際にプレイに使うデッキ(level2On に応じて base か base+lv2)
   const [cards, setCards] = useState<Card[]>([]);
   const [mode, setMode] = useState<Mode>("flash");
   const [contentLang, setContentLang] = useState<ContentLang>("en");
@@ -237,16 +248,23 @@ export default function Page() {
 
     const run = async () => {
       try {
-        const loadedCards = await loadCards({
-          onStep: (nextStep) => {
-            if (!cancelled) {
-              setStep(nextStep);
-            }
-          },
-        });
+        // lv2 は内部で空配列フォールバックするので、レベル1の可用性には影響しない
+        const [loadedCards, loadedLv2] = await Promise.all([
+          loadCards({
+            onStep: (nextStep) => {
+              if (!cancelled) {
+                setStep(nextStep);
+              }
+            },
+          }),
+          loadLv2Cards(),
+        ]);
 
         if (cancelled) return;
 
+        setBaseCards(loadedCards);
+        setLv2Cards(loadedLv2);
+        // 初期はレベル2オフ = ベースのみ(現行と完全同一)
         setCards(loadedCards);
         setRemainingCards(loadedCards);
         setIndex(pickRandomIndex(loadedCards.length));
@@ -318,9 +336,13 @@ export default function Page() {
       };
     }
 
-    const subjects = [...new Set(activePool.map((card) => (contentLang === "zh" ? card.subject_zh : card.subject)))];
-    const verbs = [...new Set(activePool.map((card) => (contentLang === "zh" ? card.verb_zh : card.verb)))];
-    const objects = [...new Set(activePool.map((card) => (contentLang === "zh" ? card.object_zh : card.object)))];
+    // 偽文の素材はレベル1カード(cardId < 100)だけに限定する。
+    // lv2 の複数形主語・形容詞補語が混ざると「Two snakes eats a car」「... eat red」
+    // のような文法破綻文ができるため。素材が足りなければ従来どおり null を返す。
+    const trickSource = activePool.filter((card) => card.id < 100);
+    const subjects = [...new Set(trickSource.map((card) => (contentLang === "zh" ? card.subject_zh : card.subject)))];
+    const verbs = [...new Set(trickSource.map((card) => (contentLang === "zh" ? card.verb_zh : card.verb)))];
+    const objects = [...new Set(trickSource.map((card) => (contentLang === "zh" ? card.object_zh : card.object)))];
 
     if (subjects.length === 0 || verbs.length === 0 || objects.length === 0) return null;
 
@@ -606,6 +628,39 @@ export default function Page() {
     setGameState("idle");
   };
 
+  // レベル2カードのオン/オフ。デッキを組み直して全状態を安全にリセットする。
+  // フラッシュ・かるた・サバイバル・VS AI のどこから切り替えても壊れないよう、
+  // quitSpecialMode / resetGame と同じ後始末(音声・タイマー・特殊モード解除)を行う。
+  const handleToggleLevel2 = () => {
+    const nextOn = !level2On;
+    const nextDeck = nextOn ? [...baseCards, ...lv2Cards] : baseCards;
+
+    // 進行中の副作用をすべて停止
+    cancelSpeech();
+    clearSilenceTimeout();
+    cancelAiTurn();
+    disableVsMode();
+    stopTimer();
+    resetGameTimer();
+
+    // 特殊モードを解除して通常状態へ戻す
+    setIsSurvival(false);
+    setTrickMode(false);
+
+    // デッキ差し替え + スコア類リセット
+    setLevel2On(nextOn);
+    const shuffled = shuffle(nextDeck);
+    setCards(shuffled);
+    setRemainingCards(shuffled);
+    setIndex(pickRandomIndex(shuffled.length));
+    setScore(0);
+    setAiScore(0);
+    setStreak(0);
+    setFeedback(null);
+    clearSpokenText();
+    setGameState("idle");
+  };
+
   const handleRankingRegister = () => {
     if (!pendingEntry) return;
     registerRankingEntry();
@@ -880,6 +935,19 @@ export default function Page() {
               className={`${styles.button} ${styles.tapTarget} ${autoSpeak ? styles.buttonActive : ""}`}
             >
               {t.autoSpeak}: {autoSpeak ? t.on : t.off}
+            </button>
+          </div>
+        )}
+
+        {/* レベル2カードのオン/オフ。lv2 が読み込めていない/0枚のときは出さない */}
+        {showAdvancedControls && lv2Cards.length > 0 && (
+          <div className={styles.controlGroup}>
+            <div style={{ opacity: 0.7 }}>|</div>
+            <button
+              onClick={handleToggleLevel2}
+              className={`${styles.button} ${styles.tapTarget} ${level2On ? styles.buttonActive : ""}`}
+            >
+              {t.level2Cards}: {level2On ? t.on : t.off}
             </button>
           </div>
         )}

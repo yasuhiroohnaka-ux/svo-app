@@ -11,7 +11,7 @@ import { speak, cancelSpeech, unlockSpeech } from "@/utils/speak";
 import HanamaruMark from "@/app/components/HanamaruMark";
 
 import PuzzlePiece, { pieceWidth, type Role } from "./PuzzlePiece";
-import { loadLv2Cards, type Pattern, type PuzzleCard } from "./lv2Data";
+import { loadLv2Cards, type Pattern, type PuzzleCard } from "@/app/lib/lv2Cards";
 import styles from "./page.module.css";
 
 const ROLES: Role[] = ["subject", "verb", "object"];

@@ -16,6 +16,10 @@ type RawLv2Card = {
   verb?: unknown;
   object?: unknown;
   sentence?: unknown;
+  subject_zh?: unknown;
+  verb_zh?: unknown;
+  object_zh?: unknown;
+  sentence_zh?: unknown;
   imageFile?: unknown;
   enabled?: unknown;
 };
@@ -45,6 +49,10 @@ function normalizeLv2Card(raw: unknown): PuzzleCard | null {
   const verb = typeof card.verb === "string" ? card.verb : "";
   const object = typeof card.object === "string" ? card.object : "";
   const sentence = typeof card.sentence === "string" ? card.sentence : "";
+  const subject_zh = typeof card.subject_zh === "string" ? card.subject_zh : "";
+  const verb_zh = typeof card.verb_zh === "string" ? card.verb_zh : "";
+  const object_zh = typeof card.object_zh === "string" ? card.object_zh : "";
+  const sentence_zh = typeof card.sentence_zh === "string" ? card.sentence_zh : "";
   const imageFile = typeof card.imageFile === "string" ? card.imageFile : "";
   const enabled = card.enabled === true;
 
@@ -61,10 +69,10 @@ function normalizeLv2Card(raw: unknown): PuzzleCard | null {
     verb,
     object,
     sentence,
-    subject_zh: "",
-    verb_zh: "",
-    object_zh: "",
-    sentence_zh: "",
+    subject_zh,
+    verb_zh,
+    object_zh,
+    sentence_zh,
     image: `/images/lv2/${imageFile}`,
   };
 }
