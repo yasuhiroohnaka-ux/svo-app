@@ -41,6 +41,8 @@ const NUMBER_FLIP: Record<string, string> = {
   wash: "washes",
   has: "have",
   have: "has",
+  catches: "catch",
+  catch: "catches",
   is: "are",
   are: "is",
 };
