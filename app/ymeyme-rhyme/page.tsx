@@ -49,11 +49,14 @@ export default function YmeymeRhymePage() {
     setSelected(null);
   };
 
+  /** 表示行に対応する読み上げテキスト(TTS の読み間違い対策の置き換えがあればそちら) */
+  const speechTextFor = (poem: RhymePoem, idx: number) => poem.speechLines?.[idx] ?? poem.lines[idx];
+
   const readAll = (poem: RhymePoem) => {
     unlockSpeech();
     setIsReadingAll(true);
     speakQueue(
-      poem.lines,
+      poem.lines.map((_, idx) => speechTextFor(poem, idx)),
       350,
       "en-US",
       () => {
@@ -64,11 +67,11 @@ export default function YmeymeRhymePage() {
     );
   };
 
-  const readLine = (line: string, idx: number) => {
+  const readLine = (poem: RhymePoem, idx: number) => {
     unlockSpeech();
     setIsReadingAll(false);
     setReadingLine(idx);
-    speak(line, "en-US", () => setReadingLine(-1));
+    speak(speechTextFor(poem, idx), "en-US", () => setReadingLine(-1));
   };
 
   const toggleSection = (key: string) => {
@@ -172,7 +175,7 @@ export default function YmeymeRhymePage() {
                 key={`${selected.id}-${idx}`}
                 type="button"
                 className={readingLine === idx ? styles.lineActive : styles.line}
-                onClick={() => readLine(line, idx)}
+                onClick={() => readLine(selected, idx)}
               >
                 {line}
               </button>
@@ -180,6 +183,35 @@ export default function YmeymeRhymePage() {
           </div>
 
           <div className={styles.sections}>
+            {(() => {
+              const open = openSections.has("translation");
+              return (
+                <div className={styles.section}>
+                  <button
+                    type="button"
+                    className={open ? styles.sectionButtonOpen : styles.sectionButton}
+                    onClick={() => toggleSection("translation")}
+                    aria-expanded={open}
+                  >
+                    <span className={styles.sectionIcon}>💬</span>
+                    <span className={styles.sectionLabel}>和訳</span>
+                    <span className={styles.sectionChevron}>{open ? "▲" : "▼"}</span>
+                  </button>
+                  {open &&
+                    (selected.translation ? (
+                      <p className={styles.sectionBody}>
+                        {selected.translation.map((line, idx) => (
+                          <span key={`${selected.id}-tr-${idx}`} className={styles.translationLine}>
+                            {line}
+                          </span>
+                        ))}
+                      </p>
+                    ) : (
+                      <p className={styles.sectionBody}>和訳不可(音を楽しみましょう)</p>
+                    ))}
+                </div>
+              );
+            })()}
             {SECTIONS.map(({ key, icon, label }) => {
               const open = openSections.has(key);
               return (

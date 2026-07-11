@@ -322,6 +322,12 @@
     border-top: 1px dashed #ecd9bd;
 }
 
+/* 和訳: 詩の行構成に合わせて1行ずつ表示 */
+.translationLine {
+    display: block;
+    text-align: center;
+}
+
 /* ---- footer ---- */
 .footer {
     margin-top: auto;

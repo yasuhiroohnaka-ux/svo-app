@@ -30,6 +30,10 @@ export type RhymePoem = {
   author?: string;
   authorJa?: string;
   lines: string[];
+  /** 表示は lines のまま、TTS が読み間違える行だけ発音用に置き換えるテキスト(行番号対応) */
+  speechLines?: string[];
+  /** 行ごとの和訳。未定義の詩は「和訳不可(音を楽しみましょう)」を表示する */
+  translation?: string[];
   commentary: RhymeCommentary;
 };
 
@@ -53,6 +57,12 @@ export const POEMS: RhymePoem[] = [
       "If he squeals, let him go.",
       "Eeny, meeny, miny, moe.",
     ],
+    translation: [
+      "イーニー・ミーニー・マイニー・モー(数えことば)",
+      "トラのつまさきを つかまえろ",
+      "キャッと鳴いたら はなしてやれ",
+      "イーニー・ミーニー・マイニー・モー",
+    ],
     commentary: {
       poem: "鬼ごっこの鬼を決めるときに指をさしながら唱える「数え唄」。イーニー・ミーニー・マイニー・モーということば自体に意味はなく、moe / toe / go と韻を踏むリズムの楽しさが主役です。最後の一語が当たった人が選ばれます。",
       author: "作者はわかっていません。子どもから子どもへ口伝えで広がった伝承童謡で、マザーグースのひとつに数えられます。",
@@ -74,6 +84,12 @@ export const POEMS: RhymePoem[] = [
       "On a cloud I saw a child",
       "And he laughing said to me:",
     ],
+    translation: [
+      "笛を吹きながら 谷あいをくだっていくと",
+      "たのしい歌を 吹きながら",
+      "雲の上に こどもがひとり見えた",
+      "その子は笑って わたしに言った——",
+    ],
     commentary: {
       poem: "詩集『無垢の歌』の巻頭に置かれた序詩。笛を吹きながら谷を下る詩人が、雲の上の子どもに出会う場面です。wild / child、glee / me と交互に韻を踏み、「この詩集は子どものために歌われる歌だよ」と宣言する役割を持っています。",
       author: "ウィリアム・ブレイク(1757-1827)。ロンドンの詩人であり画家・銅版画家。詩に自分で絵と彩色をほどこした手作りの本を作りました。生前はほとんど評価されず、死後にロマン派の先駆者として再発見されました。",
@@ -92,6 +108,13 @@ export const POEMS: RhymePoem[] = [
       "Acca bacca soda cracker",
       "Acca bacca boo.",
       "Acca bacca soda cracker",
+      "out goes you!",
+    ],
+    // TTS が Acca を1文字ずつ読んでしまうため、発音は一般的な綴り Acka backa に置き換える
+    speechLines: [
+      "Acka backa soda cracker",
+      "Acka backa boo.",
+      "Acka backa soda cracker",
       "out goes you!",
     ],
     commentary: {
@@ -117,6 +140,14 @@ export const POEMS: RhymePoem[] = [
       "Forgive me they were delicious",
       "so sweet and so cold",
     ],
+    translation: [
+      "すももを 食べてしまいました",
+      "冷蔵庫に 入っていた",
+      "あなたが たぶん",
+      "朝ごはんに とっておいたのを",
+      "ごめんなさい とてもおいしかった",
+      "あんなに甘くて あんなに冷たくて",
+    ],
     commentary: {
       poem: "冷蔵庫のプラム(すもも)を食べてしまったことを家族に詫びる「置き手紙」が、そのまま詩になった作品。飾ったことばをいっさい使わず、改行の呼吸だけで詩にしてしまう実験です。最後の so sweet and so cold(あんなに甘くて、あんなに冷たかった)の感覚が鮮烈に残ります。",
       author: "ウィリアム・カーロス・ウィリアムズ(1883-1963)。アメリカ・ニュージャージー州の小児科のお医者さんで、診療の合間に処方箋の裏にまで詩を書きました。日常のアメリカ英語で詩を書くことを追求しました。",
@@ -139,6 +170,14 @@ export const POEMS: RhymePoem[] = [
       "Peace? by its battles told.",
       "Love, by Memorial mold.",
       "Birds, by the snow.",
+    ],
+    translation: [
+      "水のありがたさは のどの渇きが教えてくれる",
+      "陸は? 越えてきた海が",
+      "旅の喜びは? 苦しみが",
+      "平和は? 語られる戦いが",
+      "愛は 残された形見が",
+      "鳥は 雪が教えてくれる",
     ],
     commentary: {
       poem: "「水のありがたさは、のどの渇きが教えてくれる」。大切なものの価値は、それが無いときにこそわかる — という逆説を、たった6行にならべた詩です。渇き→水、海→陸、雪→鳥、と一行ごとに「欠けているもの」と「本当に大事なもの」が対になっています。",
@@ -163,6 +202,14 @@ export const POEMS: RhymePoem[] = [
       "Churl, upon thy eyes I throw",
       "All the power this charm doth owe.",
     ],
+    translation: [
+      "夜と静けさ——ここにいるのは だれだ?",
+      "アテネの服を 着ているな",
+      "ご主人さまの言っていた あの男だ",
+      "アテネの娘に つれなくした——",
+      "この失礼者め おまえのまぶたに",
+      "この魔法の花の力を そそいでやろう",
+    ],
     commentary: {
       poem: "喜劇『夏の夜の夢』で、いたずら妖精パックが森で眠る若者のまぶたに「恋の魔法の花の汁」をたらす場面の台詞。ところがこれは人違いで、ここから恋の大混乱が始まります。here / wear、throw / owe の韻が、まじないの呪文らしい響きを作っています。",
       author: "ウィリアム・シェイクスピア(1564-1616)。イギリスの劇作家・詩人。喜劇・悲劇・史劇あわせて約37本の戯曲を残した、英語文学最大の作家です。",
@@ -183,6 +230,12 @@ export const POEMS: RhymePoem[] = [
       "Kissed the girls and made them cry;",
       "When the boys came out to play,",
       "Georgie Porgie ran away.",
+    ],
+    translation: [
+      "ジョージー・ポージー プディングにパイ",
+      "女の子にキスして 泣かせちゃった",
+      "男の子たちが 遊びに出てくると",
+      "ジョージー・ポージーは 逃げていった",
     ],
     commentary: {
       poem: "女の子を泣かせるいたずらっ子ジョージーが、男の子たちが出てくると逃げてしまう — 弱い者いじめをからかう唄です。pie / cry、play / away の韻に加えて、Georgie Porgie(ジョージー・ポージー)という名前の音遊びそのものが主役です。",
@@ -209,6 +262,16 @@ export const POEMS: RhymePoem[] = [
       "The fir tree useful timber gives.",
       "The beech amid the forest lives.",
     ],
+    translation: [
+      "オークは 木の王さまと呼ばれる",
+      "ヤマナラシは そよ風にふるえ",
+      "ポプラは まっすぐ高くのび",
+      "モモの木は 塀にそって枝をひろげ",
+      "スズカケは 気持ちのいい木かげをつくり",
+      "ヤナギは 水辺にしだれ",
+      "モミの木は 役に立つ木材をくれて",
+      "ブナは 森のまんなかに生きている",
+    ],
     commentary: {
       poem: "オークは木の王さま、ポプラはまっすぐ高く、ヤナギは水辺にしだれて — 木の名前と性格を1行ずつ歌う「おぼえ唄」です。trees / breeze、tall / wall と2行ずつきれいに韻を踏むので、聞いているだけで木の種類が頭に入ります。",
       author: "セアラ・コールリッジ(1802-1852)。ロマン派の大詩人サミュエル・テイラー・コールリッジの娘で、自身も作家・翻訳家として活躍しました。",
@@ -231,6 +294,13 @@ export const POEMS: RhymePoem[] = [
       "If we are like you in the rest,",
       "We will resemble you in that!",
     ],
+    translation: [
+      "くすぐられれば 笑わずにいられるか?",
+      "毒を盛られれば 死なずにいられるか?",
+      "ひどい仕打ちを受けたら 仕返しせずにいられるか?",
+      "ほかのことが あなたたちと同じなら",
+      "そこだって 同じようにするまでだ!",
+    ],
     commentary: {
       poem: "『ヴェニスの商人』で金貸しシャイロックが語る有名な独白の一部。「くすぐられれば笑うし、毒を盛られれば死ぬ。同じ人間ではないか。それなら不当な仕打ちには仕返しをするまでだ」。If you...? の問いかけの繰り返しが、聞く人の胸に迫ります。",
       author: "ウィリアム・シェイクスピア(1564-1616)。10月の『夏の夜の夢』、3月のソネット18と同じ作者です。",
@@ -250,6 +320,12 @@ export const POEMS: RhymePoem[] = [
       "Hanging on a telephone wire!",
       "Liar, liar, pants on fire,",
       "Nose as long as a telephone wire!",
+    ],
+    translation: [
+      "うそつき うそつき ズボンに火がついた",
+      "電話線に ぶらさがってる!",
+      "うそつき うそつき ズボンに火がついた",
+      "鼻の長さは 電話線なみ!",
     ],
     commentary: {
       poem: "「うそつき、うそつき、ズボンに火がついた!」— うそをついた子をはやしたてる遊び唄。liar / fire / wire とたたみかける韻と、鼻が電話線ほど伸びるというピノキオのような誇張のおかしさがポイントです。",
@@ -276,6 +352,16 @@ export const POEMS: RhymePoem[] = [
       "And summer's lease",
       "hath all too short a date:",
     ],
+    translation: [
+      "きみを たとえようか",
+      "夏の一日に?",
+      "きみのほうが もっと美しく",
+      "もっと おだやかだ",
+      "あらい風は",
+      "五月のかわいい つぼみをゆらすし",
+      "夏という季節の いのちは",
+      "あまりにも 短い",
+    ],
     commentary: {
       poem: "「君を夏の日にたとえようか。いや、君のほうがずっと美しく、おだやかだ」。154篇あるシェイクスピアのソネット(14行詩)の中でいちばん有名な冒頭部分です。夏でさえ風に荒れ、あっという間に終わってしまう。それに比べて詩の中の「君」は永遠だ、と続いていきます。",
       author: "ウィリアム・シェイクスピア(1564-1616)。劇作のかたわら154篇のソネットを残しました。thee(=you)、thou art(=you are)は当時の英語です。",
@@ -299,6 +385,12 @@ export const POEMS: RhymePoem[] = [
       "Teddy bear, teddy bear, show your shoe!",
       "Teddy bear, teddy bear, out goes you!",
     ],
+    translation: [
+      "テディベア テディベア くるっとまわれ!",
+      "テディベア テディベア じめんにタッチ!",
+      "テディベア テディベア くつを見せて!",
+      "テディベア テディベア きみがぬけた!",
+    ],
     commentary: {
       poem: "「くまさん、くまさん、まわれ!」— 歌に合わせて回ったり地面をさわったり、動きをまねして遊ぶ唄です。around / ground、shoe / you の韻と、同じ呼びかけの繰り返しで、英語の動作のことばが体で覚えられます。なわとび唄としても歌われます。",
       author: "作者不詳の遊び唄で、マザーグースに数えられます。",
@@ -321,6 +413,14 @@ export const POEMS: RhymePoem[] = [
       "Up! Up! My friend,",
       "and clear your looks;",
       "Why all this toil and trouble?",
+    ],
+    translation: [
+      "立って! 立って! 友よ",
+      "本なんか 閉じてしまえ",
+      "でないと 背中が曲がってしまうぞ",
+      "立って! 立って! 友よ",
+      "顔を 晴れやかにして",
+      "なんのための 苦労と骨折りだ?",
     ],
     commentary: {
       poem: "「立て、立て、友よ。本を閉じよ。そんなに根をつめたら腰が曲がってしまうぞ」— 机にかじりつく友人に、外へ出て自然に学ぼうと呼びかける詩の冒頭です。books / looks、double / trouble の韻。タイトルは「形勢逆転」の意味で、本と自然の立場がひっくり返ります。",
@@ -346,6 +446,15 @@ export const POEMS: RhymePoem[] = [
       "And one flew west,",
       "And one flew over the cuckoo's nest.",
     ],
+    translation: [
+      "ヴィンタリー・ミンタリー・キュータリー・コーン(数えことば)",
+      "リンゴのたねに リンゴのとげ",
+      "針がね いばら しなやかな錠まえ",
+      "ガチョウが3羽 むれになって",
+      "1羽は 東へ飛んで",
+      "1羽は 西へ飛んで",
+      "1羽は カッコウの巣の上へ飛んでいった",
+    ],
     commentary: {
       poem: "「ヴィンタリー、ミンタリー」という呪文のような音で始まる古い数え唄。corn / thorn、lock / flock と韻を重ねたあと、3羽のガチョウが1羽は東へ、1羽は西へ、そして最後の1羽は「カッコウの巣の上へ」飛んでいきます。",
       author: "作者不詳のマザーグースです。",
@@ -369,6 +478,14 @@ export const POEMS: RhymePoem[] = [
       "In what distant deeps or skies.",
       "Burnt the fire of thine eyes?",
     ],
+    translation: [
+      "トラよ トラよ あかあかと燃える",
+      "夜の森のなかで",
+      "どんな不死の手が どんな目が",
+      "おまえの恐ろしいほどの均整を つくりえたのか?",
+      "どんな遠い深みで どんな空で",
+      "おまえの目の火は 燃えていたのか?",
+    ],
     commentary: {
       poem: "夜の森で燃えるように輝くトラに向かって、「いったいどんな不死の手が、おまえの恐ろしいほどの美しさを作りえたのか」と問いかける詩。bright / night の韻と、太鼓のように刻むリズムが特徴です。問いばかりで答えがないことが、この詩の力になっています。",
       author: "ウィリアム・ブレイク(1757-1827)。オレンジ冊子5月の Piping Down The Valleys Wild と同じ作者です。あちらが『無垢の歌』、こちらは対になる詩集『経験の歌』(1794)の代表作です。",
@@ -390,6 +507,12 @@ export const POEMS: RhymePoem[] = [
       "And all that's best of dark and bright",
       "Meet in her aspect and her eyes:",
     ],
+    translation: [
+      "彼女は美しさのなかを歩む——夜のように",
+      "雲ひとつない土地の 星ふる空のような",
+      "闇と光の いちばん良いものが",
+      "彼女の姿と瞳のなかで 出会う",
+    ],
     commentary: {
       poem: "「彼女は美しさの中を歩む。雲ひとつない土地の、星がきらめく夜のように」。ふつう美しさは光にたとえられますが、この詩は「夜」にたとえ、闇と光のいちばん良いところが彼女の中で出会う、と歌います。night / bright、skies / eyes の韻。",
       author: "ジョージ・ゴードン・バイロン卿(1788-1824)。ロマン派のスター詩人で、詩も生き方も自由奔放。「バイロン的英雄」ということばが生まれるほど、ヨーロッパ中の憧れの的でした。",
@@ -409,6 +532,12 @@ export const POEMS: RhymePoem[] = [
       "climbed up the water spout,",
       "down came the rain and",
       "washed the spider out!",
+    ],
+    translation: [
+      "ちっちゃな ちっちゃな クモが",
+      "雨どいを のぼっていった",
+      "雨が ざあざあ降ってきて",
+      "クモは 流されちゃった!",
     ],
     commentary: {
       poem: "ちっちゃなクモが雨どいを登っていくと、雨が降ってきて流されてしまう — 指をクモに見立ててのぼるまねをしながら歌う手遊び唄です。このあと「お日さまが出て、クモはまた登る」と続き、あきらめない小さなクモの物語になります。",
@@ -435,6 +564,16 @@ export const POEMS: RhymePoem[] = [
       "To reflect back her blushes,",
       "Or give sigh for sigh.",
     ],
+    translation: [
+      "夏の最後の バラが一輪",
+      "ひとりぼっちで 咲き残っている",
+      "愛らしい 仲間たちは",
+      "みんな色あせ 散っていった",
+      "同じ血をひく花は もうなく",
+      "つぼみひとつ そばにない",
+      "頬の赤らみを 映しかえすものも",
+      "ため息に ため息をかえすものも",
+    ],
     commentary: {
       poem: "夏の終わり、仲間がみな散ったあとに一輪だけ咲き残ったバラ。その姿に、大切な人たちを見送ったあとの寂しさを重ねる詩です。alone / gone、nigh / sigh の韻が、ため息のような余韻を残します。",
       author: "トマス・ムーア(1779-1852)。アイルランドの国民的詩人。自作の詩を古い民謡の旋律にのせた『アイルランド歌曲集』で、19世紀のヨーロッパ中に愛されました。",
@@ -460,6 +599,27 @@ export const POEMS: RhymePoem[] = [
       "God's in His heaven--",
       "All's right with the world!",
     ],
+    // dew-pearl'd が「パールディー」のように読まれるのを防ぐ(表示は原文のまま)
+    speechLines: [
+      "The year's at the spring,",
+      "And day's at the morn;",
+      "Morning's at seven;",
+      "The hill-side's dew-pearled;",
+      "The lark's on the wing;",
+      "The snail's on the thorn;",
+      "God's in His heaven--",
+      "All's right with the world!",
+    ],
+    translation: [
+      "時は 春",
+      "日は 朝(あした)",
+      "朝は 七時",
+      "丘の斜面は 露にきらめく",
+      "ひばりは 空に",
+      "かたつむりは 枝に",
+      "神は 天にいまし——",
+      "すべて世は 事もなし!",
+    ],
     commentary: {
       poem: "「時は春、日は朝。朝は七時、丘は露にきらめき、ひばりは空に、かたつむりは枝に。神は天にいまし、すべて世は事もなし」。劇詩『ピッパが通る』で、糸まき工場で働く少女ピッパが歌いながら町を通ると、聞いた人々の心が変わっていく — その歌の部分です。",
       author: "ロバート・ブラウニング(1812-1889)。ヴィクトリア朝を代表するイギリスの詩人。妻は同じく詩人のエリザベス・バレット・ブラウニングで、二人の恋文は文学史の有名なエピソードです。",
@@ -482,6 +642,14 @@ export const POEMS: RhymePoem[] = [
       "I once was lost,",
       "but now I'm found",
       "Was blind, but now I see.",
+    ],
+    translation: [
+      "おどろくばかりの めぐみ!",
+      "なんと美しい ひびきだろう",
+      "わたしのような迷い人まで すくわれた",
+      "かつては まよっていたけれど",
+      "いまは 見いだされ",
+      "見えなかった目も いまは見える",
     ],
     commentary: {
       poem: "「おどろくばかりの恵み。なんと美しい響きだろう。私のような迷える者さえ救われた」。自分の過ちを見つめ、赦されたことへの感謝を歌う讃美歌です。sound / found、me / see の韻。lost と found、blind と see の対比が歌の芯になっています。",
@@ -507,6 +675,27 @@ export const POEMS: RhymePoem[] = [
       "Boil thou first i' the charmed pot.",
       "Double, double toil and trouble;",
       "Fire burn and cauldron bubble.",
+    ],
+    // i' the が「アイ・ザ」と読まれるのを防ぐ(表示は原文のまま)
+    speechLines: [
+      "Round about the cauldron go:",
+      "In the poisoned entrails throw.",
+      "Toad, that under cold stone",
+      "Days and nights has thirty-one",
+      "Sweated venom sleeping got,",
+      "Boil thou first in the charmed pot.",
+      "Double, double toil and trouble;",
+      "Fire burn and cauldron bubble.",
+    ],
+    translation: [
+      "大鍋のまわりを ぐるぐる回れ",
+      "毒の臓物を 投げこめ",
+      "冷たい石の下で",
+      "三十一日 昼も夜も",
+      "毒の汗をかいて眠った ヒキガエルよ",
+      "まっさきに魔法の鍋で 煮えるがいい",
+      "ダブル ダブル 苦労はふえろ",
+      "火よ燃えろ 鍋よ煮えたぎれ",
     ],
     commentary: {
       poem: "悲劇『マクベス』で、3人の魔女が大鍋のまわりをぐるぐる回りながら唱える呪文。「ダブル、ダブル、トイル・アンド・トラブル」の一行は英語でいちばん有名な呪文といわれます。go / throw、trouble / bubble の強い韻が、ぐつぐつ煮える鍋のリズムそのものです。",
@@ -536,6 +725,20 @@ export const POEMS: RhymePoem[] = [
       "The Knave of Hearts",
       "brought back the tarts",
       "and vowed he'd steal no more.",
+    ],
+    translation: [
+      "ハートの女王さま",
+      "タルトを焼いた",
+      "ある夏の日のこと",
+      "ハートのジャック",
+      "そのタルトを盗んで",
+      "ぜんぶ持っていってしまった",
+      "ハートの王さま",
+      "タルトを出せと言って",
+      "ジャックをこっぴどく叱った",
+      "ハートのジャック",
+      "タルトを返して",
+      "もう二度と盗みませんと誓った",
     ],
     commentary: {
       poem: "ハートの女王がタルトを焼き、ジャック(Knave)が盗み、王さまに叱られて返しました、という起承転結のあるお話し唄。Hearts / tarts の韻が3回まわってきて、トランプの絵札がそのまま動き出したような楽しさがあります。",
