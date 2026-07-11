@@ -57,6 +57,13 @@ export const POEMS: RhymePoem[] = [
       "If he squeals, let him go.",
       "Eeny, meeny, miny, moe.",
     ],
+    // カンマごとに TTS が間を置いてしまうため、数えことばの行はカンマなしで読ませる(表示は原文のまま)
+    speechLines: [
+      "Eeny meeny miny moe",
+      "Catch a tiger by the toe",
+      "If he squeals, let him go.",
+      "Eeny meeny miny moe.",
+    ],
     translation: [
       "イーニー・ミーニー・マイニー・モー(数えことば)",
       "トラのつまさきを つかまえろ",
