@@ -11,7 +11,10 @@
             "天气晴朗。",
             "有一块橡皮。",
             "橡皮在椅子下面。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The eraser is under the chair.",
+        "target_zh": "橡皮在椅子下面。"
     },
     {
         "id": "page_1",
@@ -25,7 +28,10 @@
             "天气晴朗。",
             "有一块橡皮。",
             "橡皮在跑步。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The eraser is running.",
+        "target_zh": "橡皮在跑步。"
     },
     {
         "id": "page_2",
@@ -39,7 +45,10 @@
             "天气晴朗。",
             "有一块橡皮。",
             "橡皮在椅子上面。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The eraser is on the chair.",
+        "target_zh": "橡皮在椅子上面。"
     },
     {
         "id": "page_3",
@@ -53,7 +62,10 @@
             "天气多云。",
             "有一只长颈鹿。",
             "长颈鹿在哭泣。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The giraffe is crying.",
+        "target_zh": "长颈鹿在哭泣。"
     },
     {
         "id": "page_4",
@@ -67,7 +79,10 @@
             "天气多云。",
             "有一只长颈鹿。",
             "长颈鹿很生气。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The giraffe is angry.",
+        "target_zh": "长颈鹿很生气。"
     },
     {
         "id": "page_5",
@@ -81,7 +96,10 @@
             "天气晴朗。",
             "有一只猴子。",
             "猴子在学习。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The monkey is studying.",
+        "target_zh": "猴子在学习。"
     },
     {
         "id": "page_6",
@@ -95,7 +113,10 @@
             "天气晴朗。",
             "有一只猴子。",
             "猴子很强壮。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The monkey is strong.",
+        "target_zh": "猴子很强壮。"
     },
     {
         "id": "page_7",
@@ -109,7 +130,10 @@
             "天气晴朗。",
             "有一只猴子。",
             "猴子很困。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The monkey is sleepy.",
+        "target_zh": "猴子很困。"
     },
     {
         "id": "page_8",
@@ -123,7 +147,10 @@
             "天气下雪。",
             "有一头大象。",
             "大象很瘦。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The elephant is thin.",
+        "target_zh": "大象很瘦。"
     },
     {
         "id": "page_9",
@@ -137,7 +164,10 @@
             "天气下雪。",
             "有几头大象。",
             "大象们在说话。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The elephants are talking.",
+        "target_zh": "大象们在说话。"
     },
     {
         "id": "page_10",
@@ -151,7 +181,10 @@
             "天气下雪。",
             "有一头大象。",
             "大象在写字。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The elephant is writing.",
+        "target_zh": "大象在写字。"
     },
     {
         "id": "page_11",
@@ -165,7 +198,10 @@
             "天气多云。",
             "有一只熊。",
             "熊在吃东西。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The bear is eating.",
+        "target_zh": "熊在吃东西。"
     },
     {
         "id": "page_12",
@@ -179,7 +215,10 @@
             "天气多云。",
             "有一只熊。",
             "熊在大笑。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The bear is laughing.",
+        "target_zh": "熊在大笑。"
     },
     {
         "id": "page_13",
@@ -193,7 +232,10 @@
             "天气多云。",
             "有一只熊。",
             "熊很胖。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The bear is fat.",
+        "target_zh": "熊很胖。"
     },
     {
         "id": "page_14",
@@ -207,7 +249,10 @@
             "天气下雪。",
             "有一只鳄鱼。",
             "鳄鱼很惊讶。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The alligator is surprised.",
+        "target_zh": "鳄鱼很惊讶。"
     },
     {
         "id": "page_15",
@@ -221,11 +266,14 @@
             "天气下雪。",
             "有一只鳄鱼。",
             "鳄鱼很虚弱。"
-        ]
+        ],
+        "deck": "set1",
+        "target": "The alligator is weak.",
+        "target_zh": "鳄鱼很虚弱。"
     },
     {
         "id": "page_16",
-        "image": "/images/quiz/img_16.jpg",
+        "image": "/images/quiz/img_16.png",
         "target": "The pencils are running faster than the apples.",
         "target_zh": "铅笔跑得比苹果快。",
         "sentences": [
@@ -235,11 +283,12 @@
         "sentences_zh": [
             "铅笔跑得比苹果快。",
             "苹果跑得比铅笔慢。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_17",
-        "image": "/images/quiz/img_17.jpg",
+        "image": "/images/quiz/img_17.png",
         "target": "The apples are running as fast as the pencils.",
         "target_zh": "苹果跑得和铅笔一样快。",
         "sentences": [
@@ -247,11 +296,12 @@
         ],
         "sentences_zh": [
             "苹果跑得和铅笔一样快。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_18",
-        "image": "/images/quiz/img_18.jpg",
+        "image": "/images/quiz/img_18.png",
         "target": "The apples are running faster than the pencils.",
         "target_zh": "苹果跑得比铅笔快。",
         "sentences": [
@@ -261,11 +311,12 @@
         "sentences_zh": [
             "苹果跑得比铅笔快。",
             "铅笔跑得比苹果慢。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_19",
-        "image": "/images/quiz/img_19.jpg",
+        "image": "/images/quiz/img_19.png",
         "target": "The boys are younger than the girls.",
         "target_zh": "男孩们比女孩们年轻。",
         "sentences": [
@@ -275,11 +326,12 @@
         "sentences_zh": [
             "男孩们比女孩们年轻。",
             "女孩们比男孩们年长。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_20",
-        "image": "/images/quiz/img_20.jpg",
+        "image": "/images/quiz/img_20.png",
         "target": "The girls are younger than the boys.",
         "target_zh": "女孩们比男孩们年轻。",
         "sentences": [
@@ -289,11 +341,12 @@
         "sentences_zh": [
             "女孩们比男孩们年轻。",
             "男孩们比女孩们年长。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_21",
-        "image": "/images/quiz/img_21.jpg",
+        "image": "/images/quiz/img_21.png",
         "target": "The boys are stronger than the girls.",
         "target_zh": "男孩们比女孩们强壮。",
         "sentences": [
@@ -303,11 +356,12 @@
         "sentences_zh": [
             "男孩们比女孩们强壮。",
             "女孩们比男孩们弱。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_22",
-        "image": "/images/quiz/img_22.jpg",
+        "image": "/images/quiz/img_22.png",
         "target": "The girls are stronger than the boys.",
         "target_zh": "女孩们比男孩们强壮。",
         "sentences": [
@@ -317,11 +371,12 @@
         "sentences_zh": [
             "女孩们比男孩们强壮。",
             "男孩们比女孩们弱。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_23",
-        "image": "/images/quiz/img_23.jpg",
+        "image": "/images/quiz/img_23.png",
         "target": "The eagles are running faster than the snakes.",
         "target_zh": "老鹰跑得比蛇快。",
         "sentences": [
@@ -331,11 +386,12 @@
         "sentences_zh": [
             "老鹰跑得比蛇快。",
             "蛇跑得比老鹰慢。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_24",
-        "image": "/images/quiz/img_24.jpg",
+        "image": "/images/quiz/img_24.png",
         "target": "The snakes are running faster than the eagles.",
         "target_zh": "蛇跑得比老鹰快。",
         "sentences": [
@@ -345,11 +401,12 @@
         "sentences_zh": [
             "蛇跑得比老鹰快。",
             "老鹰跑得比蛇慢。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_25",
-        "image": "/images/quiz/img_25.jpg",
+        "image": "/images/quiz/img_25.png",
         "target": "Ball B is older than Ball A.",
         "target_zh": "B球比A球旧。",
         "sentences": [
@@ -361,11 +418,12 @@
             "B球比A球旧。",
             "A球比B球新。",
             "A球和E球一样旧。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_26",
-        "image": "/images/quiz/img_26.jpg",
+        "image": "/images/quiz/img_26.png",
         "target": "Ball A is older than Ball B.",
         "target_zh": "A球比B球旧。",
         "sentences": [
@@ -375,11 +433,12 @@
         "sentences_zh": [
             "A球比B球旧。",
             "B球比A球新。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_27",
-        "image": "/images/quiz/img_27.jpg",
+        "image": "/images/quiz/img_27.png",
         "target": "Shirt B is larger than Shirt A.",
         "target_zh": "B号衬衫比A号衬衫大。",
         "sentences": [
@@ -391,11 +450,12 @@
             "B号衬衫比A号衬衫大。",
             "A号衬衫比B号衬衫小。",
             "A号衬衫和C号衬衫一样旧。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_28",
-        "image": "/images/quiz/img_28.jpg",
+        "image": "/images/quiz/img_28.png",
         "target": "Shirt A is larger than Shirt B.",
         "target_zh": "A号衬衫比B号衬衫大。",
         "sentences": [
@@ -405,11 +465,12 @@
         "sentences_zh": [
             "A号衬衫比B号衬衫大。",
             "B号衬衫比A号衬衫小。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_29",
-        "image": "/images/quiz/img_29.jpg",
+        "image": "/images/quiz/img_29.png",
         "target": "The pencils are stronger than the apples.",
         "target_zh": "铅笔比苹果强壮。",
         "sentences": [
@@ -419,11 +480,12 @@
         "sentences_zh": [
             "铅笔比苹果强壮。",
             "苹果比铅笔弱。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_30",
-        "image": "/images/quiz/img_30.jpg",
+        "image": "/images/quiz/img_30.png",
         "target": "The apples are stronger than the pencils.",
         "target_zh": "苹果比铅笔强壮。",
         "sentences": [
@@ -433,11 +495,12 @@
         "sentences_zh": [
             "苹果比铅笔强壮。",
             "铅笔比苹果弱。"
-        ]
+        ],
+        "deck": "set2"
     },
     {
         "id": "page_31",
-        "image": "/images/quiz/img_31.jpg",
+        "image": "/images/quiz/img_31.png",
         "target": "The snakes are running as fast as the eagles.",
         "target_zh": "蛇跑得和老鹰一样快。",
         "sentences": [
@@ -445,6 +508,639 @@
         ],
         "sentences_zh": [
             "蛇跑得和老鹰一样快。"
+        ],
+        "deck": "set2"
+    },
+    {
+        "id": "page_32",
+        "deck": "set3",
+        "image": "/images/quiz/img_32.png",
+        "target": "The alligator is the oldest of the three.",
+        "target_zh": "???????????",
+        "sentences": [
+            "It's Thursday.",
+            "The alligator is the oldest of the three.",
+            "The bear is the youngest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "???????????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_33",
+        "deck": "set3",
+        "image": "/images/quiz/img_33.png",
+        "target": "The alligator is the oldest of the three.",
+        "target_zh": "???????????",
+        "sentences": [
+            "It's Saturday.",
+            "The alligator is the oldest of the three.",
+            "The giraffe is the youngest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "???????????",
+            "????????????"
+        ]
+    },
+    {
+        "id": "page_34",
+        "deck": "set3",
+        "image": "/images/quiz/img_34.png",
+        "target": "The watermelon is the strongest of the three.",
+        "target_zh": "???????????",
+        "sentences": [
+            "It's Saturday.",
+            "The watermelon is the strongest of the three.",
+            "The strawberry is the weakest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "???????????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_35",
+        "deck": "set3",
+        "image": "/images/quiz/img_35.png",
+        "target": "The glue is the largest of the three.",
+        "target_zh": "??????????",
+        "sentences": [
+            "It's Saturday.",
+            "The glue is the largest of the three.",
+            "The scissors are the smallest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "??????????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_36",
+        "deck": "set3",
+        "image": "/images/quiz/img_36.png",
+        "target": "The ruler is the largest of the three.",
+        "target_zh": "??????????",
+        "sentences": [
+            "It's Thursday.",
+            "The ruler is the largest of the three.",
+            "The glue is the smallest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "??????????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_37",
+        "deck": "set3",
+        "image": "/images/quiz/img_37.png",
+        "target": "The watermelon is the strongest of the three.",
+        "target_zh": "???????????",
+        "sentences": [
+            "It's Thursday.",
+            "The watermelon is the strongest of the three.",
+            "The strawberry is the weakest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "???????????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_38",
+        "deck": "set3",
+        "image": "/images/quiz/img_38.png",
+        "target": "The scissors are the largest of the three.",
+        "target_zh": "??????????",
+        "sentences": [
+            "It's Thursday.",
+            "The scissors are the largest of the three.",
+            "The glue is the smallest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "??????????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_39",
+        "deck": "set3",
+        "image": "/images/quiz/img_39.png",
+        "target": "The strawberry is the strongest of the three.",
+        "target_zh": "???????????",
+        "sentences": [
+            "It's Saturday.",
+            "The strawberry is the strongest of the three.",
+            "The watermelon is the weakest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "???????????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_40",
+        "deck": "set3",
+        "image": "/images/quiz/img_40.png",
+        "target": "The giraffe is the oldest of the three.",
+        "target_zh": "????????????",
+        "sentences": [
+            "It's Saturday.",
+            "The giraffe is the oldest of the three.",
+            "The alligator is the youngest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "????????????",
+            "???????????"
+        ]
+    },
+    {
+        "id": "page_41",
+        "deck": "set3",
+        "image": "/images/quiz/img_41.png",
+        "target": "The jeans are the fastest of the three.",
+        "target_zh": "???????????",
+        "sentences": [
+            "It's Saturday.",
+            "The jeans are the fastest of the three.",
+            "The shoes are the slowest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "???????????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_42",
+        "deck": "set3",
+        "image": "/images/quiz/img_42.png",
+        "target": "The socks are the fastest of the three.",
+        "target_zh": "??????????",
+        "sentences": [
+            "It's Thursday.",
+            "The socks are the fastest of the three.",
+            "The jeans are the slowest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "??????????",
+            "???????????"
+        ]
+    },
+    {
+        "id": "page_43",
+        "deck": "set3",
+        "image": "/images/quiz/img_43.png",
+        "target": "The jeans are the fastest of the three.",
+        "target_zh": "???????????",
+        "sentences": [
+            "It's Thursday.",
+            "The jeans are the fastest of the three.",
+            "The socks are the slowest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "???????????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_44",
+        "deck": "set3",
+        "image": "/images/quiz/img_44.png",
+        "target": "The peach is the strongest of the three.",
+        "target_zh": "???????????",
+        "sentences": [
+            "It's Thursday.",
+            "The peach is the strongest of the three.",
+            "The watermelon is the weakest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "???????????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_45",
+        "deck": "set3",
+        "image": "/images/quiz/img_45.png",
+        "target": "The ruler is the largest of the three.",
+        "target_zh": "??????????",
+        "sentences": [
+            "It's Saturday.",
+            "The ruler is the largest of the three.",
+            "The scissors are the smallest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "??????????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_46",
+        "deck": "set3",
+        "image": "/images/quiz/img_46.png",
+        "target": "The shoes are the fastest of the three.",
+        "target_zh": "??????????",
+        "sentences": [
+            "It's Saturday.",
+            "The shoes are the fastest of the three.",
+            "The socks are the slowest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "??????????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_47",
+        "deck": "set3",
+        "image": "/images/quiz/img_47.png",
+        "target": "The bear is the oldest of the three.",
+        "target_zh": "??????????",
+        "sentences": [
+            "It's Thursday.",
+            "The bear is the oldest of the three.",
+            "The giraffe is the youngest of the three."
+        ],
+        "sentences_zh": [
+            "???????",
+            "??????????",
+            "????????????"
+        ]
+    },
+    {
+        "id": "page_48",
+        "deck": "set4",
+        "image": "/images/quiz/img_48.png",
+        "target": "It is crying in the classroom.",
+        "target_zh": "????????",
+        "sentences": [
+            "The eyeball is at school.",
+            "It is crying in the classroom."
+        ],
+        "sentences_zh": [
+            "???????",
+            "????????"
+        ]
+    },
+    {
+        "id": "page_49",
+        "deck": "set4",
+        "image": "/images/quiz/img_49.png",
+        "target": "It is crying in front of the blackboard.",
+        "target_zh": "????????",
+        "sentences": [
+            "The eyeball is at school.",
+            "It is crying in front of the blackboard."
+        ],
+        "sentences_zh": [
+            "???????",
+            "????????"
+        ]
+    },
+    {
+        "id": "page_50",
+        "deck": "set4",
+        "image": "/images/quiz/img_50.png",
+        "target": "It is crying next to the teacher.",
+        "target_zh": "?????????",
+        "sentences": [
+            "The eyeball is at school.",
+            "It is crying next to the teacher."
+        ],
+        "sentences_zh": [
+            "???????",
+            "?????????"
+        ]
+    },
+    {
+        "id": "page_51",
+        "deck": "set4",
+        "image": "/images/quiz/img_51.png",
+        "target": "It is hiding among the graves.",
+        "target_zh": "????????",
+        "sentences": [
+            "The eyeball is in the graveyard.",
+            "It is hiding among the graves."
+        ],
+        "sentences_zh": [
+            "???????",
+            "????????"
+        ]
+    },
+    {
+        "id": "page_52",
+        "deck": "set4",
+        "image": "/images/quiz/img_52.png",
+        "target": "It is hiding between the trees.",
+        "target_zh": "???????",
+        "sentences": [
+            "The eyeball is in the graveyard.",
+            "It is hiding between the trees."
+        ],
+        "sentences_zh": [
+            "???????",
+            "???????"
+        ]
+    },
+    {
+        "id": "page_53",
+        "deck": "set4",
+        "image": "/images/quiz/img_53.png",
+        "target": "It is running around Saturn.",
+        "target_zh": "?????????",
+        "sentences": [
+            "The eyeball is in the space.",
+            "It is running around Saturn."
+        ],
+        "sentences_zh": [
+            "???????",
+            "?????????"
+        ]
+    },
+    {
+        "id": "page_54",
+        "deck": "set4",
+        "image": "/images/quiz/img_54.png",
+        "target": "It is running on the earth.",
+        "target_zh": "????????",
+        "sentences": [
+            "The eyeball is in the space.",
+            "It is running on the earth."
+        ],
+        "sentences_zh": [
+            "???????",
+            "????????"
+        ]
+    },
+    {
+        "id": "page_55",
+        "deck": "set4",
+        "image": "/images/quiz/img_55.png",
+        "target": "It is running through Jupiter.",
+        "target_zh": "?????????",
+        "sentences": [
+            "The eyeball is in the space.",
+            "It is running through Jupiter."
+        ],
+        "sentences_zh": [
+            "???????",
+            "?????????"
+        ]
+    },
+    {
+        "id": "page_56",
+        "deck": "set4",
+        "image": "/images/quiz/img_56.png",
+        "target": "It is crying behind the window.",
+        "target_zh": "?????????",
+        "sentences": [
+            "The ghost is at school.",
+            "It is crying behind the window."
+        ],
+        "sentences_zh": [
+            "???????",
+            "?????????"
+        ]
+    },
+    {
+        "id": "page_57",
+        "deck": "set4",
+        "image": "/images/quiz/img_57.png",
+        "target": "It is crying in the classroom.",
+        "target_zh": "????????",
+        "sentences": [
+            "The ghost is at school.",
+            "It is crying in the classroom."
+        ],
+        "sentences_zh": [
+            "???????",
+            "????????"
+        ]
+    },
+    {
+        "id": "page_58",
+        "deck": "set4",
+        "image": "/images/quiz/img_58.png",
+        "target": "It is crying in front of the blackboard.",
+        "target_zh": "????????",
+        "sentences": [
+            "The ghost is at school.",
+            "It is crying in front of the blackboard."
+        ],
+        "sentences_zh": [
+            "???????",
+            "????????"
+        ]
+    },
+    {
+        "id": "page_59",
+        "deck": "set4",
+        "image": "/images/quiz/img_59.png",
+        "target": "It is jumping around a grave.",
+        "target_zh": "???????????",
+        "sentences": [
+            "The ghost is in the graveyard.",
+            "It is jumping around a grave."
+        ],
+        "sentences_zh": [
+            "???????",
+            "???????????"
+        ]
+    },
+    {
+        "id": "page_60",
+        "deck": "set4",
+        "image": "/images/quiz/img_60.png",
+        "target": "It is jumping into a grave.",
+        "target_zh": "???????????",
+        "sentences": [
+            "The ghost is in the graveyard.",
+            "It is jumping into a grave."
+        ],
+        "sentences_zh": [
+            "???????",
+            "???????????"
+        ]
+    },
+    {
+        "id": "page_61",
+        "deck": "set4",
+        "image": "/images/quiz/img_61.png",
+        "target": "It is jumping over a grave.",
+        "target_zh": "??????????",
+        "sentences": [
+            "The ghost is in the graveyard.",
+            "It is jumping over a grave."
+        ],
+        "sentences_zh": [
+            "???????",
+            "??????????"
+        ]
+    },
+    {
+        "id": "page_62",
+        "deck": "set4",
+        "image": "/images/quiz/img_62.png",
+        "target": "It is running around Saturn.",
+        "target_zh": "?????????",
+        "sentences": [
+            "The ghost is in the space.",
+            "It is running around Saturn."
+        ],
+        "sentences_zh": [
+            "???????",
+            "?????????"
+        ]
+    },
+    {
+        "id": "page_63",
+        "deck": "set4",
+        "image": "/images/quiz/img_63.png",
+        "target": "It is running through the earth.",
+        "target_zh": "?????????",
+        "sentences": [
+            "The ghost is in the space.",
+            "It is running through the earth."
+        ],
+        "sentences_zh": [
+            "???????",
+            "?????????"
+        ]
+    },
+    {
+        "id": "page_64",
+        "deck": "set4",
+        "image": "/images/quiz/img_64.png",
+        "target": "It is flying above the earth.",
+        "target_zh": "?????????",
+        "sentences": [
+            "The umbrella is in the space.",
+            "It is flying above the earth."
+        ],
+        "sentences_zh": [
+            "???????",
+            "?????????"
+        ]
+    },
+    {
+        "id": "page_65",
+        "deck": "set4",
+        "image": "/images/quiz/img_65.png",
+        "target": "It is flying around Jupiter.",
+        "target_zh": "?????????",
+        "sentences": [
+            "The umbrella is in the space.",
+            "It is flying around Jupiter."
+        ],
+        "sentences_zh": [
+            "???????",
+            "?????????"
+        ]
+    },
+    {
+        "id": "page_66",
+        "deck": "set4",
+        "image": "/images/quiz/img_66.png",
+        "target": "It is flying below (under) Jupiter.",
+        "target_zh": "?????????",
+        "sentences": [
+            "The umbrella is in the space.",
+            "It is flying below (under) Jupiter."
+        ],
+        "sentences_zh": [
+            "???????",
+            "?????????"
+        ]
+    },
+    {
+        "id": "page_67",
+        "deck": "set4",
+        "image": "/images/quiz/img_67.png",
+        "target": "It is hiding among the graves.",
+        "target_zh": "????????",
+        "sentences": [
+            "The umbrella is in the graveyard.",
+            "It is hiding among the graves."
+        ],
+        "sentences_zh": [
+            "???????",
+            "????????"
+        ]
+    },
+    {
+        "id": "page_68",
+        "deck": "set4",
+        "image": "/images/quiz/img_68.png",
+        "target": "It is hiding between the trees.",
+        "target_zh": "???????",
+        "sentences": [
+            "The umbrella is in the graveyard.",
+            "It is hiding between the trees."
+        ],
+        "sentences_zh": [
+            "???????",
+            "???????"
+        ]
+    },
+    {
+        "id": "page_69",
+        "deck": "set4",
+        "image": "/images/quiz/img_69.png",
+        "target": "It is hiding behind a tree.",
+        "target_zh": "?????????",
+        "sentences": [
+            "The umbrella is in the graveyard.",
+            "It is hiding behind a tree."
+        ],
+        "sentences_zh": [
+            "???????",
+            "?????????"
+        ]
+    },
+    {
+        "id": "page_70",
+        "deck": "set4",
+        "image": "/images/quiz/img_70.png",
+        "target": "It is jumping around the teacher.",
+        "target_zh": "?????????",
+        "sentences": [
+            "The umbrella is at school.",
+            "It is jumping around the teacher."
+        ],
+        "sentences_zh": [
+            "???????",
+            "?????????"
+        ]
+    },
+    {
+        "id": "page_71",
+        "deck": "set4",
+        "image": "/images/quiz/img_71.png",
+        "target": "It is jumping over the teacher.",
+        "target_zh": "????????",
+        "sentences": [
+            "The umbrella is at school.",
+            "It is jumping over the teacher."
+        ],
+        "sentences_zh": [
+            "???????",
+            "????????"
         ]
     }
 ]

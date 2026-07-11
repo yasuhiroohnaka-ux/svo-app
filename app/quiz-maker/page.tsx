@@ -12,6 +12,7 @@ import styles from "./page.module.css";
 
 type Card = {
     id: string;
+    deck?: string;
     sentences: string[];
     sentences_zh?: string[];
     target?: string;
@@ -38,6 +39,8 @@ const translations = {
         on: "on",
         off: "off",
         deck: "Deck",
+        deckSize: "Cards",
+        allDecks: "All Sets",
         surprise: "Surprise",
         survivalMode: "Time Trial",
         flashInstruction: "flash: pick the correct",
@@ -93,6 +96,8 @@ const translations = {
         on: "オン",
         off: "オフ",
         deck: "デッキ",
+        deckSize: "枚数",
+        allDecks: "すべて",
         surprise: "サプライズ",
         survivalMode: "タイムトライアル",
         flashInstruction: "フラッシュ: 正しい答えを選ぶ",
@@ -148,6 +153,8 @@ const translations = {
         on: "开",
         off: "关",
         deck: "牌组",
+        deckSize: "张数",
+        allDecks: "全部",
         surprise: "惊喜",
         survivalMode: "计时挑战",
         flashInstruction: "闪卡：选择正确答案",
@@ -201,6 +208,14 @@ function shuffle<T>(arr: T[]): T[] {
     return a;
 }
 
+function getDeckLabel(deckId: string, uiLang: UiLang) {
+    const match = deckId.match(/^set(\d+)$/);
+    if (!match) return deckId;
+    if (uiLang === "ja") return `セット${match[1]}`;
+    if (uiLang === "zh") return `第${match[1]}组`;
+    return `Set ${match[1]}`;
+}
+
 export default function Page() {
     const [bootStep, setBootStep] = useState<BootStep>("boot");
     const [fallbackMode, setFallbackMode] = useState(false);
@@ -218,6 +233,7 @@ export default function Page() {
     }, []);
 
     const [cards, setCards] = useState<Card[]>([]);
+    const [selectedDeck, setSelectedDeck] = useState<string>("set1");
     const [mode, setMode] = useState<Mode>("flash");
     const [uiLang, setUiLang] = useState<UiLang>("ja");
     const [choiceCount, setChoiceCount] = useState<number>(4);
@@ -272,6 +288,48 @@ export default function Page() {
 
     const t = translations[uiLang];
 
+    const deckOptions = useMemo(() => {
+        const counts = new Map<string, number>();
+        for (const card of cards) {
+            const deck = card.deck || "set1";
+            counts.set(deck, (counts.get(deck) || 0) + 1);
+        }
+        return Array.from(counts.entries())
+            .map(([id, count]) => ({ id, count }))
+            .sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+    }, [cards]);
+
+    const deckCards = useMemo(() => {
+        if (selectedDeck === "all") return cards;
+        return cards.filter((card) => (card.deck || "set1") === selectedDeck);
+    }, [cards, selectedDeck]);
+
+    useEffect(() => {
+        if (cards.length === 0) return;
+        if (selectedDeck !== "all" && deckCards.length === 0 && deckOptions.length > 0) {
+            setSelectedDeck(deckOptions[0].id);
+        }
+    }, [cards.length, selectedDeck, deckCards.length, deckOptions]);
+
+    useEffect(() => {
+        if (deckCards.length === 0) return;
+        cancelSpeech();
+        if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+        setRemainingCards(deckCards);
+        setDeckSize((currentSize) => {
+            if (currentSize !== "all" && Number(currentSize) > deckCards.length) return "all";
+            return currentSize;
+        });
+        setScore(0);
+        setAiScore(0);
+        setStreak(0);
+        setIndex(0);
+        setFeedback(null);
+        setSpokenText("");
+        setElapsedTime(0);
+        setGameState("idle");
+    }, [deckCards]);
+
     // データ読み込み
     useEffect(() => {
         setBootStep("fetch");
@@ -285,8 +343,9 @@ export default function Page() {
 
                 // Validate and normalize
                 const arr = Array.isArray(data) ? data : [];
-                const normalized: Card[] = arr.map((x: any) => ({
+                const normalized: Card[] = arr.map((x: any, i: number) => ({
                     id: x.id,
+                    deck: typeof x.deck === "string" ? x.deck : `set${Math.floor(i / 16) + 1}`,
                     image: x.image,
                     sentences: Array.isArray(x.sentences) ? x.sentences : [x.sentence || ""],
                     sentences_zh: Array.isArray(x.sentences_zh) ? x.sentences_zh : undefined,
@@ -321,7 +380,7 @@ export default function Page() {
     }, []);
 
     // Determine current pool based on mode
-    const activePool = isSurvival ? remainingCards : cards;
+    const activePool = isSurvival ? remainingCards : deckCards;
     const current = activePool[index];
 
     // Helper to get text (content-language aware)
@@ -364,10 +423,10 @@ export default function Page() {
     const karutaChoiceCount = useMemo(() => {
         if (mode !== "karuta") return choiceCount;
         if (isSurvival) return activePool.length;
-        const total = cards.length;
+        const total = deckCards.length;
         if (deckSize === "all") return total;
         return Math.min(Number(deckSize), total);
-    }, [mode, deckSize, cards.length, choiceCount, isSurvival, activePool.length]);
+    }, [mode, deckSize, deckCards.length, choiceCount, isSurvival, activePool.length]);
 
     function nextCard() {
         if (activePool.length === 0) return;
@@ -419,7 +478,7 @@ export default function Page() {
             if (isSurvival) {
                 return survivalChoices;
             } else {
-                const pool = cards.filter((c) => c.id !== current.id);
+                const pool = deckCards.filter((c) => c.id !== current.id);
                 const n = Math.max(2, karutaChoiceCount);
                 const others = shuffle(pool).slice(0, n - 1);
                 return shuffle([current, ...others]).map((c) => c.image);
@@ -433,13 +492,13 @@ export default function Page() {
                 const others = shuffle(pool).slice(0, takeN);
                 return shuffle([current, ...others]).map((c) => getTargetText(c));
             } else {
-                const pool = cards.filter((c) => c.id !== current.id);
+                const pool = deckCards.filter((c) => c.id !== current.id);
                 const n = Math.max(2, effectiveN);
                 const others = shuffle(pool).slice(0, n - 1);
                 return shuffle([current, ...others]).map((c) => getTargetText(c));
             }
         }
-    }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, survivalChoices, contentLang]);
+    }, [deckCards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, survivalChoices, contentLang]);
 
     // AI Logic for VS Mode (Updated to hook into speech progress)
     const checkAiTrigger = useCallback((idx: number) => {
@@ -578,8 +637,8 @@ export default function Page() {
             const next = !prev;
             if (next) {
                 // Determine deck size (if 'all' or specific)
-                const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
-                const shuffled = shuffle(cards);
+                const targetCount = deckSize === "all" ? deckCards.length : Number(deckSize);
+                const shuffled = shuffle(deckCards);
                 setRemainingCards(shuffled.slice(0, targetCount));
                 setScore(0);
                 setAiScore(0);
@@ -596,8 +655,8 @@ export default function Page() {
     };
 
     const resetGame = () => {
-        const targetCount = deckSize === "all" ? cards.length : Number(deckSize);
-        setRemainingCards(shuffle(cards).slice(0, targetCount));
+        const targetCount = deckSize === "all" ? deckCards.length : Number(deckSize);
+        setRemainingCards(shuffle(deckCards).slice(0, targetCount));
         setScore(0);
         setAiScore(0);
         setStreak(0);
@@ -732,7 +791,7 @@ export default function Page() {
                     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
 
                     // Show Ranking Input
-                    const cardCount = deckSize === "all" ? cards.length : Number(deckSize);
+                    const cardCount = deckSize === "all" ? deckCards.length : Number(deckSize);
                     setPendingEntry({
                         name: "",
                         time: elapsedTime,
@@ -815,7 +874,7 @@ export default function Page() {
 
             {/* Score & Status */}
             <div className={styles.statusRow}>
-                {t.cards}: {isSurvival ? activePool.length : cards.length}
+                {t.cards}: {isSurvival ? activePool.length : deckCards.length}
                 {" / "}
                 {isVsMode ? (
                     <>
@@ -845,6 +904,25 @@ export default function Page() {
                     >
                         {t.contentLang}: {contentLang === "en" ? t.contentEn : t.contentZh}
                     </button>
+                </div>
+                <div className={styles.controlGroup}>
+                    <span style={{ fontSize: 14 }}>{t.deck}:</span>
+                    <select
+                        value={selectedDeck}
+                        onChange={(e) => {
+                            setSelectedDeck(e.target.value);
+                            setIsSurvival(false);
+                            setIsVsMode(false);
+                        }}
+                        className={styles.select}
+                    >
+                        {deckOptions.map((option) => (
+                            <option key={option.id} value={option.id}>
+                                {getDeckLabel(option.id, uiLang)} ({option.count})
+                            </option>
+                        ))}
+                        <option value="all">{t.allDecks} ({cards.length})</option>
+                    </select>
                 </div>
                 <div className={styles.controlGroup}>
                     <div>{t.mode}</div>
@@ -923,17 +1001,17 @@ export default function Page() {
                             <div style={{ opacity: 0.7 }}>|</div>
 
                             <div className={styles.controlGroup}>
-                                <span style={{ fontSize: 14 }}>{t.deck}:</span>
+                                <span style={{ fontSize: 14 }}>{t.deckSize}:</span>
                                 <select
                                     value={deckSize}
                                     onChange={(e) => setDeckSize(e.target.value === "all" ? "all" : Number(e.target.value))}
                                     className={styles.select}
                                     disabled={isSurvival}
                                 >
-                                    {[5, 10, 15, 20].filter(n => n <= cards.length).map(n => (
+                                    {[5, 10, 15, 20].filter(n => n <= deckCards.length).map(n => (
                                         <option key={n} value={n}>{n}</option>
                                     ))}
-                                    <option value="all">All ({cards.length})</option>
+                                    <option value="all">All ({deckCards.length})</option>
                                 </select>
                             </div>
 
@@ -941,7 +1019,7 @@ export default function Page() {
                                 onClick={() => {
                                     if (isVsMode) return;
                                     setIsSurvival(v => !v);
-                                    setRemainingCards(cards);
+                                    setRemainingCards(deckCards);
                                     setScore(0);
                                     setGameState("idle");
                                 }}
