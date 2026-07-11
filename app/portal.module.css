@@ -148,6 +148,10 @@
     --card-accent: #ff9f43;
 }
 
+.cardRhyme {
+    --card-accent: #f78fb3;
+}
+
 .cardSoon {
     --card-accent: #888;
     opacity: 0.6;

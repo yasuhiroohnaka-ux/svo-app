@@ -71,6 +71,15 @@ const apps = [
     tags: ["STORY", "VOICE", "QUIZ"],
     soon: false,
   },
+  {
+    href: "/ymeyme-rhyme",
+    className: styles.cardRhyme,
+    icon: "📜",
+    title: "Ymeyme\nRhyme",
+    desc: "毎月の英語の詩を読み上げで聞けます。作者・時代・語りつがれかたの解説つき。",
+    tags: ["POEM", "VOICE", "RHYME"],
+    soon: false,
+  },
 ];
 
 export default function PortalPage() {
