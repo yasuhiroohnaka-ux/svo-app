@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import SpeedControl from "@/app/components/SpeedControl";
 import { cancelSpeech, speak, speakQueue, unlockSpeech } from "@/utils/speak";
 import {
   BOOKLET_LABELS,
@@ -162,6 +163,7 @@ export default function YmeymeRhymePage() {
               </button>
             )}
             <span className={styles.hint}>行をタップすると その行だけ 聞けるよ</span>
+            <SpeedControl />
           </div>
 
           <div className={styles.poemBody}>

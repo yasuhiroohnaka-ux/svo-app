@@ -6,6 +6,7 @@ import { speak, speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { getRanking, saveRanking, clearRanking, formatTime, type RankEntry } from "@/utils/ranking";
 import BootDebugOverlay from "@/app/components/BootDebugOverlay";
+import SpeedControl from "@/app/components/SpeedControl";
 import { hasFatalFeatureGap, runFeatureCheck, type BootStep } from "@/utils/bootDiagnostics";
 
 import styles from "./page.module.css";
@@ -965,6 +966,13 @@ export default function Page() {
                         >
                             {t.autoSpeak}: {autoSpeak ? t.on : t.off}
                         </button>
+                    </div>
+                )}
+
+                {showAdvancedControls && (
+                    <div className={styles.controlGroup}>
+                        <div style={{ opacity: 0.7 }}>|</div>
+                        <SpeedControl />
                     </div>
                 )}
 

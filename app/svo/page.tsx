@@ -9,6 +9,7 @@ import { formatTime } from "@/utils/ranking";
 
 import { loadCards, pickRandomIndex, shuffle } from "./data";
 import { loadLv2Cards } from "@/app/lib/lv2Cards";
+import SpeedControl from "@/app/components/SpeedControl";
 import type { Card, ContentLang, Feedback, Mode, TrickSentence, UiLang } from "./types";
 import { useGameTimer } from "./useGameTimer";
 import { useRanking } from "./useRanking";
@@ -936,6 +937,13 @@ export default function Page() {
             >
               {t.autoSpeak}: {autoSpeak ? t.on : t.off}
             </button>
+          </div>
+        )}
+
+        {showAdvancedControls && (
+          <div className={styles.controlGroup}>
+            <div style={{ opacity: 0.7 }}>|</div>
+            <SpeedControl />
           </div>
         )}
 

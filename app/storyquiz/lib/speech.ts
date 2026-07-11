@@ -1,5 +1,7 @@
 "use client";
 
+import { applySpeechSpeed } from "@/utils/speak";
+
 export type SpeakOptions = {
   lang?: string;
   rate?: number;
@@ -140,7 +142,7 @@ export function speak(text: string, options: SpeakOptions = {}) {
     const utterance = new SpeechSynthesisUtterance(text);
     currentUtterance = utterance;
     utterance.lang = options.lang ?? "en-US";
-    utterance.rate = options.rate ?? STORYQUIZ_SPEECH_RATE.story;
+    utterance.rate = applySpeechSpeed(options.rate ?? STORYQUIZ_SPEECH_RATE.story);
     utterance.pitch = options.pitch ?? 1;
     utterance.volume = options.volume ?? 1;
     utterance.voice = pickVoice(synth, utterance.lang);

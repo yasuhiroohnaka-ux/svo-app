@@ -16,6 +16,7 @@ import {
 import BootDebugOverlay from "@/app/components/BootDebugOverlay";
 import HanamaruMark from "@/app/components/HanamaruMark";
 import { hasFatalFeatureGap, runFeatureCheck, type BootStep } from "@/utils/bootDiagnostics";
+import { applySpeechSpeed } from "@/utils/speak";
 
 type ViewMode = "setup" | "poster" | "challenge" | "soundQuiz";
 type FeedbackKind = "idle" | "correct" | "tryAgain" | "empty";
@@ -369,7 +370,7 @@ export default function PhonicsPage() {
         speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = "en-US";
-        utterance.rate = rate;
+        utterance.rate = applySpeechSpeed(rate);
         speechSynthesis.speak(utterance);
     };
 

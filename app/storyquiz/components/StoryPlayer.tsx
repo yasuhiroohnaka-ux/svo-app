@@ -9,6 +9,7 @@ import {
 } from "../lib/speech";
 import type { StoryPart, StorySegment } from "../types";
 import AnswerPanel, { type AnswerResult } from "./AnswerPanel";
+import SpeedControl from "@/app/components/SpeedControl";
 import styles from "../storyquiz.module.css";
 
 type Phase = "intro" | "reading" | "question" | "feedback" | "done";
@@ -154,6 +155,7 @@ export default function StoryPlayer({ part, choiceOrderSeed, onComplete }: Props
             </button>
           )}
         </div>
+        <SpeedControl />
       </section>
 
       {phase === "intro" && (

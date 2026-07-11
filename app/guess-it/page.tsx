@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import SpeedControl from "@/app/components/SpeedControl";
 import { cancelSpeech, speakQueue, unlockSpeech } from "@/utils/speak";
 import styles from "./page.module.css";
 
@@ -709,6 +710,7 @@ export default function GuessItPage() {
           >
             音声
           </button>
+          <SpeedControl />
         </div>
       </header>
 

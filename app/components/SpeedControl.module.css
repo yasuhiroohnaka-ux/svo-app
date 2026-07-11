@@ -1,0 +1,46 @@
+.root {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.label {
+    font-size: 13px;
+    font-weight: 800;
+    color: inherit;
+    opacity: 0.75;
+}
+
+.buttons {
+    display: inline-flex;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 2px solid rgba(0, 0, 0, 0.18);
+    background: rgba(255, 255, 255, 0.85);
+}
+
+.button,
+.buttonActive {
+    min-height: 40px;
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 800;
+    color: #555;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.button + .button,
+.button + .buttonActive,
+.buttonActive + .button {
+    border-left: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.buttonActive {
+    background: #e8833a;
+    color: #fff;
+}

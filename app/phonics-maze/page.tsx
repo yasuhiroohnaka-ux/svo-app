@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import { applySpeechSpeed } from "@/utils/speak";
 import styles from "./page.module.css";
 
 const SOUND_IDS = [
@@ -402,7 +403,7 @@ const speakFallback = (text: string): Promise<void> =>
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "en-US";
-    utterance.rate = 0.7;
+    utterance.rate = applySpeechSpeed(0.7);
     utterance.onend = () => resolve();
     utterance.onerror = () => resolve();
     window.speechSynthesis.speak(utterance);

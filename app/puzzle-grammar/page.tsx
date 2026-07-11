@@ -8,6 +8,7 @@ import { loadCards, shuffle } from "../svo/data";
 import type { Card } from "../svo/types";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { speak, cancelSpeech, unlockSpeech } from "@/utils/speak";
+import SpeedControl from "@/app/components/SpeedControl";
 import HanamaruMark from "@/app/components/HanamaruMark";
 
 import PuzzlePiece, { pieceWidth, type Role } from "./PuzzlePiece";
@@ -498,6 +499,7 @@ export default function Page() {
       >
         {lv2Ready ? "レベル2" : "レベル2(じゅんびちゅう)"}
       </button>
+      <SpeedControl />
     </div>
   );
 
