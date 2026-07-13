@@ -69,6 +69,75 @@
     font-weight: 900;
 }
 
+.homeLink {
+    justify-content: center;
+    min-width: 52px;
+    min-height: 52px;
+    padding: 8px;
+    font-size: 1.65rem;
+}
+
+.gameToolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: min(1180px, 100%);
+    margin: 0 auto 18px;
+}
+
+.backButton {
+    min-height: 52px;
+    padding: 10px 16px;
+    border: 2px solid #8bb5c8;
+    background: #ffffff;
+    color: #17324d;
+    font-size: 1rem;
+    font-weight: 1000;
+    cursor: pointer;
+    box-shadow: 3px 3px 0 rgba(33, 60, 97, 0.14);
+    touch-action: manipulation;
+}
+
+.progressTrail {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 58px;
+    padding: 8px 16px;
+    border: 3px solid #b9d4df;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 3px 3px 0 rgba(33, 60, 97, 0.12);
+}
+
+.progressTrail span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    font-size: 1.55rem;
+}
+
+.progressTrail i {
+    color: #6f8da0;
+    font-style: normal;
+    font-weight: 1000;
+}
+
+.progressActive {
+    background: #fff2c6;
+    box-shadow: 0 0 0 3px #ffcf4d;
+}
+
+.progressPending {
+    background: #edf4f7;
+    filter: grayscale(1);
+    opacity: 0.56;
+}
+
 .modeTabs {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -344,6 +413,51 @@
     justify-content: center;
 }
 
+.listenButton,
+.hintButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-width: 172px;
+    min-height: 76px;
+    padding: 12px 20px;
+    border: 0;
+    background: #48d6c9;
+    color: #17324d;
+    cursor: pointer;
+    box-shadow: 5px 5px 0 rgba(33, 60, 97, 0.18);
+    touch-action: manipulation;
+}
+
+.listenButton > span,
+.hintButton > span {
+    font-size: 2rem;
+}
+
+.listenButton strong,
+.hintButton strong {
+    font-size: 1.25rem;
+    font-weight: 1000;
+}
+
+.hintButton {
+    flex-wrap: wrap;
+    background: #fff2c6;
+}
+
+.hintButton small {
+    flex-basis: 100%;
+    color: #9b6b00;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+}
+
+.hintButton:disabled {
+    cursor: default;
+    opacity: 0.76;
+}
+
 .soundMysterySlot {
     display: flex;
     justify-content: center;
@@ -438,7 +552,6 @@
     cursor: pointer;
     touch-action: manipulation;
     user-select: none;
-    -webkit-user-drag: none;
     -webkit-tap-highlight-color: transparent;
 }
 
@@ -459,6 +572,14 @@
 .challengePanel {
     width: 100%;
     padding: 24px;
+}
+
+.challengeControls {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 14px;
+    margin: 18px 0;
 }
 
 .blankWord {
@@ -644,8 +765,39 @@
 }
 
 .retryButton {
+    display: block;
     width: min(260px, 100%);
+    min-height: 62px;
     margin: 12px auto 0;
+    padding: 12px 18px;
+    border: 0;
+    background: #fff2c6;
+    color: #755200;
+    font-size: 1.08rem;
+    font-weight: 1000;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 rgba(138, 90, 0, 0.14);
+    touch-action: manipulation;
+}
+
+.contextAction {
+    display: flex;
+    justify-content: center;
+    margin: 18px 0 4px;
+}
+
+.nextButton {
+    min-width: min(320px, 100%);
+    min-height: 74px;
+    padding: 14px 28px;
+    border: 0;
+    background: #48d6c9;
+    color: #17324d;
+    font-size: clamp(1.3rem, 3vw, 1.8rem);
+    font-weight: 1000;
+    cursor: pointer;
+    box-shadow: 5px 5px 0 rgba(33, 60, 97, 0.18);
+    touch-action: manipulation;
 }
 
 .resultBadge {
@@ -741,7 +893,108 @@
     padding: 12px 14px;
     background: #213c61;
     color: #f5fbff;
+    font-size: 0.92rem;
     font-weight: 900;
+}
+
+.teacherGear {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 20;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    border: 3px solid #8bb5c8;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #456078;
+    font-size: 1.55rem;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 rgba(33, 60, 97, 0.18);
+    touch-action: none;
+    user-select: none;
+}
+
+.teacherOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(18, 43, 65, 0.72);
+}
+
+.teacherPanel {
+    width: min(980px, 100%);
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    padding: 22px;
+    border: 4px solid #8bb5c8;
+    background: #f9fdff;
+    color: #17324d;
+    box-shadow: 8px 8px 0 rgba(9, 27, 42, 0.3);
+}
+
+.teacherPanelHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.teacherPanelHeader h2,
+.teacherPanel h3 {
+    margin: 0;
+}
+
+.teacherPanel h3 {
+    margin-top: 22px;
+}
+
+.closeTeacherButton {
+    min-height: 48px;
+    padding: 10px 14px;
+    border: 2px solid #8bb5c8;
+    background: #ffffff;
+    color: #17324d;
+    font-weight: 1000;
+    cursor: pointer;
+}
+
+.teacherSettings {
+    display: grid;
+    gap: 18px;
+    margin-top: 22px;
+    padding: 18px;
+    border: 3px solid #d7e8f0;
+    background: #ffffff;
+}
+
+.autoAdvanceSetting {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 52px;
+    color: #17324d;
+    font-weight: 1000;
+    cursor: pointer;
+}
+
+.autoAdvanceSetting input {
+    width: 26px;
+    height: 26px;
+}
+
+.teacherActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
 }
 
 @media (max-width: 860px) {
@@ -749,6 +1002,10 @@
     .sectionHeader,
     .challengeTop {
         flex-direction: column;
+        align-items: stretch;
+    }
+
+    .gameToolbar {
         align-items: stretch;
     }
 
@@ -778,6 +1035,20 @@
     .headerBar {
         gap: 12px;
         margin-bottom: 12px;
+    }
+
+    .gameToolbar {
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .backButton {
+        align-self: flex-start;
+    }
+
+    .progressTrail {
+        align-self: stretch;
     }
 
     .modeTabs {
@@ -897,6 +1168,29 @@
         margin: 14px 0;
     }
 
+    .challengeControls {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .listenButton,
+    .hintButton {
+        min-width: 0;
+        min-height: 70px;
+        padding: 10px;
+    }
+
+    .listenButton > span,
+    .hintButton > span {
+        font-size: 1.65rem;
+    }
+
+    .listenButton strong,
+    .hintButton strong {
+        font-size: 1.05rem;
+    }
+
     .bigActions .primaryButton,
     .actions .primaryButton {
         grid-column: 1 / -1;
@@ -993,5 +1287,24 @@
 
     .notice {
         margin-top: 12px;
+        margin-bottom: 68px;
+    }
+
+    .teacherGear {
+        right: 12px;
+        bottom: 12px;
+    }
+
+    .teacherOverlay {
+        padding: 8px;
+    }
+
+    .teacherPanel {
+        max-height: calc(100vh - 16px);
+        padding: 14px;
+    }
+
+    .teacherPanelHeader {
+        align-items: center;
     }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type DragEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type DragEvent, type PointerEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import styles from "./page.module.css";
@@ -15,17 +15,19 @@ import {
 } from "./PhonicsData";
 import BootDebugOverlay from "@/app/components/BootDebugOverlay";
 import HanamaruMark from "@/app/components/HanamaruMark";
+import SpeedControl from "@/app/components/SpeedControl";
 import { hasFatalFeatureGap, runFeatureCheck, type BootStep } from "@/utils/bootDiagnostics";
-import { applySpeechSpeed } from "@/utils/speak";
+import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
+import { applySpeechSpeed, unlockSpeech } from "@/utils/speak";
 
 type ViewMode = "setup" | "poster" | "challenge" | "soundQuiz";
 type FeedbackKind = "idle" | "correct" | "tryAgain" | "empty";
-type EntryMode = "direct" | "sound" | "word" | "set";
 type CorrectWordsByLevel = Record<string, string[]>;
 
 const LOW_WORD_COUNT_HINT = "ことばが少ないときは、ほかのレベルも 見てみよう。";
 const WORD_AUDIO_GUIDE = "きいて、まねして、こえにだしてみよう。";
 const CORRECT_WORDS_STORAGE_PREFIX = "phonics.correctWords.";
+const AUTO_ADVANCE_STORAGE_KEY = "phonics.autoAdvance";
 const LEVEL_4_NEW_SOUND_IDS = ["s", "f", "h"];
 
 const getPhonicById = (id: string): Phonic | undefined => PHONICS_DATA.find((phonic) => phonic.id === id);
@@ -94,13 +96,6 @@ const pickRandomId = (ids: string[], usedIds: string[]): string | null => {
 
 const makeEmptySlots = (word: LessonWord | null): (string | null)[] => (word ? word.phonics.map(() => null) : []);
 
-const getEntryMode = (entry: string | null): EntryMode => {
-    if (entry === "sound" || entry === "word" || entry === "set") {
-        return entry;
-    }
-    return "direct";
-};
-
 const FeedbackBadge = ({ kind }: { kind: FeedbackKind }) => {
     if (kind === "correct") {
         return (
@@ -144,10 +139,22 @@ export default function PhonicsPage() {
     const [soundQuizAnswered, setSoundQuizAnswered] = useState(false);
     const [soundQuizFeedback, setSoundQuizFeedback] = useState("きいて、どのカードか さがそう。");
     const [soundQuizFeedbackKind, setSoundQuizFeedbackKind] = useState<FeedbackKind>("idle");
-    const [entryMode, setEntryMode] = useState<EntryMode>("direct");
+    const [teacherPanelOpen, setTeacherPanelOpen] = useState(false);
+    const [autoAdvance, setAutoAdvance] = useState(() => {
+        if (typeof window === "undefined") return true;
+        try {
+            return window.localStorage.getItem(AUTO_ADVANCE_STORAGE_KEY) !== "false";
+        } catch {
+            return true;
+        }
+    });
     const [correctWordsByLevel, setCorrectWordsByLevel] = useState<CorrectWordsByLevel>(() =>
         readCorrectWordsByLevelFromStorage(),
     );
+    const teacherHoldTimerRef = useRef<number | null>(null);
+    const wordAdvanceTimerRef = useRef<number | null>(null);
+    const soundAdvanceTimerRef = useRef<number | null>(null);
+    const wrongAttemptsRef = useRef(0);
 
     const selectedPhonics = useMemo(
         () => selectedIds.map((id) => getPhonicById(id)).filter((phonic): phonic is Phonic => Boolean(phonic)),
@@ -260,96 +267,12 @@ export default function PhonicsPage() {
             setIsAuthorized(false);
             setBootStep("ready");
         }
-
-        const applyEntryMode = () => {
-            const nextEntryMode = getEntryMode(new URLSearchParams(window.location.search).get("entry"));
-            const latestCorrectWords = readCorrectWordsByLevelFromStorage();
-            setEntryMode(nextEntryMode);
-
-            if (nextEntryMode === "direct") {
-                return;
-            }
-
-            if (nextEntryMode === "sound") {
-                const soundLevel = PHONICS_LEVELS.find((level) => level.id === "level-0") ?? PHONICS_LEVELS[0];
-                const firstSoundId = soundLevel.targetIds[0] ?? null;
-                setSelectedLevelId(soundLevel.id);
-                setSelectedIds(soundLevel.targetIds);
-                setCurrentWord(null);
-                setUsedWordIds([]);
-                setAnswerSlots([]);
-                setHintLevel(0);
-                setCurrentSoundTargetId(firstSoundId);
-                setUsedSoundTargetIds(firstSoundId ? [firstSoundId] : []);
-                setSoundQuizAnswered(false);
-                setSoundQuizFeedback("きいて、どのカードか さがそう。");
-                setSoundQuizFeedbackKind("idle");
-                setMode("soundQuiz");
-                setNotice("きいてみよう を おしてね。");
-                return;
-            }
-
-            const wordLevel = PHONICS_LEVELS.find((level) => level.id === "level-1") ?? PHONICS_LEVELS[1] ?? PHONICS_LEVELS[0];
-            const isWordEntry = nextEntryMode === "word";
-            const correctWordIds = latestCorrectWords[wordLevel.id] ?? [];
-            const firstWord =
-                LESSON_WORDS.find(
-                    (word) =>
-                        word.levelIds.includes(wordLevel.id) &&
-                        word.phonics.every((id) => wordLevel.targetIds.includes(id)) &&
-                        !correctWordIds.includes(word.id),
-                ) ?? null;
-            setSelectedLevelId(wordLevel.id);
-            setSelectedIds(wordLevel.targetIds);
-            setCurrentWord(isWordEntry ? firstWord : null);
-            setUsedWordIds(isWordEntry && firstWord ? [firstWord.id] : []);
-            setAnswerSlots(isWordEntry ? makeEmptySlots(firstWord) : []);
-            setHintLevel(0);
-            setFeedback("まずは ことばを きいてみよう。");
-            setFeedbackKind("idle");
-            setCurrentSoundTargetId(null);
-            setUsedSoundTargetIds([]);
-            setSoundQuizAnswered(false);
-            setMode(isWordEntry ? "challenge" : "setup");
-            setNotice(isWordEntry ? "きいて、カードをならべてみよう。" : "レベル1のカードで はじめよう。");
-        };
-
-        applyEntryMode();
-
-        const handleUrlChange = () => applyEntryMode();
-        const originalPushState = window.history.pushState;
-        const originalReplaceState = window.history.replaceState;
-
-        const patchedPushState: History["pushState"] = (...args) => {
-            originalPushState.apply(window.history, args);
-            window.dispatchEvent(new Event("phonics-entry-change"));
-        };
-
-        const patchedReplaceState: History["replaceState"] = (...args) => {
-            originalReplaceState.apply(window.history, args);
-            window.dispatchEvent(new Event("phonics-entry-change"));
-        };
-
-        window.history.pushState = patchedPushState;
-        window.history.replaceState = patchedReplaceState;
-        window.addEventListener("popstate", handleUrlChange);
-        window.addEventListener("phonics-entry-change", handleUrlChange);
-
-        return () => {
-            window.removeEventListener("popstate", handleUrlChange);
-            window.removeEventListener("phonics-entry-change", handleUrlChange);
-            if (window.history.pushState === patchedPushState) {
-                window.history.pushState = originalPushState;
-            }
-            if (window.history.replaceState === patchedReplaceState) {
-                window.history.replaceState = originalReplaceState;
-            }
-        };
     }, []);
 
     const resetAnswerState = (word: LessonWord | null) => {
         setAnswerSlots(makeEmptySlots(word));
         setHintLevel(0);
+        wrongAttemptsRef.current = 0;
         setFeedback("まずは ことばを きいてみよう。");
         setFeedbackKind("idle");
     };
@@ -410,21 +333,25 @@ export default function PhonicsPage() {
         playPhonicSound(phonic, 0.76);
     };
 
-    const playWord = (slow = false) => {
-        if (!currentWord) return;
-        const wordAudio = currentWord.wordAudio ?? currentWord.audio;
+    const playWordValue = (word: LessonWord, slow = false) => {
+        const wordAudio = word.wordAudio ?? word.audio;
 
         if (wordAudio) {
             const audio = new Audio(wordAudio);
             audio.play().catch(() => {
                 setNotice(WORD_AUDIO_GUIDE);
-                playSpeech(currentWord.text, slow ? 0.58 : 0.82);
+                playSpeech(word.text, slow ? 0.58 : 0.82);
             });
             return;
         }
 
         setNotice(WORD_AUDIO_GUIDE);
-        playSpeech(currentWord.text, slow ? 0.58 : 0.82);
+        playSpeech(word.text, slow ? 0.58 : 0.82);
+    };
+
+    const playWord = (slow = false) => {
+        if (!currentWord) return;
+        playWordValue(currentWord, slow);
     };
 
     const playSoundPart = (index: number) => {
@@ -452,22 +379,31 @@ export default function PhonicsPage() {
         setUsedSoundTargetIds([]);
         resetAnswerState(null);
         resetSoundQuizState();
+        setMode("setup");
     };
 
-    const chooseNextWord = (keepCurrent = false) => {
+    const chooseNextWord = (keepCurrent = false, excludedWordIds: string[] = []) => {
+        if (wordAdvanceTimerRef.current) {
+            clearTimeout(wordAdvanceTimerRef.current);
+            wordAdvanceTimerRef.current = null;
+        }
         if (keepCurrent && currentWord && !correctWordIdsForLevel.includes(currentWord.id)) {
             resetAnswerState(currentWord);
             setFeedback("もういっかい やってみよう。");
             return;
         }
 
-        const nextWord = pickRandomWord(preferredAvailableWords, usedWordIds);
+        const nextWord = pickRandomWord(
+            preferredAvailableWords.filter((word) => !excludedWordIds.includes(word.id)),
+            usedWordIds,
+        );
         setCurrentWord(nextWord);
         resetAnswerState(nextWord);
 
         if (nextWord) {
             setUsedWordIds((current) => (current.includes(nextWord.id) ? current : [...current, nextWord.id]));
             setNotice("きいて、カードをならべてみよう。");
+            playWordValue(nextWord);
         } else {
             setNotice(
                 selectedLevel.mode === "practice-first"
@@ -487,6 +423,8 @@ export default function PhonicsPage() {
     };
 
     const startChallenge = () => {
+        unlockAudio();
+        unlockSpeech();
         if (selectedLevel.mode === "practice-first") {
             startSoundQuiz();
             return;
@@ -496,8 +434,13 @@ export default function PhonicsPage() {
         chooseNextWord(false);
     };
 
-    const chooseNextSoundTarget = () => {
-        const nextTargetId = pickRandomId(selectedIds, usedSoundTargetIds);
+    const chooseNextSoundTarget = (excludedIds: string[] = []) => {
+        if (soundAdvanceTimerRef.current) {
+            clearTimeout(soundAdvanceTimerRef.current);
+            soundAdvanceTimerRef.current = null;
+        }
+        const unexcludedIds = selectedIds.filter((id) => !excludedIds.includes(id));
+        const nextTargetId = pickRandomId(unexcludedIds.length > 0 ? unexcludedIds : selectedIds, usedSoundTargetIds);
         setCurrentSoundTargetId(nextTargetId);
         setSoundQuizAnswered(false);
         setSoundQuizFeedback("きいて、どのカードか さがそう。");
@@ -505,7 +448,9 @@ export default function PhonicsPage() {
 
         if (nextTargetId) {
             setUsedSoundTargetIds((current) => (current.includes(nextTargetId) ? current : [...current, nextTargetId]));
-            setNotice("きいてみよう を おしてね。");
+            setNotice("おとを きいて、カードを さがそう。");
+            const phonic = getPhonicById(nextTargetId);
+            if (phonic) playPhonicSound(phonic, 0.76);
         } else {
             setNotice("おとカードを えらんでみよう。");
             setSoundQuizFeedback("きょうの おとを えらんでね。");
@@ -514,25 +459,36 @@ export default function PhonicsPage() {
     };
 
     const startSoundQuiz = () => {
+        unlockAudio();
+        unlockSpeech();
         setMode("soundQuiz");
         chooseNextSoundTarget();
     };
 
     const checkSoundAnswer = (id: string) => {
-        if (!currentSoundTargetId) return;
-        setSoundQuizAnswered(true);
+        if (!currentSoundTargetId || soundQuizFeedbackKind === "correct") return;
 
         if (id === currentSoundTargetId) {
+            setSoundQuizAnswered(true);
             setSoundQuizFeedback("できた！");
             setSoundQuizFeedbackKind("correct");
+            playChime();
+            if (autoAdvance) {
+                const answeredId = currentSoundTargetId;
+                soundAdvanceTimerRef.current = window.setTimeout(() => chooseNextSoundTarget([answeredId]), 2000);
+            }
         } else {
+            setSoundQuizAnswered(false);
             setSoundQuizFeedback("もういちど きいてみよう。");
             setSoundQuizFeedbackKind("tryAgain");
+            playBuzz();
         }
     };
 
     const chooseLevel = (levelId: string) => {
         const nextLevel = PHONICS_LEVELS.find((level) => level.id === levelId) ?? PHONICS_LEVELS[0];
+        unlockAudio();
+        unlockSpeech();
         setSelectedLevelId(nextLevel.id);
         setSelectedIds(nextLevel.targetIds);
         setCurrentWord(null);
@@ -540,12 +496,30 @@ export default function PhonicsPage() {
         setUsedSoundTargetIds([]);
         resetAnswerState(null);
         resetSoundQuizState();
-        setMode(nextLevel.mode === "practice-first" ? "poster" : "setup");
-        setNotice(`${nextLevel.label}に したよ。`);
+        if (nextLevel.mode === "practice-first") {
+            setMode("poster");
+            setNotice("カードを おして、おとを きいてみよう。");
+            return;
+        }
+
+        const correctIds = correctWordsByLevel[nextLevel.id] ?? [];
+        const nextWords = LESSON_WORDS.filter(
+            (word) =>
+                word.levelIds.includes(nextLevel.id) &&
+                word.phonics.every((id) => nextLevel.targetIds.includes(id)) &&
+                !correctIds.includes(word.id),
+        );
+        const nextWord = pickRandomWord(getPreferredWordPool(nextLevel.id, nextWords), []);
+        setMode("challenge");
+        setCurrentWord(nextWord);
+        resetAnswerState(nextWord);
+        setUsedWordIds(nextWord ? [nextWord.id] : []);
+        setNotice(nextWord ? "きいて、カードをならべてみよう。" : "きょうの クイズは ぜんぶ できた！");
+        if (nextWord) playWordValue(nextWord);
     };
 
     const addCardToNextSlot = (id: string) => {
-        if (!currentWord) return;
+        if (!currentWord || feedbackKind === "correct") return;
 
         const nextEmptyIndex = answerSlots.findIndex((slot) => slot === null);
         if (nextEmptyIndex === -1) {
@@ -554,28 +528,31 @@ export default function PhonicsPage() {
             return;
         }
 
-        setAnswerSlots((current) => {
-            const next = [...current];
-            next[nextEmptyIndex] = id;
-            return next;
-        });
+        const next = [...answerSlots];
+        next[nextEmptyIndex] = id;
+        setAnswerSlots(next);
         setFeedback("ならべてみよう。");
         setFeedbackKind("idle");
+        if (next.every((slot) => slot !== null)) {
+            window.setTimeout(() => checkAnswer(next), 0);
+        }
     };
 
     const placeCardInSlot = (id: string, slotIndex: number) => {
-        if (!currentWord) return;
+        if (!currentWord || feedbackKind === "correct") return;
 
-        setAnswerSlots((current) => {
-            const next = [...current];
-            next[slotIndex] = id;
-            return next;
-        });
+        const next = [...answerSlots];
+        next[slotIndex] = id;
+        setAnswerSlots(next);
         setFeedback("ならべてみよう。");
         setFeedbackKind("idle");
+        if (next.every((slot) => slot !== null)) {
+            window.setTimeout(() => checkAnswer(next), 0);
+        }
     };
 
     const removeSlot = (slotIndex: number) => {
+        if (feedbackKind === "correct") return;
         setAnswerSlots((current) => {
             const next = [...current];
             next[slotIndex] = null;
@@ -585,34 +562,31 @@ export default function PhonicsPage() {
         setFeedbackKind("idle");
     };
 
-    const resetSlots = () => {
-        setAnswerSlots(makeEmptySlots(currentWord));
-        setFeedback("からにしたよ。");
-        setFeedbackKind("idle");
-    };
-
-    const checkAnswer = () => {
+    const checkAnswer = (slots: (string | null)[]) => {
         if (!currentWord) return;
 
-        const isIncomplete = answerSlots.length !== currentWord.phonics.length || answerSlots.some((slot) => slot === null);
-        if (isIncomplete) {
-            setFeedback("まだ あいている ところが あるよ。");
-            setFeedbackKind("empty");
-            return;
-        }
-
-        const isCorrect = currentWord.phonics.every((id, index) => answerSlots[index] === id);
+        const isCorrect = currentWord.phonics.every((id, index) => slots[index] === id);
         if (isCorrect) {
             markWordCorrectToday(selectedLevel.id, currentWord.id);
             setFeedback("できた！");
             setFeedbackKind("correct");
+            playChime();
+            playWordValue(currentWord);
+            if (autoAdvance) {
+                const answeredWordId = currentWord.id;
+                wordAdvanceTimerRef.current = window.setTimeout(() => chooseNextWord(false, [answeredWordId]), 2000);
+            }
         } else {
             setFeedback("もういちど きいてみよう。");
             setFeedbackKind("tryAgain");
+            wrongAttemptsRef.current += 1;
+            if (wrongAttemptsRef.current >= 2) setHintLevel((level) => Math.max(level, 1));
+            playBuzz();
         }
     };
 
     const retryWordAnswer = () => {
+        setAnswerSlots(makeEmptySlots(currentWord));
         setFeedback("もういちど ならべてみよう。");
         setFeedbackKind("idle");
     };
@@ -635,17 +609,65 @@ export default function PhonicsPage() {
         setNotice("でた ことばを リセットしたよ。");
     };
 
+    const setAutoAdvancePreference = (enabled: boolean) => {
+        setAutoAdvance(enabled);
+        safeSetLocalStorage(AUTO_ADVANCE_STORAGE_KEY, String(enabled));
+        if (!enabled) {
+            if (wordAdvanceTimerRef.current) clearTimeout(wordAdvanceTimerRef.current);
+            if (soundAdvanceTimerRef.current) clearTimeout(soundAdvanceTimerRef.current);
+            wordAdvanceTimerRef.current = null;
+            soundAdvanceTimerRef.current = null;
+        }
+    };
+
+    const stopTeacherHold = () => {
+        if (!teacherHoldTimerRef.current) return;
+        clearTimeout(teacherHoldTimerRef.current);
+        teacherHoldTimerRef.current = null;
+    };
+
+    const startTeacherHold = (event: PointerEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        stopTeacherHold();
+        teacherHoldTimerRef.current = window.setTimeout(() => {
+            setTeacherPanelOpen(true);
+            teacherHoldTimerRef.current = null;
+        }, 1000);
+    };
+
+    const goBack = () => {
+        if (wordAdvanceTimerRef.current) clearTimeout(wordAdvanceTimerRef.current);
+        if (soundAdvanceTimerRef.current) clearTimeout(soundAdvanceTimerRef.current);
+        wordAdvanceTimerRef.current = null;
+        soundAdvanceTimerRef.current = null;
+        if (mode === "soundQuiz") {
+            setMode("poster");
+            setNotice("カードを おして、おとを きいてみよう。");
+            return;
+        }
+        setMode("setup");
+        setNotice(WORD_AUDIO_GUIDE);
+    };
+
+    const advanceHint = () => {
+        setHintLevel((level) => Math.min(4, level + 1));
+    };
+
+    useEffect(() => {
+        return () => {
+            if (teacherHoldTimerRef.current) clearTimeout(teacherHoldTimerRef.current);
+            if (wordAdvanceTimerRef.current) clearTimeout(wordAdvanceTimerRef.current);
+            if (soundAdvanceTimerRef.current) clearTimeout(soundAdvanceTimerRef.current);
+        };
+    }, []);
+
     const hintThreeText = currentWord ? [currentWord.text[0], ...currentWord.text.slice(1).split("").map(() => "?")].join(" ") : "";
     const hintFourText = currentWord ? currentWord.phonics.join(" / ") : "";
-    const showWordPrompt = entryMode === "word";
     const hiddenLetters = currentWord
-        ? currentWord.text.split("").map((letter, index) => {
-              if (showWordPrompt) return letter;
-              if (hintLevel >= 3 && index === 0) return letter;
-              return "?";
-          })
+        ? currentWord.text.split("").map((letter, index) => (hintLevel >= 3 && index === 0 ? letter : "?"))
         : [];
     const currentSoundPhonic = currentSoundTargetId ? getPhonicById(currentSoundTargetId) : null;
+    const showSuccessStep = feedbackKind === "correct" || soundQuizFeedbackKind === "correct";
 
     if (fallbackMode) {
         return (
@@ -691,42 +713,48 @@ export default function PhonicsPage() {
                     <h1 className={styles.title}>oto-man</h1>
                 </div>
                 <nav className={styles.nav}>
-                    <Link className={styles.navLink} href="/">
-                        トップ
-                    </Link>
-                    <Link className={styles.navLink} href="/svo">
-                        SVOカルタ
-                    </Link>
-                    <Link className={styles.navLink} href="/quiz-maker">
-                        Quiz Maker
-                    </Link>
+                    {mode === "setup" ? (
+                        <>
+                            <Link className={styles.navLink} href="/">
+                                トップ
+                            </Link>
+                            <Link className={styles.navLink} href="/svo">
+                                SVOカルタ
+                            </Link>
+                            <Link className={styles.navLink} href="/quiz-maker">
+                                Quiz Maker
+                            </Link>
+                        </>
+                    ) : (
+                        <Link className={`${styles.navLink} ${styles.homeLink}`} href="/" aria-label="トップへ">
+                            🏠
+                        </Link>
+                    )}
                 </nav>
             </header>
 
-            <section className={styles.modeTabs} aria-label="あそびのながれ">
-                <button className={mode === "setup" ? styles.modeActive : styles.modeButton} onClick={() => setMode("setup")}>
-                    1. きょうの おと
-                </button>
-                <button className={mode === "poster" ? styles.modeActive : styles.modeButton} onClick={() => setMode("poster")}>
-                    2. おとカード
-                </button>
-                <button
-                    className={mode === "challenge" || mode === "soundQuiz" ? styles.modeActive : styles.modeButton}
-                    onClick={startChallenge}
-                    disabled={selectedLevel.mode !== "practice-first" && levelWords.length === 0}
-                >
-                    {selectedLevel.mode === "practice-first" ? "3. おとを さがそう" : "3. クイズに ちょうせん！"}
-                </button>
-            </section>
+            {mode !== "setup" && (
+                <section className={styles.gameToolbar} aria-label="あそびの ながれ">
+                    <button className={styles.backButton} onClick={goBack} type="button">
+                        ← もどる
+                    </button>
+                    <div className={styles.progressTrail} aria-label="きく、えらぶ、はなまる">
+                        <span className={styles.progressActive}>🔊</span>
+                        <i aria-hidden="true">→</i>
+                        <span className={mode === "poster" ? styles.progressPending : styles.progressActive}>🃏</span>
+                        <i aria-hidden="true">→</i>
+                        <span className={showSuccessStep ? styles.progressActive : styles.progressPending}>⭐</span>
+                    </div>
+                </section>
+            )}
 
             {mode === "setup" && (
                 <section className={styles.panel}>
                     <div className={styles.sectionHeader}>
                         <div>
-                            <h2>きょうの おと</h2>
-                            <p>レベルをえらんで、おとをたしかめよう。レベル0は、おとカードから はじめるよ。</p>
+                            <h2>レベルを えらぼう</h2>
+                            <p>おおきな カードを ひとつ おしてね。</p>
                         </div>
-                        <div className={styles.countBadge}>{selectedLevel.label}</div>
                     </div>
 
                     <div className={styles.levelGrid} aria-label="レベル">
@@ -741,32 +769,6 @@ export default function PhonicsPage() {
                                 <span>{level.description}</span>
                             </button>
                         ))}
-                    </div>
-
-                    <div className={styles.selectorGrid}>
-                        {PRIORITY_PHONICS_IDS.map((id) => {
-                            const phonic = getPhonicById(id);
-                            if (!phonic) return null;
-                            const selected = selectedIds.includes(id);
-                            return (
-                                <button
-                                    key={phonic.id}
-                                    className={selected ? styles.selectorCardSelected : styles.selectorCard}
-                                    onClick={() => toggleTarget(phonic.id)}
-                                    type="button"
-                                >
-                                    <Image src={phonic.image} alt="" width={220} height={140} className={styles.selectorImage} />
-                                    <span>{phonic.symbol}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    <div className={styles.summaryBar}>
-                        <span>つくれる ことば: {levelWords.length}</span>
-                        {selectedLevel.mode !== "practice-first" && <span>きょう のこり {availableWords.length}もん</span>}
-                        <span>{availableWords.map((word) => word.text).join(", ") || (isLevelCompleteToday ? "きょうは ぜんぶ できた！" : "まだないよ")}</span>
-                        {availableWords.length < 3 && !isLevelCompleteToday && <span className={styles.warningText}>{LOW_WORD_COUNT_HINT}</span>}
                     </div>
                 </section>
             )}
@@ -783,7 +785,7 @@ export default function PhonicsPage() {
                             onClick={startChallenge}
                             disabled={selectedLevel.mode !== "practice-first" && levelWords.length === 0}
                         >
-                            {selectedLevel.mode === "practice-first" ? "おとあてへ" : "クイズへ"}
+                            🃏 {selectedLevel.mode === "practice-first" ? "おとあてへ" : "クイズへ"}
                         </button>
                     </div>
 
@@ -816,14 +818,10 @@ export default function PhonicsPage() {
                                 <div className={styles.soundMysterySlot} aria-label="おとのもんだい">
                                     <span>[?]</span>
                                 </div>
-                                <div className={styles.bigActions}>
-                                    <button className={styles.primaryButton} onClick={playCurrentSoundTarget}>
-                                        きいてみよう
-                                    </button>
-                                    <button className={styles.secondaryButton} onClick={playCurrentSoundTarget}>
-                                        もういちど きく
-                                    </button>
-                                </div>
+                                <button className={styles.listenButton} onClick={playCurrentSoundTarget} type="button">
+                                    <span aria-hidden="true">🔊</span>
+                                    <strong>きく</strong>
+                                </button>
                                 <FeedbackBadge kind={soundQuizFeedbackKind} />
                                 <p className={`${styles.feedback} ${styles[soundQuizFeedbackKind]}`}>{soundQuizFeedback}</p>
                             </div>
@@ -845,14 +843,17 @@ export default function PhonicsPage() {
                                 })}
                             </div>
 
-                            <div className={styles.actions}>
-                                <button className={styles.primaryButton} onClick={chooseNextSoundTarget}>
-                                    つぎへ
-                                </button>
-                                <button className={styles.secondaryButton} onClick={() => setMode("poster")}>
-                                    おとカードへ
-                                </button>
-                            </div>
+                            {soundQuizFeedbackKind === "correct" && (
+                                <div className={styles.contextAction}>
+                                    <button
+                                        className={styles.nextButton}
+                                        onClick={() => chooseNextSoundTarget(currentSoundTargetId ? [currentSoundTargetId] : [])}
+                                        type="button"
+                                    >
+                                        ➡️ つぎ
+                                    </button>
+                                </div>
+                            )}
                         </>
                     ) : (
                         <div className={styles.emptyState}>
@@ -923,32 +924,17 @@ export default function PhonicsPage() {
                                     ))}
                                 </div>
 
-                                <div className={styles.bigActions}>
-                                    <button className={styles.primaryButton} onClick={() => playWord(false)}>
-                                        きいてみよう
+                                <div className={styles.challengeControls}>
+                                    <button className={styles.listenButton} onClick={() => playWord(false)} type="button">
+                                        <span aria-hidden="true">🔊</span>
+                                        <strong>きく</strong>
                                     </button>
-                                    <button
-                                        className={styles.secondaryButton}
-                                        onClick={() => {
-                                            setHintLevel((level) => Math.max(level, 1));
-                                            playWord(false);
-                                        }}
-                                    >
-                                        もういちど きく
-                                    </button>
-                                    <button
-                                        className={styles.secondaryButton}
-                                        onClick={() => {
-                                            setHintLevel((level) => Math.max(level, 2));
-                                        }}
-                                    >
-                                        ヒント
-                                    </button>
-                                    <button className={styles.secondaryButton} onClick={() => setHintLevel((level) => Math.max(level, 3))}>
-                                        はじめをみる
-                                    </button>
-                                    <button className={styles.secondaryButton} onClick={() => setHintLevel((level) => Math.max(level, 4))}>
-                                        つかうカード
+                                    <button className={styles.hintButton} onClick={advanceHint} type="button" disabled={hintLevel >= 4}>
+                                        <span aria-hidden="true">💡</span>
+                                        <strong>ヒント</strong>
+                                        <small aria-label={`ヒント ${hintLevel} / 4`}>
+                                            {Array.from({ length: 4 }, (_, index) => (index < hintLevel ? "●" : "○")).join("")}
+                                        </small>
                                     </button>
                                 </div>
 
@@ -995,23 +981,22 @@ export default function PhonicsPage() {
                                             </div>
                                         )}
                                     </div>
-                                    <div className={styles.actions}>
-                                        <button className={styles.primaryButton} onClick={checkAnswer}>
-                                            あわせてみる
-                                        </button>
-                                        <button className={styles.secondaryButton} onClick={resetSlots}>
-                                            からにする
-                                        </button>
-                                    </div>
                                     <p className={`${styles.feedback} ${styles[feedbackKind]}`}>{feedback}</p>
                                     {feedbackKind === "tryAgain" && (
                                         <button
-                                            className={`${styles.secondaryButton} ${styles.retryButton}`}
+                                            className={styles.retryButton}
                                             onClick={retryWordAnswer}
                                             type="button"
                                         >
-                                            さいチャレンジ
+                                            🔄 さいチャレンジ
                                         </button>
+                                    )}
+                                    {feedbackKind === "correct" && (
+                                        <div className={styles.contextAction}>
+                                            <button className={styles.nextButton} onClick={() => chooseNextWord(false)} type="button">
+                                                ➡️ つぎ
+                                            </button>
+                                        </div>
                                     )}
                                 </section>
 
@@ -1023,17 +1008,6 @@ export default function PhonicsPage() {
                                     {hintLevel >= 4 && <p className={styles.phonemeText}>つかうカード: {hintFourText}</p>}
                                 </div>
 
-                                <div className={styles.actions}>
-                                    <button className={styles.primaryButton} onClick={() => chooseNextWord(false)}>
-                                        つぎへ
-                                    </button>
-                                    <button className={styles.secondaryButton} onClick={() => chooseNextWord(true)}>
-                                        もういっかい
-                                    </button>
-                                    <button className={styles.secondaryButton} onClick={resetUsedWords}>
-                                        でたことば リセット
-                                    </button>
-                                </div>
                             </>
                         ) : (
                             <div className={styles.emptyState}>
@@ -1041,23 +1015,106 @@ export default function PhonicsPage() {
                                     <>
                                         <h2>きょうの クイズは ぜんぶ できた！</h2>
                                         <p>また あした あそぼう。</p>
-                                        <button className={styles.primaryButton} onClick={resetTodayCorrectWordsForLevel}>
-                                            もういちど やる
-                                        </button>
                                     </>
                                 ) : (
                                     <>
                                         <h2>つくれる ことばが ないよ</h2>
                                         <p>レベルを えらびなおしてみよう。</p>
-                                        <button className={styles.primaryButton} onClick={() => setMode("setup")}>
-                                            きょうの おとへ
-                                        </button>
                                     </>
                                 )}
                             </div>
                         )}
                     </section>
                 </section>
+            )}
+
+            <button
+                className={styles.teacherGear}
+                type="button"
+                aria-label="せんせいよう。1びょう ながおし"
+                title="1びょう ながおし"
+                onPointerDown={startTeacherHold}
+                onPointerUp={stopTeacherHold}
+                onPointerCancel={stopTeacherHold}
+                onPointerLeave={stopTeacherHold}
+                onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") setTeacherPanelOpen(true);
+                }}
+            >
+                ⚙
+            </button>
+
+            {teacherPanelOpen && (
+                <div className={styles.teacherOverlay} role="presentation">
+                    <section className={styles.teacherPanel} role="dialog" aria-modal="true" aria-labelledby="teacher-panel-title">
+                        <div className={styles.teacherPanelHeader}>
+                            <div>
+                                <p className={styles.kicker}>せんせいよう</p>
+                                <h2 id="teacher-panel-title">クイズの せってい</h2>
+                            </div>
+                            <button className={styles.closeTeacherButton} onClick={() => setTeacherPanelOpen(false)} type="button">
+                                とじる ✕
+                            </button>
+                        </div>
+
+                        <div className={styles.summaryBar}>
+                            <span>{selectedLevel.label}</span>
+                            <span>つくれる ことば: {levelWords.length}</span>
+                            {selectedLevel.mode !== "practice-first" && <span>きょう のこり {availableWords.length}もん</span>}
+                            <span>
+                                {availableWords.map((word) => word.text).join(", ") ||
+                                    (isLevelCompleteToday ? "きょうは ぜんぶ できた！" : "まだないよ")}
+                            </span>
+                            {availableWords.length < 3 && !isLevelCompleteToday && (
+                                <span className={styles.warningText}>{LOW_WORD_COUNT_HINT}</span>
+                            )}
+                        </div>
+
+                        <h3>つかう おと</h3>
+                        <div className={styles.selectorGrid}>
+                            {PRIORITY_PHONICS_IDS.map((id) => {
+                                const phonic = getPhonicById(id);
+                                if (!phonic) return null;
+                                const selected = selectedIds.includes(id);
+                                return (
+                                    <button
+                                        key={phonic.id}
+                                        className={selected ? styles.selectorCardSelected : styles.selectorCard}
+                                        onClick={() => toggleTarget(phonic.id)}
+                                        type="button"
+                                        aria-pressed={selected}
+                                    >
+                                        <Image src={phonic.image} alt="" width={220} height={140} className={styles.selectorImage} />
+                                        <span>{phonic.symbol}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        <div className={styles.teacherSettings}>
+                            <SpeedControl />
+                            <label className={styles.autoAdvanceSetting}>
+                                <input
+                                    type="checkbox"
+                                    checked={autoAdvance}
+                                    onChange={(event) => setAutoAdvancePreference(event.target.checked)}
+                                />
+                                <span>はなまるの あと じどうで つぎへ</span>
+                            </label>
+                        </div>
+
+                        <div className={styles.teacherActions}>
+                            <button className={styles.secondaryButton} onClick={resetUsedWords} type="button">
+                                でた ことばを リセット
+                            </button>
+                            {selectedLevel.mode !== "practice-first" && (
+                                <button className={styles.secondaryButton} onClick={resetTodayCorrectWordsForLevel} type="button">
+                                    きょうの ぶんを リセット
+                                </button>
+                            )}
+                        </div>
+                    </section>
+                </div>
             )}
 
             <p className={styles.notice}>{notice}</p>
