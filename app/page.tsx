@@ -72,6 +72,15 @@ const apps = [
     soon: false,
   },
   {
+    href: "/sota",
+    className: styles.cardSota,
+    icon: "👽",
+    title: "So-ta The Alien(ソータザエイリアン)",
+    desc: "えいぶんを よんで、ぴったりの えを みつけよう。ぜんぶ みつけると、えほんが ひらくよ。",
+    tags: ["STORY", "VOICE", "PICTURE"],
+    soon: false,
+  },
+  {
     href: "/ymeyme-rhyme",
     className: styles.cardRhyme,
     icon: "📜",

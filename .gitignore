@@ -45,3 +45,6 @@ next-env.d.ts
 id_rsa_*
 *.pem
 
+/dist/
+.vinext/
+.wrangler/

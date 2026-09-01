@@ -148,6 +148,10 @@
     --card-accent: #ff9f43;
 }
 
+.cardSota {
+    --card-accent: #9bb7a5;
+}
+
 .cardRhyme {
     --card-accent: #f78fb3;
 }
