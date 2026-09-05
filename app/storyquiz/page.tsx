@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { getIssues } from "./lib/data";
 import { useAllProgress } from "./lib/progress";
@@ -32,7 +33,7 @@ function groupPartsByChapter(parts: StoryPart[]) {
 
 export default function StoryQuizHome() {
   const issues = getIssues();
-  const [activeIssue, setActiveIssue] = useState<IssueId>("no1");
+  const [activeIssue, setActiveIssue] = useState<IssueId>("mini");
   const progress = useAllProgress();
   const currentIssue = issues.find((issue) => issue.issue === activeIssue) ?? issues[0];
   const chapters = groupPartsByChapter(currentIssue.parts);
@@ -62,7 +63,7 @@ export default function StoryQuizHome() {
             }`}
             onClick={() => setActiveIssue(issue.issue)}
           >
-            {issue.issue === "no1" ? "no.1" : "no.2"}
+            {issue.issue === "mini" ? "はじめて" : issue.issue === "no1" ? "no.1" : "no.2"}
           </button>
         ))}
       </nav>
@@ -91,13 +92,17 @@ export default function StoryQuizHome() {
                         href={`/storyquiz/${part.id}/words`}
                         className={styles.partCard}
                       >
+                        {part.segments[0]?.image && <Image unoptimized
+                          className={styles.storyThumbnail} src={part.segments[0].image}
+                          alt="" width={360} height={240} sizes="(max-width: 700px) 80vw, 320px" />}
                         {completed && <span className={styles.partClearStar}>⭐</span>}
                         <div className={styles.partLabel}>
                           {part.chapterNo}-{part.partNo}
                         </div>
                         <p className={styles.partName}>{part.partTitle}</p>
                         <div className={styles.partMeta}>
-                          <span className={styles.partTag}>{part.recommendedGrade}</span>
+                            <span className={styles.partTag}>{part.recommendedGrade}</span>
+                            {part.estimatedMinutes && <span className={styles.partTag}>{part.estimatedMinutes}</span>}
                           <span className={styles.partTag}>
                             WORDS {part.keywords.length}
                           </span>

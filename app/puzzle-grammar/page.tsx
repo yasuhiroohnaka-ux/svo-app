@@ -13,6 +13,7 @@ import HanamaruMark from "@/app/components/HanamaruMark";
 
 import PuzzlePiece, { pieceWidth, type Role } from "./PuzzlePiece";
 import { loadLv2Cards, type Pattern, type PuzzleCard } from "@/app/lib/lv2Cards";
+import { getStoryPuzzleCards, miniStories } from "@/app/content/miniStories";
 import styles from "./page.module.css";
 
 const ROLES: Role[] = ["subject", "verb", "object"];
@@ -23,7 +24,7 @@ const ROLE_LABEL: Record<Role, string> = {
   object: "なにを",
 };
 
-type Level = 1 | 2;
+type Level = 1 | 2 | "stories";
 
 /**
  * 第3スロットのラベル。SVC のときだけ「なにを」→「どんな」になる。
@@ -46,6 +47,8 @@ const NUMBER_FLIP: Record<string, string> = {
   catch: "catches",
   is: "are",
   are: "is",
+  draws: "draw",
+  draw: "draws",
 };
 
 /** ゲームで扱う 1 ピース分のデータ */
@@ -73,9 +76,11 @@ function correctLabel(card: Card, role: Role): string {
  */
 function pickDummy(card: PuzzleCard, allCards: PuzzleCard[], role: Role, level: Level): string {
   const answer = correctLabel(card, role);
+  const reviewedDummy = card.distractors?.[role];
+  if (reviewedDummy && reviewedDummy !== answer) return reviewedDummy;
 
   // レベル2の動詞は「数の反転形」を最優先(文法トラップ)
-  if (level === 2 && role === "verb") {
+  if (level !== 1 && role === "verb") {
     const flipped = NUMBER_FLIP[answer];
     if (flipped) return flipped;
   }
@@ -129,6 +134,7 @@ export default function Page() {
   /** 現在プレイ中のデッキ */
   const [cards, setCards] = useState<PuzzleCard[]>([]);
   const [level, setLevel] = useState<Level>(1);
+  const [storyId, setStoryId] = useState("all");
   const [loadState, setLoadState] = useState<LoadState>("loading");
   const [errorMessage, setErrorMessage] = useState<string>("");
 
@@ -181,8 +187,11 @@ export default function Page() {
       const base: PuzzleCard[] = loaded.map((card) => ({ ...card, pattern: "svo" as const }));
       setBaseCards(base);
       setLv2Cards(lv2);
-      setLevel(1);
-      setCards(base);
+      const requestedStory = new URLSearchParams(window.location.search).get("story");
+      const initialStory = miniStories.find((story) => story.id === requestedStory);
+      setStoryId(initialStory?.id ?? "all");
+      setLevel(initialStory ? "stories" : 1);
+      setCards(initialStory ? getStoryPuzzleCards(initialStory.id) : base);
       setIndex(0);
       setScore(0);
       setStreak(0);
@@ -440,7 +449,8 @@ export default function Page() {
       unlockOnce();
       cancelSpeech();
       clearAdvanceTimer();
-      const deck = next === 1 ? shuffle(baseCards) : shuffle([...baseCards, ...lv2Cards]);
+      const deck = next === "stories" ? getStoryPuzzleCards(storyId)
+        : next === 1 ? shuffle(baseCards) : shuffle([...baseCards, ...lv2Cards]);
       setLevel(next);
       setCards(deck);
       setIndex(0);
@@ -448,8 +458,20 @@ export default function Page() {
       setStreak(0);
       setAllCleared(false);
     },
-    [level, baseCards, lv2Cards, clearAdvanceTimer, unlockOnce],
+    [level, storyId, baseCards, lv2Cards, clearAdvanceTimer, unlockOnce],
   );
+
+  function switchStory(next: string) {
+    unlockOnce();
+    cancelSpeech();
+    clearAdvanceTimer();
+    setStoryId(next);
+    setCards(getStoryPuzzleCards(next));
+    setIndex(0);
+    setScore(0);
+    setStreak(0);
+    setAllCleared(false);
+  }
 
   // 表示待ちのトレイピース(まだ置かれていないもの)
   const visibleTray = useMemo(
@@ -477,6 +499,7 @@ export default function Page() {
   const lv2Ready = lv2Cards.length > 0;
 
   const levelSwitcher = (
+    <>
     <div className={styles.levelRow} role="group" aria-label="レベルせんたく">
       <button
         type="button"
@@ -500,7 +523,22 @@ export default function Page() {
         {lv2Ready ? "レベル2" : "レベル2(じゅんびちゅう)"}
       </button>
       <SpeedControl />
+      <button type="button"
+        className={`${styles.levelButton} ${level === "stories" ? styles.levelButtonActive : ""}`}
+        onClick={() => switchLevel("stories")} aria-pressed={level === "stories"}>
+        おはなしの ぶん
+      </button>
     </div>
+    {level === "stories" && (
+      <div className={styles.storyTopics} role="group" aria-label="おはなしを えらぶ">
+        {[{ id: "all", partTitle: "ぜんぶ（12まい）" }, ...miniStories].map((story) => (
+          <button type="button" key={story.id} onClick={() => switchStory(story.id)}
+            className={`${styles.levelButton} ${storyId === story.id ? styles.levelButtonActive : ""}`}
+            aria-pressed={storyId === story.id}>{story.partTitle}</button>
+        ))}
+      </div>
+    )}
+    </>
   );
 
   if (loadState === "loading") {
@@ -541,7 +579,11 @@ export default function Page() {
             <HanamaruMark className={styles.clearHanamaruSvg} />
           </div>
           <h2 className={styles.clearTitle}>ぜんぶ クリア!</h2>
-          <p className={styles.clearScore}>スコア: {score} / {cards.length}</p>
+          <p className={styles.clearScore}>{level === "stories" ? `${score}この ぶんが つくれたね！` : `スコア: ${score} / ${cards.length}`}</p>
+          {level === "stories" && <Link className={styles.primaryButton}
+            href={storyId === "all" ? "/storyquiz" : `/storyquiz/${storyId}/words`}>
+            おはなしを よむ
+          </Link>}
           <button type="button" className={styles.primaryButton} onClick={restart}>
             もういちど
           </button>
@@ -567,8 +609,8 @@ export default function Page() {
       {levelSwitcher}
 
       <div className={styles.statusRow}>
-        <span>スコア: {score}</span>
-        <span>れんぞく: {streak}</span>
+        {level !== "stories" && <span>スコア: {score}</span>}
+        {level !== "stories" && <span>れんぞく: {streak}</span>}
         <span>カード: {index + 1} / {cards.length}</span>
       </div>
 
@@ -578,6 +620,7 @@ export default function Page() {
       <div className={styles.pictureWrap}>
         <div className={styles.pictureFrame}>
           <Image
+            unoptimized={level === "stories"}
             src={current.image}
             alt="このえに あう ぶんを つくろう"
             className={styles.picture}
@@ -619,6 +662,12 @@ export default function Page() {
                 .join(" ")}
               style={{ width: w + 32 }}
               onClick={() => handleTapSlot(role)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  handleTapSlot(role);
+                }
+              }}
               role="button"
               tabIndex={0}
               aria-label={`${slotLabel} のスロット`}
@@ -643,6 +692,17 @@ export default function Page() {
           return (
             <div
               key={piece.key}
+              role="button"
+              tabIndex={0}
+              aria-label={piece.label}
+              aria-pressed={isSelected}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  unlockOnce();
+                  setSelectedKey(piece.key);
+                }
+              }}
               className={[
                 styles.piece,
                 isDragging ? styles.pieceDragging : "",

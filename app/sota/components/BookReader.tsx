@@ -13,6 +13,7 @@ import styles from "../sota.module.css";
 export default function BookReader() {
   const progress = useSotaProgress();
   const [pageIndex, setPageIndex] = useState(0);
+  const [isReading, setIsReading] = useState(false);
   const cleared = new Set(progress.cleared);
   const clearedCount = sotaSpreads.filter((spread) => cleared.has(spread.id)).length;
   const isUnlocked = clearedCount === sotaSpreads.length;
@@ -21,13 +22,20 @@ export default function BookReader() {
   useEffect(() => () => cancelSotaSpeech(), []);
 
   function readPage(): void {
+    if (isReading) {
+      cancelSotaSpeech();
+      setIsReading(false);
+      return;
+    }
     unlockAudio();
     unlockSotaSpeech();
-    speakSota(spread.textEn);
+    setIsReading(true);
+    speakSota(spread.textEn, () => setIsReading(false));
   }
 
   function goToPage(index: number): void {
     cancelSotaSpeech();
+    setIsReading(false);
     setPageIndex(index);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -74,7 +82,7 @@ export default function BookReader() {
 
       <article className={styles.bookSpread}>
         <div className={styles.bookArt}>
-          <Image
+          <Image unoptimized
             src={getSotaImagePath(spread)}
             alt={`ばめん ${pageIndex + 1} の え`}
             width={520}
@@ -86,9 +94,9 @@ export default function BookReader() {
         <div className={styles.bookTextPage}>
           <div className={styles.bookPageNumber}>SCENE {pageIndex + 1}</div>
           <p lang="en">{spread.textEn}</p>
-          <button className={styles.speakButton} type="button" onClick={readPage}>
-            <span aria-hidden="true">🔊</span>
-            <span>えいごを きく</span>
+          <button className={styles.speakButton} type="button" onClick={readPage} aria-pressed={isReading}>
+            <span aria-hidden="true">{isReading ? "⏹" : "🔊"}</span>
+            <span>{isReading ? "とめる" : "えいごを きく"}</span>
           </button>
           <SpeedControl className={styles.speedControl} />
         </div>

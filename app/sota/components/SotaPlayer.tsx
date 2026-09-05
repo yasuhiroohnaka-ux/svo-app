@@ -117,7 +117,7 @@ export default function SotaPlayer() {
     return (
       <main className={styles.playShell}>
         <section className={styles.completeCard}>
-          <Image
+          <Image unoptimized
             className={styles.completeCover}
             src={sotaCoverImagePath}
             alt="So-ta The Alien の ひょうし"
@@ -127,7 +127,7 @@ export default function SotaPlayer() {
           />
           <div>
             <p className={styles.kicker}>ALL 16 SCENES FOUND</p>
-            <h1>ぜんぶ みつけた!</h1>
+            <h1>カラーえほん かんせい！</h1>
             <p>ソータの おはなしを、さいしょから よんで みよう。</p>
             <div className={styles.completeActions}>
               <Link className={styles.primaryAction} href="/sota/book">
@@ -197,8 +197,9 @@ export default function SotaPlayer() {
                 aria-label={`えの こうほ ${index + 1}`}
               >
                 <span className={styles.choiceNumber}>{index + 1}</span>
-                <Image
+                <Image unoptimized
                   src={getSotaImagePath(choice)}
+                  className={showCorrect ? styles.revealArt : styles.uncoloredArt}
                   alt={`えの こうほ ${index + 1}`}
                   width={240}
                   height={342}
@@ -231,8 +232,9 @@ export default function SotaPlayer() {
         {hintStage >= 2 && phase === "choosing" && (
           <div className={styles.zoomHint} role="status">
             <div className={styles.zoomWindow}>
-              <Image
+              <Image unoptimized
                 src={getSotaImagePath(spread)}
+                className={styles.uncoloredArt}
                 alt="せいかいの えの いちぶ"
                 fill
                 sizes="260px"
@@ -252,7 +254,7 @@ export default function SotaPlayer() {
 
       {phase === "correct" && (
         <section className={styles.correctPanel} aria-live="polite">
-          <p className={styles.correctBurst}>みつけた!</p>
+          <p className={styles.correctBurst}>{willComplete ? "カラーえほん かんせい！" : "いろが ついた！"}</p>
           <div>
             <p className={styles.summaryLabel}>わかったこと</p>
             <p className={styles.summaryText}>{spread.summaryJa}</p>

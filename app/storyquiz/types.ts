@@ -1,4 +1,4 @@
-export type IssueId = "no1" | "no2";
+export type IssueId = "mini" | "no1" | "no2";
 
 export type RecommendedGrade = "小1〜2" | "小2〜3" | "小3〜4";
 
@@ -23,6 +23,8 @@ export type StoryChoice = {
 export type StorySegment = {
   id: string;
   text: string;
+  image?: string;
+  imageAlt?: string;
   questionJa: string;
   choices: StoryChoice[];
   correctChoiceId: string;
@@ -42,6 +44,8 @@ export type StoryPart = {
   partNo: number;
   partTitle: string;
   recommendedGrade: RecommendedGrade;
+  estimatedMinutes?: string;
+  puzzleTopic?: string;
   keywords: Keyword[];
   segments: StorySegment[];
 };

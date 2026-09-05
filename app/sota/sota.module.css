@@ -1071,3 +1071,17 @@
     transition: none;
   }
 }
+.colorArt, .uncoloredArt, .revealArt {
+  transition: filter 900ms ease;
+  object-fit: contain;
+}
+.uncoloredArt { filter: grayscale(1); }
+.colorArt, .revealArt { filter: grayscale(0); }
+.revealArt { animation: colorReveal 1000ms ease both; }
+@keyframes colorReveal {
+  from { filter: grayscale(1); }
+  to { filter: grayscale(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .colorArt, .uncoloredArt, .revealArt { transition: none; animation: none; }
+}

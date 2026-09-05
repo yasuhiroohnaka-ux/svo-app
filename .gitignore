@@ -48,3 +48,6 @@ id_rsa_*
 /dist/
 .vinext/
 .wrangler/
+
+# Local knowledge delivery receipts (not publishable artifacts)
+.ai-knowledge/deferred/

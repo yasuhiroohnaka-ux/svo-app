@@ -23,7 +23,7 @@ export default function SotaShelf() {
 
       <section className={styles.shelfHero}>
         <div className={styles.coverFrame}>
-          <Image
+          <Image unoptimized
             src={sotaCoverImagePath}
             alt="So-ta The Alien の ひょうし"
             width={360}
@@ -40,7 +40,9 @@ export default function SotaShelf() {
           <p className={styles.heroLead}>
             えいぶんを よんで、ぴったりの えを みつけよう。
             <br />
-            16この ばめんを ぜんぶ みつけると、えほんが ひらくよ。
+            みつけるたびに、えに いろが つくよ。
+            <br />
+            16この ばめんで、カラーえほんの できあがり！
           </p>
           <div className={styles.progressPanel} role="status" aria-live="polite">
             <div className={styles.progressNumbers}>
@@ -85,8 +87,9 @@ export default function SotaShelf() {
                 className={`${styles.sceneCard} ${isCleared ? styles.sceneCardCleared : ""}`}
               >
                 <div className={styles.sceneThumb}>
-                  <Image
+                  <Image unoptimized
                     src={getSotaImagePath(spread)}
+                    className={isCleared ? styles.colorArt : styles.uncoloredArt}
                     alt={`ばめん ${index + 1} の せんが`}
                     width={240}
                     height={342}

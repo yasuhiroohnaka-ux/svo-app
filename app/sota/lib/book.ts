@@ -3,16 +3,16 @@ import type { SotaBook, SotaImageVariant, SotaSpread } from "../types";
 
 export const sotaBook = rawBook as SotaBook;
 export const sotaSpreads = sotaBook.spreads;
-export const sotaCoverImagePath = "/images/sota/lineart/art-p01.png";
+export const sotaCoverImagePath = "/images/sota/color/art-p01.webp";
 
 const spreadById = new Map(sotaSpreads.map((spread) => [spread.id, spread]));
 
 export function getSotaImagePath(
   spread: SotaSpread,
-  variant: SotaImageVariant = "lineart",
+  variant: SotaImageVariant = "color",
 ): string {
   const page = String(spread.artPage).padStart(2, "0");
-  return `/images/sota/${variant}/art-p${page}.png`;
+  return `/images/sota/${variant}/art-p${page}.${variant === "color" ? "webp" : "png"}`;
 }
 
 export function getChoiceSpreads(spread: SotaSpread): SotaSpread[] {

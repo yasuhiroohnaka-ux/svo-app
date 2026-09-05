@@ -95,6 +95,11 @@ export default function ResultPage({
         </section>
 
         <div className={styles.resultActions}>
+          {part.puzzleTopic && (
+            <Link href={`/puzzle-grammar?story=${part.puzzleTopic}`} className={styles.navBtnSecondary}>
+              🧩 おはなしの ぶんを つくる
+            </Link>
+          )}
           <Link
             href={`/storyquiz/${part.id}/words`}
             className={styles.navBtnSecondary}

@@ -4,7 +4,7 @@ import type { Card } from "../svo/types";
 export type Pattern = "svo" | "svc";
 
 /** 既存 Card にレベル(pattern)情報を足したもの。既存35枚は "svo" 扱い */
-export type PuzzleCard = Card & { pattern: Pattern };
+export type PuzzleCard = Card & { pattern: Pattern; distractors?: Pick<Card, "subject" | "verb" | "object"> };
 
 const LV2_URL = "/data/puzzle_cards_lv2.json";
 

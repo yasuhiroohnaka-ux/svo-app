@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import {
   cancelSpeech,
   speak,
@@ -143,6 +144,11 @@ export default function StoryPlayer({ part, choiceOrderSeed, onComplete }: Props
       </header>
 
       <section className={styles.playPanel}>
+        {segment.image && (
+          <Image unoptimized className={styles.storyIllustration} src={segment.image}
+            alt={segment.imageAlt ?? "おはなしの え"} width={720} height={480}
+            sizes="(max-width: 700px) 90vw, 620px" priority />
+        )}
         <p className={styles.paragraph}>{segment.text}</p>
         <div className={styles.inlineActions}>
           <button type="button" className={styles.speakBtn} onClick={handleReplay}>

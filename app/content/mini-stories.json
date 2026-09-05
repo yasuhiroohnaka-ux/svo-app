@@ -1,0 +1,617 @@
+[
+  {
+    "id": "mini-lunch",
+    "issue": "mini",
+    "chapterNo": 1,
+    "chapterTitle": "Banana's Lunch",
+    "partNo": 1,
+    "partTitle": "バナナの おひるごはん",
+    "recommendedGrade": "小1〜2",
+    "estimatedMinutes": "3〜5分",
+    "puzzleTopic": "mini-lunch",
+    "keywords": [
+      {
+        "id": "lunch-word-1",
+        "word": "banana",
+        "ja": "バナナ",
+        "emoji": "🍌"
+      },
+      {
+        "id": "lunch-word-2",
+        "word": "fish",
+        "ja": "さかな",
+        "emoji": "🐟"
+      },
+      {
+        "id": "lunch-word-3",
+        "word": "apple",
+        "ja": "りんご",
+        "emoji": "🍎"
+      },
+      {
+        "id": "lunch-word-4",
+        "word": "hungry",
+        "ja": "おなかが すいた",
+        "emoji": "🍽️"
+      },
+      {
+        "id": "lunch-word-5",
+        "word": "happy",
+        "ja": "うれしい",
+        "emoji": "😊"
+      }
+    ],
+    "segments": [
+      {
+        "id": "lunch-1",
+        "text": "A banana is hungry. “I want lunch!”",
+        "image": "/images/mini-stories/lunch-1.webp",
+        "imageAlt": "バナナの おひるごはんの ばめん 1",
+        "questionJa": "バナナは どうしたの？",
+        "choices": [
+          {
+            "id": "lunch-1-1",
+            "labelEn": "hungry",
+            "labelJa": "おなかが すいた"
+          },
+          {
+            "id": "lunch-1-2",
+            "labelEn": "sleepy",
+            "labelJa": "ねむく なった"
+          },
+          {
+            "id": "lunch-1-3",
+            "labelEn": "cold",
+            "labelJa": "さむく なった"
+          }
+        ],
+        "correctChoiceId": "lunch-1-1",
+        "feedbackCorrectJa": "そう！おなかが すいていたね。",
+        "feedbackIncorrectJa": "もういちど きいてみよう。“A banana is hungry.” が ヒントだよ。",
+        "summaryJa": "バナナは おなかが すいていた。",
+        "puzzle": {
+          "id": 200,
+          "subject": "A banana",
+          "verb": "is",
+          "object": "hungry",
+          "pattern": "svc",
+          "distractors": {
+            "subject": "A girl",
+            "verb": "are",
+            "object": "sleepy"
+          }
+        }
+      },
+      {
+        "id": "lunch-2",
+        "text": "A fish has an apple. “Here you are, Banana!”",
+        "image": "/images/mini-stories/lunch-2.webp",
+        "imageAlt": "バナナの おひるごはんの ばめん 2",
+        "questionJa": "りんごを もってきたのは だれ？",
+        "choices": [
+          {
+            "id": "lunch-2-1",
+            "labelEn": "a fish",
+            "labelJa": "さかな"
+          },
+          {
+            "id": "lunch-2-2",
+            "labelEn": "a dog",
+            "labelJa": "いぬ"
+          },
+          {
+            "id": "lunch-2-3",
+            "labelEn": "a boy",
+            "labelJa": "おとこのこ"
+          }
+        ],
+        "correctChoiceId": "lunch-2-1",
+        "feedbackCorrectJa": "そう！さかなだね。",
+        "feedbackIncorrectJa": "もういちど きいてみよう。“A fish has an apple.” が ヒントだよ。",
+        "summaryJa": "さかなが りんごを もってきてくれた。",
+        "puzzle": {
+          "id": 201,
+          "subject": "A fish",
+          "verb": "has",
+          "object": "an apple",
+          "pattern": "svo",
+          "distractors": {
+            "subject": "A girl",
+            "verb": "have",
+            "object": "a car"
+          }
+        }
+      },
+      {
+        "id": "lunch-3",
+        "text": "A banana eats an apple. “Thank you, Fish!”",
+        "image": "/images/mini-stories/lunch-3.webp",
+        "imageAlt": "バナナの おひるごはんの ばめん 3",
+        "questionJa": "バナナは なにを たべたの？",
+        "choices": [
+          {
+            "id": "lunch-3-1",
+            "labelEn": "an apple",
+            "labelJa": "りんご"
+          },
+          {
+            "id": "lunch-3-2",
+            "labelEn": "a fish",
+            "labelJa": "さかな"
+          },
+          {
+            "id": "lunch-3-3",
+            "labelEn": "a carrot",
+            "labelJa": "にんじん"
+          }
+        ],
+        "correctChoiceId": "lunch-3-1",
+        "feedbackCorrectJa": "そう！りんごだね。",
+        "feedbackIncorrectJa": "もういちど きいてみよう。“A banana eats an apple.” が ヒントだよ。",
+        "summaryJa": "バナナは りんごを たべて、おれいを いった。",
+        "puzzle": {
+          "id": 202,
+          "subject": "A banana",
+          "verb": "eats",
+          "object": "an apple",
+          "pattern": "svo",
+          "distractors": {
+            "subject": "A girl",
+            "verb": "eat",
+            "object": "a car"
+          }
+        }
+      },
+      {
+        "id": "lunch-4",
+        "text": "A banana is happy. “Lunch with a friend is fun!”",
+        "image": "/images/mini-stories/lunch-4.webp",
+        "imageAlt": "バナナの おひるごはんの ばめん 4",
+        "questionJa": "ごはんの あと、バナナは どんな きもち？",
+        "choices": [
+          {
+            "id": "lunch-4-1",
+            "labelEn": "happy",
+            "labelJa": "うれしい"
+          },
+          {
+            "id": "lunch-4-2",
+            "labelEn": "sad",
+            "labelJa": "かなしい"
+          },
+          {
+            "id": "lunch-4-3",
+            "labelEn": "scared",
+            "labelJa": "こわい"
+          }
+        ],
+        "correctChoiceId": "lunch-4-1",
+        "feedbackCorrectJa": "そう！うれしい きもちだね。",
+        "feedbackIncorrectJa": "もういちど きいてみよう。“A banana is happy.” が ヒントだよ。",
+        "summaryJa": "ともだちと ごはんを たべて、バナナは うれしくなった。",
+        "puzzle": {
+          "id": 203,
+          "subject": "A banana",
+          "verb": "is",
+          "object": "happy",
+          "pattern": "svc",
+          "distractors": {
+            "subject": "A girl",
+            "verb": "are",
+            "object": "sad"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "mini-wash",
+    "issue": "mini",
+    "chapterNo": 2,
+    "chapterTitle": "Who Washes Who?",
+    "partNo": 1,
+    "partTitle": "こんどは だれの ばん？",
+    "recommendedGrade": "小1〜2",
+    "estimatedMinutes": "3〜5分",
+    "puzzleTopic": "mini-wash",
+    "keywords": [
+      {
+        "id": "wash-word-1",
+        "word": "boy",
+        "ja": "おとこのこ",
+        "emoji": "👦"
+      },
+      {
+        "id": "wash-word-2",
+        "word": "dog",
+        "ja": "いぬ",
+        "emoji": "🐶"
+      },
+      {
+        "id": "wash-word-3",
+        "word": "wash",
+        "ja": "あらう",
+        "emoji": "🫧"
+      },
+      {
+        "id": "wash-word-4",
+        "word": "dirty",
+        "ja": "よごれている",
+        "emoji": "🐾"
+      },
+      {
+        "id": "wash-word-5",
+        "word": "clean",
+        "ja": "きれい",
+        "emoji": "✨"
+      }
+    ],
+    "segments": [
+      {
+        "id": "wash-1",
+        "text": "A boy is dirty. His dog is dirty, too.",
+        "image": "/images/mini-stories/wash-1.webp",
+        "imageAlt": "こんどは だれの ばん？の ばめん 1",
+        "questionJa": "おとこのこと いぬは、どうなっている？",
+        "choices": [
+          {
+            "id": "wash-1-1",
+            "labelEn": "dirty",
+            "labelJa": "よごれている"
+          },
+          {
+            "id": "wash-1-2",
+            "labelEn": "clean",
+            "labelJa": "きれい"
+          },
+          {
+            "id": "wash-1-3",
+            "labelEn": "asleep",
+            "labelJa": "ねている"
+          }
+        ],
+        "correctChoiceId": "wash-1-1",
+        "feedbackCorrectJa": "そう！ふたりとも よごれているね。",
+        "feedbackIncorrectJa": "もういちど きいてみよう。“A boy is dirty.” が ヒントだよ。",
+        "summaryJa": "おとこのこも いぬも、よごれていた。",
+        "puzzle": {
+          "id": 204,
+          "subject": "A boy",
+          "verb": "is",
+          "object": "dirty",
+          "pattern": "svc",
+          "distractors": {
+            "subject": "A girl",
+            "verb": "are",
+            "object": "clean"
+          }
+        }
+      },
+      {
+        "id": "wash-2",
+        "text": "A boy washes a dog. “Your turn first!”",
+        "image": "/images/mini-stories/wash-2.webp",
+        "imageAlt": "こんどは だれの ばん？の ばめん 2",
+        "questionJa": "さいしょに いぬを あらったのは だれ？",
+        "choices": [
+          {
+            "id": "wash-2-1",
+            "labelEn": "a boy",
+            "labelJa": "おとこのこ"
+          },
+          {
+            "id": "wash-2-2",
+            "labelEn": "a fish",
+            "labelJa": "さかな"
+          },
+          {
+            "id": "wash-2-3",
+            "labelEn": "a banana",
+            "labelJa": "バナナ"
+          }
+        ],
+        "correctChoiceId": "wash-2-1",
+        "feedbackCorrectJa": "そう！おとこのこだね。",
+        "feedbackIncorrectJa": "もういちど きいてみよう。“A boy washes a dog.” が ヒントだよ。",
+        "summaryJa": "おとこのこが、さきに いぬを あらった。",
+        "puzzle": {
+          "id": 205,
+          "subject": "A boy",
+          "verb": "washes",
+          "object": "a dog",
+          "pattern": "svo",
+          "distractors": {
+            "subject": "A girl",
+            "verb": "wash",
+            "object": "a car"
+          }
+        }
+      },
+      {
+        "id": "wash-3",
+        "text": "A dog washes a boy. “Now it's your turn!”",
+        "image": "/images/mini-stories/wash-3.webp",
+        "imageAlt": "こんどは だれの ばん？の ばめん 3",
+        "questionJa": "こんどは だれが おとこのこを あらうの？",
+        "choices": [
+          {
+            "id": "wash-3-1",
+            "labelEn": "a dog",
+            "labelJa": "いぬ"
+          },
+          {
+            "id": "wash-3-2",
+            "labelEn": "a girl",
+            "labelJa": "おんなのこ"
+          },
+          {
+            "id": "wash-3-3",
+            "labelEn": "a fish",
+            "labelJa": "さかな"
+          }
+        ],
+        "correctChoiceId": "wash-3-1",
+        "feedbackCorrectJa": "そう！いぬだね。",
+        "feedbackIncorrectJa": "もういちど きいてみよう。“A dog washes a boy.” が ヒントだよ。",
+        "summaryJa": "こんどは いぬが、おとこのこを あらった。",
+        "puzzle": {
+          "id": 206,
+          "subject": "A dog",
+          "verb": "washes",
+          "object": "a boy",
+          "pattern": "svo",
+          "distractors": {
+            "subject": "A girl",
+            "verb": "wash",
+            "object": "a car"
+          }
+        }
+      },
+      {
+        "id": "wash-4",
+        "text": "A boy is clean. “Thank you, Dog!”",
+        "image": "/images/mini-stories/wash-4.webp",
+        "imageAlt": "こんどは だれの ばん？の ばめん 4",
+        "questionJa": "さいごに おとこのこは どうなった？",
+        "choices": [
+          {
+            "id": "wash-4-1",
+            "labelEn": "clean",
+            "labelJa": "きれいに なった"
+          },
+          {
+            "id": "wash-4-2",
+            "labelEn": "dirty",
+            "labelJa": "よごれた"
+          },
+          {
+            "id": "wash-4-3",
+            "labelEn": "sad",
+            "labelJa": "かなしく なった"
+          }
+        ],
+        "correctChoiceId": "wash-4-1",
+        "feedbackCorrectJa": "そう！きれいに なったね。",
+        "feedbackIncorrectJa": "もういちど きいてみよう。“A boy is clean.” が ヒントだよ。",
+        "summaryJa": "いぬに あらってもらって、おとこのこも きれいに なった。",
+        "puzzle": {
+          "id": 207,
+          "subject": "A boy",
+          "verb": "is",
+          "object": "clean",
+          "pattern": "svc",
+          "distractors": {
+            "subject": "A girl",
+            "verb": "are",
+            "object": "dirty"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "mini-draw",
+    "issue": "mini",
+    "chapterNo": 3,
+    "chapterTitle": "A Very Big Fish",
+    "partNo": 1,
+    "partTitle": "おおきな さかなを かこう",
+    "recommendedGrade": "小1〜2",
+    "estimatedMinutes": "3〜5分",
+    "puzzleTopic": "mini-draw",
+    "keywords": [
+      {
+        "id": "draw-word-1",
+        "word": "two",
+        "ja": "ふたつ・ふたり",
+        "emoji": "✌️"
+      },
+      {
+        "id": "draw-word-2",
+        "word": "pen",
+        "ja": "ペン",
+        "emoji": "🖊️"
+      },
+      {
+        "id": "draw-word-3",
+        "word": "draw",
+        "ja": "えを かく",
+        "emoji": "🎨"
+      },
+      {
+        "id": "draw-word-4",
+        "word": "fish",
+        "ja": "さかな",
+        "emoji": "🐟"
+      },
+      {
+        "id": "draw-word-5",
+        "word": "big",
+        "ja": "おおきい",
+        "emoji": "🐳"
+      }
+    ],
+    "segments": [
+      {
+        "id": "draw-1",
+        "text": "Two bananas have a pen. “Let's draw a fish!”",
+        "image": "/images/mini-stories/draw-1.webp",
+        "imageAlt": "おおきな さかなを かこうの ばめん 1",
+        "questionJa": "ふたりは なにを つかって えを かくの？",
+        "choices": [
+          {
+            "id": "draw-1-1",
+            "labelEn": "a pen",
+            "labelJa": "ペン"
+          },
+          {
+            "id": "draw-1-2",
+            "labelEn": "a spoon",
+            "labelJa": "スプーン"
+          },
+          {
+            "id": "draw-1-3",
+            "labelEn": "a cup",
+            "labelJa": "コップ"
+          }
+        ],
+        "correctChoiceId": "draw-1-1",
+        "feedbackCorrectJa": "そう！ペンだね。",
+        "feedbackIncorrectJa": "もういちど きいてみよう。“Two bananas have a pen.” が ヒントだよ。",
+        "summaryJa": "ふたりの バナナは、ペンで さかなを かくことに した。",
+        "puzzle": {
+          "id": 208,
+          "subject": "Two bananas",
+          "verb": "have",
+          "object": "a pen",
+          "pattern": "svo",
+          "distractors": {
+            "subject": "Two girls",
+            "verb": "has",
+            "object": "a car"
+          }
+        }
+      },
+      {
+        "id": "draw-2",
+        "text": "Two bananas draw a fish. “Make it big!”",
+        "image": "/images/mini-stories/draw-2.webp",
+        "imageAlt": "おおきな さかなを かこうの ばめん 2",
+        "questionJa": "ふたりは なにを かいているの？",
+        "choices": [
+          {
+            "id": "draw-2-1",
+            "labelEn": "a fish",
+            "labelJa": "さかな"
+          },
+          {
+            "id": "draw-2-2",
+            "labelEn": "a dog",
+            "labelJa": "いぬ"
+          },
+          {
+            "id": "draw-2-3",
+            "labelEn": "a car",
+            "labelJa": "くるま"
+          }
+        ],
+        "correctChoiceId": "draw-2-1",
+        "feedbackCorrectJa": "そう！さかなだね。",
+        "feedbackIncorrectJa": "もういちど きいてみよう。“Two bananas draw a fish.” が ヒントだよ。",
+        "summaryJa": "ふたりは おおきな さかなを かいた。",
+        "puzzle": {
+          "id": 209,
+          "subject": "Two bananas",
+          "verb": "draw",
+          "object": "a fish",
+          "pattern": "svo",
+          "distractors": {
+            "subject": "Two girls",
+            "verb": "draws",
+            "object": "a car"
+          }
+        }
+      },
+      {
+        "id": "draw-3",
+        "text": "The fish is big. It fills the paper!",
+        "image": "/images/mini-stories/draw-3.webp",
+        "imageAlt": "おおきな さかなを かこうの ばめん 3",
+        "questionJa": "かいた さかなは どれくらい おおきいの？",
+        "choices": [
+          {
+            "id": "draw-3-1",
+            "labelEn": "as big as the paper",
+            "labelJa": "かみ いっぱい"
+          },
+          {
+            "id": "draw-3-2",
+            "labelEn": "very small",
+            "labelJa": "とても ちいさい"
+          },
+          {
+            "id": "draw-3-3",
+            "labelEn": "as small as a pen",
+            "labelJa": "ペン くらい"
+          }
+        ],
+        "correctChoiceId": "draw-3-1",
+        "feedbackCorrectJa": "そう！かみ いっぱいだね。",
+        "feedbackIncorrectJa": "もういちど きいてみよう。“The fish is big.” が ヒントだよ。",
+        "summaryJa": "さかなの えは、かみ いっぱいの おおきさに なった。",
+        "puzzle": {
+          "id": 210,
+          "subject": "The fish",
+          "verb": "is",
+          "object": "big",
+          "pattern": "svc",
+          "distractors": {
+            "subject": "A girl",
+            "verb": "are",
+            "object": "small"
+          }
+        }
+      },
+      {
+        "id": "draw-4",
+        "text": "Two bananas are happy. “A fish for our wall!”",
+        "image": "/images/mini-stories/draw-4.webp",
+        "imageAlt": "おおきな さかなを かこうの ばめん 4",
+        "questionJa": "さかなの えが できて、ふたりは どんな きもち？",
+        "choices": [
+          {
+            "id": "draw-4-1",
+            "labelEn": "happy",
+            "labelJa": "うれしい"
+          },
+          {
+            "id": "draw-4-2",
+            "labelEn": "sad",
+            "labelJa": "かなしい"
+          },
+          {
+            "id": "draw-4-3",
+            "labelEn": "scared",
+            "labelJa": "こわい"
+          }
+        ],
+        "correctChoiceId": "draw-4-1",
+        "feedbackCorrectJa": "そう！ふたりとも うれしいね。",
+        "feedbackIncorrectJa": "もういちど きいてみよう。“Two bananas are happy.” が ヒントだよ。",
+        "summaryJa": "ふたりは さかなの えを かざって、うれしくなった。",
+        "puzzle": {
+          "id": 211,
+          "subject": "Two bananas",
+          "verb": "are",
+          "object": "happy",
+          "pattern": "svc",
+          "distractors": {
+            "subject": "Two girls",
+            "verb": "is",
+            "object": "sad"
+          }
+        }
+      }
+    ]
+  }
+]
