@@ -1,6 +1,6 @@
-# Puzzle Grammar - English Learning Games
+# ことばダンジョン(Kotoba Dungeon)
 
-こども向けの英語あそびを集めたサイトです。トップ(`/`)から各アプリへ入ります。
+えいごの ことばを あつめる ぼうけん。こども向けの英語あそびを集めたサイトです。トップ(`/`)から各アプリへ入ります。
 Next.js(App Router)で作り、Cloudflare Workers に [vinext](https://github.com/cloudflare/vinext) でデプロイしています。
 
 ## アプリ一覧

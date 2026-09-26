@@ -3,11 +3,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Puzzle Grammar - English Learning Games",
-    template: "%s | Puzzle Grammar",
+    default: "ことばダンジョン - Kotoba Dungeon",
+    template: "%s | ことばダンジョン",
   },
-  description: "こども向けの英語あそび。文をつくるパズル、かるた、フォニックス、えほんクイズなど。",
-  applicationName: "Puzzle Grammar",
+  description: "えいごの ことばを あつめる ぼうけん。文をつくるパズル、かるた、フォニックス、えほんクイズなど、こども向けの英語あそび。",
+  applicationName: "ことばダンジョン",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [{ url: "/favicon.ico" }, { url: "/icons/icon.svg", type: "image/svg+xml" }],
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    title: "Puzzle Grammar",
+    title: "ことばダンジョン",
   },
 };
 
