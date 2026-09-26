@@ -12,7 +12,7 @@ export function getSotaImagePath(
   variant: SotaImageVariant = "color",
 ): string {
   const page = String(spread.artPage).padStart(2, "0");
-  return `/images/sota/${variant}/art-p${page}.${variant === "color" ? "webp" : "png"}`;
+  return `/images/sota/${variant}/art-p${page}.webp`;
 }
 
 export function getChoiceSpreads(spread: SotaSpread): SotaSpread[] {

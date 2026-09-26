@@ -17,11 +17,13 @@
 1. **作業ブランチ**: `claude/vigilant-albattani-ga9wgd` から新しいブランチを切ります(例: `codex/images-quiz-set34`)。このブランチがマージ済みなら `main` から切ってください。発注ごとにブランチまたはコミットを分けてください。
 2. **見本の承認を先に取る**: 各発注では、まず **見本を3枚** 作ってください。発注者の承認をもらってから残りを量産します。キャラクターが出る発注は、先にキャラクターシートを作ります(正面・横・表情)。
 3. **プロンプトの記録**: 使ったプロンプトは `docs/content-prompts/<発注ID>-<画像ID>.txt` に保存します(既存の `docs/content-prompts/` と同じ運用です)。作り直したものは `-fix.txt` を付けます。
-4. **原本と配信用を分ける**:
-   - 生成した原本(PNG)は `design-drafts/<発注ID>/` に置きます。`public/` の外なので配信されません。
-   - 配信用は **WebP(品質 85〜90、長辺 1200px 以下)** にして `public/images/...` に置きます。変換は `sharp` で行い、既存の `scripts/prepare-content-images.cjs` を拡張して使ってください。
+4. **原本と配信用を分ける**(2026-09-26 に全画像をこの形に統一済み):
+   - 見本や没案は `design-drafts/<発注ID>/` に置きます。
+   - 採用した原本(PNG / JPEG)は `design-drafts/originals/<グループ>/` に置きます。`public/` の外なので配信されません。
+   - 配信用の WebP は、`node scripts/prepare-content-images.cjs` で原本から自動で作ります(幅 1200px 以下、品質 85)。新しいグループ(例: `storyquiz/no1`)を足すときは、スクリプトの `TARGETS` に1行追加してください。
+   - ドット絵(系統B)は縮小するとにじむので、このスクリプトを通さず、PNG のまま `public/images/...` に置きます。
    - 1枚の目安は **300KB 以下** です(ドット絵は 30KB 以下)。
-5. **既存ファイルを上書きしない**: 新しいファイル名で置いてから、データ(JSON)の参照先を切り替えてください。置き換えた旧画像は `design-drafts/replaced/` に移し、履歴として残します。
+5. **置き換える前の画像は捨てない**: 差し替えた原本は `design-drafts/replaced/<グループ>/` に移し、履歴として残します。
 6. **検証**: 最後に `npm run check`(lint・型・テスト・コンテンツ検証)を実行し、すべて通ることを確認してください。`app/content.test.ts` が「データが参照する画像が実在するか」をチェックします。
 
 ### 0-2. 画風の2系統
@@ -75,7 +77,12 @@
 **仕様**
 - 比率は **正方形 1:1** です(セット1・2と試作に合わせる)。原本は 1024px 以上で作ります。
 - 試作の多くは、拡張子が `.png` なのに中身が JPEG です。採用するときは、原本を `design-drafts/Q34/` に正しい拡張子で置き直してください。
-- 配信先: `public/images/quiz/img_NN.webp`。`public/data/quiz_data.json` の該当 `image` を `.webp` に書き換え、旧 PNG は `design-drafts/replaced/quiz/` へ移します。
+- 今の配信画像 `public/images/quiz/img_NN.webp` は、下描きの原本 `design-drafts/originals/quiz/img_NN.png` から作られています。
+- 差し替え手順:
+  1. 下描きの原本を `design-drafts/replaced/quiz/` に移します。
+  2. カラーの原本を同じ名前で `design-drafts/originals/quiz/img_NN.png` に置きます。
+  3. `node scripts/prepare-content-images.cjs` を実行します。
+  4. `public/data/quiz_data.json` の、そのカードの `"style": "sketch"` を消します。これを消さないと、かるたで下描き用のコントラスト強調がかかったままになります。
 - 画風: 系統A。セット2(`img_16`〜`img_31`)の色味に合わせます。
 - セット3の曜日の札だけは、文字を入れてよいものとします。英語の綴りを正確に、元の下描きと同じ位置に置いてください。
 
@@ -117,7 +124,7 @@ make the key relation ({RELATION}) large and central.
 
 **仕様**
 - 比率 3:2 の横長(「はじめて」編と同じ)。
-- 配信先: `public/images/storyquiz/no1/<場面ID>.webp`。
+- 原本は `design-drafts/originals/storyquiz/no1/<場面ID>.png` に置き、スクリプトの `TARGETS` に `{ from: "storyquiz/no1", to: "public/images/storyquiz/no1", width: 1200 }` を追加して WebP を作ります(配信先 `public/images/storyquiz/no1/<場面ID>.webp`)。
 - データ: `no1.json` の各 segment に `image`(パス)と `imageAlt`(日本語で短く「おやゆびひめが はなから うまれる ばめん」など)を追加します。
 - 画風: 系統A。「はじめて」編(`public/images/mini-stories/lunch-1.webp` など)と並べて違和感がないようにします。
 
@@ -232,16 +239,15 @@ Characters (keep exactly as the character sheet): {CHARACTERS}. Gentle and not s
 
 ## 2. Claude 側で行う技術作業(発注外・参考)
 
-次の作業は、画像生成ではないので Claude 側で対応します。Codex は対応不要です。
-- 大きな PNG の WebP 化:
-  - SVO カード `public/images/page_*.png`(2722px・45枚)
-  - レベル2 `public/images/lv2/*.png`(約1MB×20)
-  - So-ta の線画 `public/images/sota/lineart/*.png`(1〜3.6MB)
-  - フォニックスのカード `public/images/phonics/cards/*.png`
-- 拡張子が `.png` なのに中身が JPEG のファイルを直す(Quiz Maker の32枚)。
-- 使われていない `public/images/phonics/media__*.png`(7枚)の整理。
-- Quiz Maker のかるたで、カラー画像にも線画用のコントラスト強調フィルター(`contrast(1.5)`)がかかっている点の調整。
+**済み(2026-09-26)**
+- 配信画像をすべて WebP に統一しました(元画像 139MB → 配信 約15MB)。元画像は `design-drafts/originals/` にあります。
+- 拡張子が `.png` なのに中身が JPEG だったファイルは、変換のときに正しく扱われます。
+- 使われていない `media__*.png`(7枚)は `design-drafts/unused/` に移しました。
+- Quiz Maker のかるたのコントラスト強調は、`"style": "sketch"` のカードだけにかかるようにしました。
+
+**これから**
 - TR・RM・BR・MC の画面への組み込み。
+- Q34 の納品後、「きょうのダンジョン」でセット3・4も出題できるようにする(今はカラーのセット1・2だけ)。
 
 ---
 

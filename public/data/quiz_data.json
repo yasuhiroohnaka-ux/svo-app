@@ -1,7 +1,7 @@
 [
     {
         "id": "page_0",
-        "image": "/images/quiz/img_0.png",
+        "image": "/images/quiz/img_0.webp",
         "sentences": [
             "It is sunny.",
             "There is an eraser.",
@@ -18,7 +18,7 @@
     },
     {
         "id": "page_1",
-        "image": "/images/quiz/img_1.png",
+        "image": "/images/quiz/img_1.webp",
         "sentences": [
             "It is sunny.",
             "There is an eraser.",
@@ -35,7 +35,7 @@
     },
     {
         "id": "page_2",
-        "image": "/images/quiz/img_2.png",
+        "image": "/images/quiz/img_2.webp",
         "sentences": [
             "It is sunny.",
             "There is an eraser.",
@@ -52,7 +52,7 @@
     },
     {
         "id": "page_3",
-        "image": "/images/quiz/img_3.png",
+        "image": "/images/quiz/img_3.webp",
         "sentences": [
             "It is cloudy.",
             "There is a giraffe.",
@@ -69,7 +69,7 @@
     },
     {
         "id": "page_4",
-        "image": "/images/quiz/img_4.png",
+        "image": "/images/quiz/img_4.webp",
         "sentences": [
             "It is cloudy.",
             "There is a giraffe.",
@@ -86,7 +86,7 @@
     },
     {
         "id": "page_5",
-        "image": "/images/quiz/img_5.png",
+        "image": "/images/quiz/img_5.webp",
         "sentences": [
             "It is sunny.",
             "There is a monkey.",
@@ -103,7 +103,7 @@
     },
     {
         "id": "page_6",
-        "image": "/images/quiz/img_6.png",
+        "image": "/images/quiz/img_6.webp",
         "sentences": [
             "It is sunny.",
             "There is a monkey.",
@@ -120,7 +120,7 @@
     },
     {
         "id": "page_7",
-        "image": "/images/quiz/img_7.png",
+        "image": "/images/quiz/img_7.webp",
         "sentences": [
             "It is sunny.",
             "There is a monkey.",
@@ -137,7 +137,7 @@
     },
     {
         "id": "page_8",
-        "image": "/images/quiz/img_8.png",
+        "image": "/images/quiz/img_8.webp",
         "sentences": [
             "It is snowy.",
             "There is an elephant.",
@@ -154,7 +154,7 @@
     },
     {
         "id": "page_9",
-        "image": "/images/quiz/img_9.png",
+        "image": "/images/quiz/img_9.webp",
         "sentences": [
             "It is snowy.",
             "There are elephants.",
@@ -171,7 +171,7 @@
     },
     {
         "id": "page_10",
-        "image": "/images/quiz/img_10.png",
+        "image": "/images/quiz/img_10.webp",
         "sentences": [
             "It is snowy.",
             "There is an elephant.",
@@ -188,7 +188,7 @@
     },
     {
         "id": "page_11",
-        "image": "/images/quiz/img_11.png",
+        "image": "/images/quiz/img_11.webp",
         "sentences": [
             "It is cloudy.",
             "There is a bear.",
@@ -205,7 +205,7 @@
     },
     {
         "id": "page_12",
-        "image": "/images/quiz/img_12.png",
+        "image": "/images/quiz/img_12.webp",
         "sentences": [
             "It is cloudy.",
             "There is a bear.",
@@ -222,7 +222,7 @@
     },
     {
         "id": "page_13",
-        "image": "/images/quiz/img_13.png",
+        "image": "/images/quiz/img_13.webp",
         "sentences": [
             "It is cloudy.",
             "There is a bear.",
@@ -239,7 +239,7 @@
     },
     {
         "id": "page_14",
-        "image": "/images/quiz/img_14.png",
+        "image": "/images/quiz/img_14.webp",
         "sentences": [
             "It is snowy.",
             "There is an alligator.",
@@ -256,7 +256,7 @@
     },
     {
         "id": "page_15",
-        "image": "/images/quiz/img_15.png",
+        "image": "/images/quiz/img_15.webp",
         "sentences": [
             "It is snowy.",
             "There is an alligator.",
@@ -273,7 +273,7 @@
     },
     {
         "id": "page_16",
-        "image": "/images/quiz/img_16.png",
+        "image": "/images/quiz/img_16.webp",
         "target": "The pencils are running faster than the apples.",
         "target_zh": "铅笔跑得比苹果快。",
         "sentences": [
@@ -288,7 +288,7 @@
     },
     {
         "id": "page_17",
-        "image": "/images/quiz/img_17.png",
+        "image": "/images/quiz/img_17.webp",
         "target": "The apples are running as fast as the pencils.",
         "target_zh": "苹果跑得和铅笔一样快。",
         "sentences": [
@@ -301,7 +301,7 @@
     },
     {
         "id": "page_18",
-        "image": "/images/quiz/img_18.png",
+        "image": "/images/quiz/img_18.webp",
         "target": "The apples are running faster than the pencils.",
         "target_zh": "苹果跑得比铅笔快。",
         "sentences": [
@@ -316,7 +316,7 @@
     },
     {
         "id": "page_19",
-        "image": "/images/quiz/img_19.png",
+        "image": "/images/quiz/img_19.webp",
         "target": "The boys are younger than the girls.",
         "target_zh": "男孩们比女孩们年轻。",
         "sentences": [
@@ -331,7 +331,7 @@
     },
     {
         "id": "page_20",
-        "image": "/images/quiz/img_20.png",
+        "image": "/images/quiz/img_20.webp",
         "target": "The girls are younger than the boys.",
         "target_zh": "女孩们比男孩们年轻。",
         "sentences": [
@@ -346,7 +346,7 @@
     },
     {
         "id": "page_21",
-        "image": "/images/quiz/img_21.png",
+        "image": "/images/quiz/img_21.webp",
         "target": "The boys are stronger than the girls.",
         "target_zh": "男孩们比女孩们强壮。",
         "sentences": [
@@ -361,7 +361,7 @@
     },
     {
         "id": "page_22",
-        "image": "/images/quiz/img_22.png",
+        "image": "/images/quiz/img_22.webp",
         "target": "The girls are stronger than the boys.",
         "target_zh": "女孩们比男孩们强壮。",
         "sentences": [
@@ -376,7 +376,7 @@
     },
     {
         "id": "page_23",
-        "image": "/images/quiz/img_23.png",
+        "image": "/images/quiz/img_23.webp",
         "target": "The eagles are running faster than the snakes.",
         "target_zh": "老鹰跑得比蛇快。",
         "sentences": [
@@ -391,7 +391,7 @@
     },
     {
         "id": "page_24",
-        "image": "/images/quiz/img_24.png",
+        "image": "/images/quiz/img_24.webp",
         "target": "The snakes are running faster than the eagles.",
         "target_zh": "蛇跑得比老鹰快。",
         "sentences": [
@@ -406,7 +406,7 @@
     },
     {
         "id": "page_25",
-        "image": "/images/quiz/img_25.png",
+        "image": "/images/quiz/img_25.webp",
         "target": "Ball B is older than Ball A.",
         "target_zh": "B球比A球旧。",
         "sentences": [
@@ -423,7 +423,7 @@
     },
     {
         "id": "page_26",
-        "image": "/images/quiz/img_26.png",
+        "image": "/images/quiz/img_26.webp",
         "target": "Ball A is older than Ball B.",
         "target_zh": "A球比B球旧。",
         "sentences": [
@@ -438,7 +438,7 @@
     },
     {
         "id": "page_27",
-        "image": "/images/quiz/img_27.png",
+        "image": "/images/quiz/img_27.webp",
         "target": "Shirt B is larger than Shirt A.",
         "target_zh": "B号衬衫比A号衬衫大。",
         "sentences": [
@@ -455,7 +455,7 @@
     },
     {
         "id": "page_28",
-        "image": "/images/quiz/img_28.png",
+        "image": "/images/quiz/img_28.webp",
         "target": "Shirt A is larger than Shirt B.",
         "target_zh": "A号衬衫比B号衬衫大。",
         "sentences": [
@@ -470,7 +470,7 @@
     },
     {
         "id": "page_29",
-        "image": "/images/quiz/img_29.png",
+        "image": "/images/quiz/img_29.webp",
         "target": "The pencils are stronger than the apples.",
         "target_zh": "铅笔比苹果强壮。",
         "sentences": [
@@ -485,7 +485,7 @@
     },
     {
         "id": "page_30",
-        "image": "/images/quiz/img_30.png",
+        "image": "/images/quiz/img_30.webp",
         "target": "The apples are stronger than the pencils.",
         "target_zh": "苹果比铅笔强壮。",
         "sentences": [
@@ -500,7 +500,7 @@
     },
     {
         "id": "page_31",
-        "image": "/images/quiz/img_31.png",
+        "image": "/images/quiz/img_31.webp",
         "target": "The snakes are running as fast as the eagles.",
         "target_zh": "蛇跑得和老鹰一样快。",
         "sentences": [
@@ -514,7 +514,7 @@
     {
         "id": "page_32",
         "deck": "set3",
-        "image": "/images/quiz/img_32.png",
+        "image": "/images/quiz/img_32.webp",
         "target": "The alligator is the oldest of the three.",
         "target_zh": "???????????",
         "sentences": [
@@ -526,12 +526,13 @@
             "???????",
             "???????????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_33",
         "deck": "set3",
-        "image": "/images/quiz/img_33.png",
+        "image": "/images/quiz/img_33.webp",
         "target": "The alligator is the oldest of the three.",
         "target_zh": "???????????",
         "sentences": [
@@ -543,12 +544,13 @@
             "???????",
             "???????????",
             "????????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_34",
         "deck": "set3",
-        "image": "/images/quiz/img_34.png",
+        "image": "/images/quiz/img_34.webp",
         "target": "The watermelon is the strongest of the three.",
         "target_zh": "???????????",
         "sentences": [
@@ -560,12 +562,13 @@
             "???????",
             "???????????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_35",
         "deck": "set3",
-        "image": "/images/quiz/img_35.png",
+        "image": "/images/quiz/img_35.webp",
         "target": "The glue is the largest of the three.",
         "target_zh": "??????????",
         "sentences": [
@@ -577,12 +580,13 @@
             "???????",
             "??????????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_36",
         "deck": "set3",
-        "image": "/images/quiz/img_36.png",
+        "image": "/images/quiz/img_36.webp",
         "target": "The ruler is the largest of the three.",
         "target_zh": "??????????",
         "sentences": [
@@ -594,12 +598,13 @@
             "???????",
             "??????????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_37",
         "deck": "set3",
-        "image": "/images/quiz/img_37.png",
+        "image": "/images/quiz/img_37.webp",
         "target": "The watermelon is the strongest of the three.",
         "target_zh": "???????????",
         "sentences": [
@@ -611,12 +616,13 @@
             "???????",
             "???????????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_38",
         "deck": "set3",
-        "image": "/images/quiz/img_38.png",
+        "image": "/images/quiz/img_38.webp",
         "target": "The scissors are the largest of the three.",
         "target_zh": "??????????",
         "sentences": [
@@ -628,12 +634,13 @@
             "???????",
             "??????????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_39",
         "deck": "set3",
-        "image": "/images/quiz/img_39.png",
+        "image": "/images/quiz/img_39.webp",
         "target": "The strawberry is the strongest of the three.",
         "target_zh": "???????????",
         "sentences": [
@@ -645,12 +652,13 @@
             "???????",
             "???????????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_40",
         "deck": "set3",
-        "image": "/images/quiz/img_40.png",
+        "image": "/images/quiz/img_40.webp",
         "target": "The giraffe is the oldest of the three.",
         "target_zh": "????????????",
         "sentences": [
@@ -662,12 +670,13 @@
             "???????",
             "????????????",
             "???????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_41",
         "deck": "set3",
-        "image": "/images/quiz/img_41.png",
+        "image": "/images/quiz/img_41.webp",
         "target": "The jeans are the fastest of the three.",
         "target_zh": "???????????",
         "sentences": [
@@ -679,12 +688,13 @@
             "???????",
             "???????????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_42",
         "deck": "set3",
-        "image": "/images/quiz/img_42.png",
+        "image": "/images/quiz/img_42.webp",
         "target": "The socks are the fastest of the three.",
         "target_zh": "??????????",
         "sentences": [
@@ -696,12 +706,13 @@
             "???????",
             "??????????",
             "???????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_43",
         "deck": "set3",
-        "image": "/images/quiz/img_43.png",
+        "image": "/images/quiz/img_43.webp",
         "target": "The jeans are the fastest of the three.",
         "target_zh": "???????????",
         "sentences": [
@@ -713,12 +724,13 @@
             "???????",
             "???????????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_44",
         "deck": "set3",
-        "image": "/images/quiz/img_44.png",
+        "image": "/images/quiz/img_44.webp",
         "target": "The peach is the strongest of the three.",
         "target_zh": "???????????",
         "sentences": [
@@ -730,12 +742,13 @@
             "???????",
             "???????????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_45",
         "deck": "set3",
-        "image": "/images/quiz/img_45.png",
+        "image": "/images/quiz/img_45.webp",
         "target": "The ruler is the largest of the three.",
         "target_zh": "??????????",
         "sentences": [
@@ -747,12 +760,13 @@
             "???????",
             "??????????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_46",
         "deck": "set3",
-        "image": "/images/quiz/img_46.png",
+        "image": "/images/quiz/img_46.webp",
         "target": "The shoes are the fastest of the three.",
         "target_zh": "??????????",
         "sentences": [
@@ -764,12 +778,13 @@
             "???????",
             "??????????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_47",
         "deck": "set3",
-        "image": "/images/quiz/img_47.png",
+        "image": "/images/quiz/img_47.webp",
         "target": "The bear is the oldest of the three.",
         "target_zh": "??????????",
         "sentences": [
@@ -781,12 +796,13 @@
             "???????",
             "??????????",
             "????????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_48",
         "deck": "set4",
-        "image": "/images/quiz/img_48.png",
+        "image": "/images/quiz/img_48.webp",
         "target": "It is crying in the classroom.",
         "target_zh": "????????",
         "sentences": [
@@ -796,12 +812,13 @@
         "sentences_zh": [
             "???????",
             "????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_49",
         "deck": "set4",
-        "image": "/images/quiz/img_49.png",
+        "image": "/images/quiz/img_49.webp",
         "target": "It is crying in front of the blackboard.",
         "target_zh": "????????",
         "sentences": [
@@ -811,12 +828,13 @@
         "sentences_zh": [
             "???????",
             "????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_50",
         "deck": "set4",
-        "image": "/images/quiz/img_50.png",
+        "image": "/images/quiz/img_50.webp",
         "target": "It is crying next to the teacher.",
         "target_zh": "?????????",
         "sentences": [
@@ -826,12 +844,13 @@
         "sentences_zh": [
             "???????",
             "?????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_51",
         "deck": "set4",
-        "image": "/images/quiz/img_51.png",
+        "image": "/images/quiz/img_51.webp",
         "target": "It is hiding among the graves.",
         "target_zh": "????????",
         "sentences": [
@@ -841,12 +860,13 @@
         "sentences_zh": [
             "???????",
             "????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_52",
         "deck": "set4",
-        "image": "/images/quiz/img_52.png",
+        "image": "/images/quiz/img_52.webp",
         "target": "It is hiding between the trees.",
         "target_zh": "???????",
         "sentences": [
@@ -856,12 +876,13 @@
         "sentences_zh": [
             "???????",
             "???????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_53",
         "deck": "set4",
-        "image": "/images/quiz/img_53.png",
+        "image": "/images/quiz/img_53.webp",
         "target": "It is running around Saturn.",
         "target_zh": "?????????",
         "sentences": [
@@ -871,12 +892,13 @@
         "sentences_zh": [
             "???????",
             "?????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_54",
         "deck": "set4",
-        "image": "/images/quiz/img_54.png",
+        "image": "/images/quiz/img_54.webp",
         "target": "It is running on the earth.",
         "target_zh": "????????",
         "sentences": [
@@ -886,12 +908,13 @@
         "sentences_zh": [
             "???????",
             "????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_55",
         "deck": "set4",
-        "image": "/images/quiz/img_55.png",
+        "image": "/images/quiz/img_55.webp",
         "target": "It is running through Jupiter.",
         "target_zh": "?????????",
         "sentences": [
@@ -901,12 +924,13 @@
         "sentences_zh": [
             "???????",
             "?????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_56",
         "deck": "set4",
-        "image": "/images/quiz/img_56.png",
+        "image": "/images/quiz/img_56.webp",
         "target": "It is crying behind the window.",
         "target_zh": "?????????",
         "sentences": [
@@ -916,12 +940,13 @@
         "sentences_zh": [
             "???????",
             "?????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_57",
         "deck": "set4",
-        "image": "/images/quiz/img_57.png",
+        "image": "/images/quiz/img_57.webp",
         "target": "It is crying in the classroom.",
         "target_zh": "????????",
         "sentences": [
@@ -931,12 +956,13 @@
         "sentences_zh": [
             "???????",
             "????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_58",
         "deck": "set4",
-        "image": "/images/quiz/img_58.png",
+        "image": "/images/quiz/img_58.webp",
         "target": "It is crying in front of the blackboard.",
         "target_zh": "????????",
         "sentences": [
@@ -946,12 +972,13 @@
         "sentences_zh": [
             "???????",
             "????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_59",
         "deck": "set4",
-        "image": "/images/quiz/img_59.png",
+        "image": "/images/quiz/img_59.webp",
         "target": "It is jumping around a grave.",
         "target_zh": "???????????",
         "sentences": [
@@ -961,12 +988,13 @@
         "sentences_zh": [
             "???????",
             "???????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_60",
         "deck": "set4",
-        "image": "/images/quiz/img_60.png",
+        "image": "/images/quiz/img_60.webp",
         "target": "It is jumping into a grave.",
         "target_zh": "???????????",
         "sentences": [
@@ -976,12 +1004,13 @@
         "sentences_zh": [
             "???????",
             "???????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_61",
         "deck": "set4",
-        "image": "/images/quiz/img_61.png",
+        "image": "/images/quiz/img_61.webp",
         "target": "It is jumping over a grave.",
         "target_zh": "??????????",
         "sentences": [
@@ -991,12 +1020,13 @@
         "sentences_zh": [
             "???????",
             "??????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_62",
         "deck": "set4",
-        "image": "/images/quiz/img_62.png",
+        "image": "/images/quiz/img_62.webp",
         "target": "It is running around Saturn.",
         "target_zh": "?????????",
         "sentences": [
@@ -1006,12 +1036,13 @@
         "sentences_zh": [
             "???????",
             "?????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_63",
         "deck": "set4",
-        "image": "/images/quiz/img_63.png",
+        "image": "/images/quiz/img_63.webp",
         "target": "It is running through the earth.",
         "target_zh": "?????????",
         "sentences": [
@@ -1021,12 +1052,13 @@
         "sentences_zh": [
             "???????",
             "?????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_64",
         "deck": "set4",
-        "image": "/images/quiz/img_64.png",
+        "image": "/images/quiz/img_64.webp",
         "target": "It is flying above the earth.",
         "target_zh": "?????????",
         "sentences": [
@@ -1036,12 +1068,13 @@
         "sentences_zh": [
             "???????",
             "?????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_65",
         "deck": "set4",
-        "image": "/images/quiz/img_65.png",
+        "image": "/images/quiz/img_65.webp",
         "target": "It is flying around Jupiter.",
         "target_zh": "?????????",
         "sentences": [
@@ -1051,12 +1084,13 @@
         "sentences_zh": [
             "???????",
             "?????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_66",
         "deck": "set4",
-        "image": "/images/quiz/img_66.png",
+        "image": "/images/quiz/img_66.webp",
         "target": "It is flying below (under) Jupiter.",
         "target_zh": "?????????",
         "sentences": [
@@ -1066,12 +1100,13 @@
         "sentences_zh": [
             "???????",
             "?????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_67",
         "deck": "set4",
-        "image": "/images/quiz/img_67.png",
+        "image": "/images/quiz/img_67.webp",
         "target": "It is hiding among the graves.",
         "target_zh": "????????",
         "sentences": [
@@ -1081,12 +1116,13 @@
         "sentences_zh": [
             "???????",
             "????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_68",
         "deck": "set4",
-        "image": "/images/quiz/img_68.png",
+        "image": "/images/quiz/img_68.webp",
         "target": "It is hiding between the trees.",
         "target_zh": "???????",
         "sentences": [
@@ -1096,12 +1132,13 @@
         "sentences_zh": [
             "???????",
             "???????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_69",
         "deck": "set4",
-        "image": "/images/quiz/img_69.png",
+        "image": "/images/quiz/img_69.webp",
         "target": "It is hiding behind a tree.",
         "target_zh": "?????????",
         "sentences": [
@@ -1111,12 +1148,13 @@
         "sentences_zh": [
             "???????",
             "?????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_70",
         "deck": "set4",
-        "image": "/images/quiz/img_70.png",
+        "image": "/images/quiz/img_70.webp",
         "target": "It is jumping around the teacher.",
         "target_zh": "?????????",
         "sentences": [
@@ -1126,12 +1164,13 @@
         "sentences_zh": [
             "???????",
             "?????????"
-        ]
+        ],
+        "style": "sketch"
     },
     {
         "id": "page_71",
         "deck": "set4",
-        "image": "/images/quiz/img_71.png",
+        "image": "/images/quiz/img_71.webp",
         "target": "It is jumping over the teacher.",
         "target_zh": "????????",
         "sentences": [
@@ -1141,6 +1180,7 @@
         "sentences_zh": [
             "???????",
             "????????"
-        ]
+        ],
+        "style": "sketch"
     }
 ]

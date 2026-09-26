@@ -287,10 +287,13 @@
     max-height: 180px;
     object-fit: contain;
     display: block;
-    /* Enhance line visibility of the artwork and blend its white
-       background into the card. */
-    filter: contrast(1.5);
     mix-blend-mode: multiply;
+}
+
+/* 鉛筆の下描き(セット3・4)だけ、線を見やすくするためにコントラストを強める。
+   カラー画像にかけると色がきつくなるので かけない */
+.karutaImageSketch {
+    filter: contrast(1.5);
 }
 
 /* Dynamic Layouts based on Card Count */

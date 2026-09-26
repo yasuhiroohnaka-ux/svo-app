@@ -36,6 +36,8 @@ type Card = {
     target?: string;
     target_zh?: string;
     image: string;
+    /** "sketch" = 鉛筆の下描き(線が うすいので かるたでは コントラストを 強める) */
+    style?: string;
 };
 
 type ContentLang = "en" | "zh";
@@ -50,6 +52,7 @@ type RawCard = {
     sentences_zh?: unknown;
     target?: unknown;
     target_zh?: unknown;
+    style?: unknown;
 };
 
 type Mode = "flash" | "karuta";
@@ -392,6 +395,7 @@ export default function Page() {
         if (selectedDeck === "all") return cards;
         return cards.filter((card) => (card.deck || "set1") === selectedDeck);
     }, [cards, selectedDeck]);
+    const sketchImages = useMemo(() => new Set(cards.filter((card) => card.style === "sketch").map((card) => card.image)), [cards]);
     const deckCardCount = deckSize === "all" ? deckCards.length : Math.min(Number(deckSize), deckCards.length);
 
     useEffect(() => {
@@ -441,6 +445,7 @@ export default function Page() {
                     sentences_zh: Array.isArray(x.sentences_zh) ? x.sentences_zh : undefined,
                     target: typeof x.target === "string" ? x.target : undefined,
                     target_zh: typeof x.target_zh === "string" ? x.target_zh : undefined,
+                    style: typeof x.style === "string" ? x.style : undefined,
                 })).filter(c => c.image && c.sentences.length > 0);
 
                 if (normalized.length === 0) {
@@ -1306,7 +1311,7 @@ export default function Page() {
                                             <Image
                                                 src={String(img)}
                                                 alt={`えのカード ${i + 1}`}
-                                                className={styles.karutaImage}
+                                                className={`${styles.karutaImage} ${sketchImages.has(String(img)) ? styles.karutaImageSketch : ""}`}
                                                 width={545}
                                                 height={771}
                                                 sizes="(max-width: 480px) 30vw, (max-width: 1024px) 20vw, 180px"
