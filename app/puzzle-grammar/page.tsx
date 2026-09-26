@@ -8,7 +8,7 @@ import { loadCards, shuffle } from "../svo/data";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { speak, cancelSpeech, unlockSpeech } from "@/utils/speak";
 import AppHeader from "@/app/components/AppHeader";
-import SettingsSheet, { SettingsRow } from "@/app/components/SettingsSheet";
+import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
 import SpeedControl from "@/app/components/SpeedControl";
 import HanamaruMark from "@/app/components/HanamaruMark";
 
@@ -17,6 +17,7 @@ import { loadLv2Cards, type PuzzleCard } from "@/app/lib/lv2Cards";
 import ResultDialog from "@/app/components/ResultDialog";
 import RewardSummary from "@/app/components/RewardSummary";
 import { recordMistake } from "@/app/lib/mistakes";
+import { createPersistentStore, usePersistentStore } from "@/app/lib/persistentStore";
 import { recordStars, starsFromMistakes, type RecordResult } from "@/app/lib/rewards";
 import { getStoryPuzzleCards, miniStories } from "@/app/content/miniStories";
 import styles from "./page.module.css";
@@ -33,6 +34,13 @@ type LoadState = "loading" | "ready" | "error";
 
 /** レベル1・2は 10まいずつの ステージに わける(おはなしの ぶんは ぜんぶで 1ステージ) */
 const ROUND_SIZE = 10;
+
+/** かたちヒントなし(むずかしい)モード。ピースの形と色が ぜんぶ同じになる */
+const hardModeStore = createPersistentStore<boolean>({
+  key: "puzzle.hardMode",
+  fallback: false,
+  parse: (value) => value === true,
+});
 
 export default function Page() {
   /** レベル1デッキ(既存35枚。pattern: "svo" 扱い) */
@@ -60,6 +68,7 @@ export default function Page() {
   /** いまの ステージで まちがえた回数(スキップも 1回に かぞえる) */
   const [mistakes, setMistakes] = useState(0);
   const [roundReward, setRoundReward] = useState<RecordResult | null>(null);
+  const hardMode = usePersistentStore(hardModeStore);
   const [allCleared, setAllCleared] = useState(false);
 
   // タップ操作: 選択中ピース key
@@ -168,13 +177,14 @@ export default function Page() {
       clearAdvanceTimer();
       cancelSpeech();
       if (index + 1 >= roundEnd) {
-        const stage = level === "stories" ? `stories-${storyId}` : `lv${level}-${roundIndex + 1}`;
+        // むずかしいモードの ⭐ は ふつうとは べつに あつめられる
+        const stage = `${level === "stories" ? `stories-${storyId}` : `lv${level}-${roundIndex + 1}`}${hardMode ? "-hard" : ""}`;
         setRoundReward(recordStars("puzzle", stage, starsFromMistakes(mistakes + extraMistakes, 2)));
         return;
       }
       setIndex((i) => i + 1);
     },
-    [clearAdvanceTimer, index, level, mistakes, roundEnd, roundIndex, storyId],
+    [clearAdvanceTimer, hardMode, index, level, mistakes, roundEnd, roundIndex, storyId],
   );
 
   const startRoundAt = useCallback((start: number) => {
@@ -422,6 +432,16 @@ export default function Page() {
       accent="var(--accent-puzzle)"
       right={
         <SettingsSheet>
+          <SettingsRow label="かたちの ヒント">
+            <SettingsChoice
+              value={hardMode ? "off" : "on"}
+              options={[
+                { value: "on", label: "あり" },
+                { value: "off", label: "なし(むずかしい)" },
+              ]}
+              onChange={(value) => hardModeStore.set(value === "off")}
+            />
+          </SettingsRow>
           <SettingsRow label="よみあげの はやさ">
             <SpeedControl showLabel={false} />
           </SettingsRow>
@@ -555,7 +575,9 @@ export default function Page() {
         </span>
       </div>
 
-      <p className={styles.instruction}>えに あう ぶんを つくろう!</p>
+      <p className={styles.instruction}>
+        えに あう ぶんを つくろう!{hardMode && " 🔥 かたちヒントなし"}
+      </p>
 
       {/* 絵 */}
       <div className={styles.pictureWrap}>
@@ -663,7 +685,7 @@ export default function Page() {
               onPointerUp={(e) => onPiecePointerUp(e, piece)}
               onPointerCancel={(e) => onPiecePointerUp(e, piece)}
             >
-              <PuzzlePiece role={piece.role} label={piece.label} />
+              <PuzzlePiece role={piece.role} label={piece.label} plain={hardMode} />
             </div>
           );
         })}

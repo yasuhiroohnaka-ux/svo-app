@@ -428,7 +428,10 @@ export default function PhonicsMazePage() {
         <ResultDialog
           title="ゴール!"
           actions={[
-            { label: "つぎの めいろ", onClick: nextLevel },
+            // クリアしたら 1つ上の しゅるいへ(さいごの しゅるいなら 同じ しゅるいの 新しい めいろ)
+            levelIndex < MAZE_TEMPLATES.length - 1
+              ? { label: `つぎは ${MAZE_TEMPLATES[levelIndex + 1].label}`, onClick: () => resetLevel(levelIndex + 1) }
+              : { label: "つぎの めいろ", onClick: nextLevel },
             {
               label: "もういちど",
               variant: "secondary",
