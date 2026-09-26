@@ -1,9 +1,28 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Puzzle Grammar",
-  description: "Fun English learning games for kids!",
+  title: {
+    default: "Puzzle Grammar - English Learning Games",
+    template: "%s | Puzzle Grammar",
+  },
+  description: "こども向けの英語あそび。文をつくるパズル、かるた、フォニックス、えほんクイズなど。",
+  applicationName: "Puzzle Grammar",
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: [{ url: "/favicon.ico" }, { url: "/icons/icon.svg", type: "image/svg+xml" }],
+    apple: "/icons/apple-touch-icon.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Puzzle Grammar",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#1d2f45",
 };
 
 export default function RootLayout({
@@ -12,7 +31,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -21,6 +40,8 @@ export default function RootLayout({
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* next/font はまだ vinext(Cloudflare 版)での動作を確認していないので、読み込みはこのまま */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body>{children}</body>

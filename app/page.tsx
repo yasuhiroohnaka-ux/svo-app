@@ -1,11 +1,5 @@
 import Link from "next/link";
-import type { Metadata } from "next";
 import styles from "./portal.module.css";
-
-export const metadata: Metadata = {
-  title: "Puzzle Grammar - English Learning Games",
-  description: "Fun English learning games for kids. Practice grammar with SVO puzzles and quiz cards!",
-};
 
 const apps = [
   {
@@ -41,7 +35,7 @@ const apps = [
     icon: "🔍",
     title: "Word\nDetective",
     desc: "Yes/No質問をタップして、ひみつのお題を当てる英語ゲームです。",
-    tags: ["YES/NO", "VOICE", "AI"],
+    tags: ["YES/NO", "VOICE", "QUIZ"],
     soon: false,
   },
   {
