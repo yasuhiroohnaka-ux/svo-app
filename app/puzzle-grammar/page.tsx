@@ -14,6 +14,9 @@ import HanamaruMark from "@/app/components/HanamaruMark";
 
 import PuzzlePiece, { pieceWidth, type Role } from "./PuzzlePiece";
 import { loadLv2Cards, type PuzzleCard } from "@/app/lib/lv2Cards";
+import ResultDialog from "@/app/components/ResultDialog";
+import RewardSummary from "@/app/components/RewardSummary";
+import { recordStars, starsFromMistakes, type RecordResult } from "@/app/lib/rewards";
 import { getStoryPuzzleCards, miniStories } from "@/app/content/miniStories";
 import styles from "./page.module.css";
 import {
@@ -26,6 +29,9 @@ import {
 } from "./tray";
 
 type LoadState = "loading" | "ready" | "error";
+
+/** レベル1・2は 10まいずつの ステージに わける(おはなしの ぶんは ぜんぶで 1ステージ) */
+const ROUND_SIZE = 10;
 
 export default function Page() {
   /** レベル1デッキ(既存35枚。pattern: "svo" 扱い) */
@@ -50,6 +56,9 @@ export default function Page() {
   const [placedKeys, setPlacedKeys] = useState<Set<string>>(new Set());
 
   const [completed, setCompleted] = useState(false);
+  /** いまの ステージで まちがえた回数(スキップも 1回に かぞえる) */
+  const [mistakes, setMistakes] = useState(0);
+  const [roundReward, setRoundReward] = useState<RecordResult | null>(null);
   const [allCleared, setAllCleared] = useState(false);
 
   // タップ操作: 選択中ピース key
@@ -97,6 +106,8 @@ export default function Page() {
       setScore(0);
       setStreak(0);
       setAllCleared(false);
+    setMistakes(0);
+    setRoundReward(null);
       setLoadState("ready");
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : String(err));
@@ -133,6 +144,7 @@ export default function Page() {
   const reject = useCallback((pieceKey: string, slotRole: Role | null) => {
     playBuzz();
     setStreak(0);
+    setMistakes((count) => count + 1);
     setRejectKey(pieceKey);
     if (slotRole) setFlashSlot(slotRole);
     if (rejectTimer.current) clearTimeout(rejectTimer.current);
@@ -143,15 +155,32 @@ export default function Page() {
   }, []);
 
   /** 次のカードへ進む(全部終わっていればクリア画面) */
-  const goNext = useCallback(() => {
-    clearAdvanceTimer();
-    cancelSpeech();
-    if (index + 1 >= cards.length) {
-      setAllCleared(true);
-      return;
-    }
-    setIndex((i) => i + 1);
-  }, [cards.length, clearAdvanceTimer, index]);
+  const roundSize = level === "stories" ? Math.max(1, cards.length) : ROUND_SIZE;
+  const roundIndex = Math.floor(index / roundSize);
+  const roundStart = roundIndex * roundSize;
+  const roundEnd = Math.min(cards.length, roundStart + roundSize);
+  const roundCount = Math.max(1, Math.ceil(cards.length / roundSize));
+
+  /** 次のカードへ。ステージの さいごなら ⭐ を きろくして 結果を出す */
+  const goNext = useCallback(
+    (extraMistakes = 0) => {
+      clearAdvanceTimer();
+      cancelSpeech();
+      if (index + 1 >= roundEnd) {
+        const stage = level === "stories" ? `stories-${storyId}` : `lv${level}-${roundIndex + 1}`;
+        setRoundReward(recordStars("puzzle", stage, starsFromMistakes(mistakes + extraMistakes, 2)));
+        return;
+      }
+      setIndex((i) => i + 1);
+    },
+    [clearAdvanceTimer, index, level, mistakes, roundEnd, roundIndex, storyId],
+  );
+
+  const startRoundAt = useCallback((start: number) => {
+    setRoundReward(null);
+    setMistakes(0);
+    setIndex(start);
+  }, []);
 
   /**
    * ピースをスロットに置こうとしたときの判定。
@@ -324,7 +353,8 @@ export default function Page() {
   const skip = useCallback(() => {
     unlockOnce();
     clearAdvanceTimer();
-    goNext();
+    setMistakes((count) => count + 1);
+    goNext(1);
   }, [clearAdvanceTimer, goNext, unlockOnce]);
 
   const restart = useCallback(() => {
@@ -336,6 +366,8 @@ export default function Page() {
     setScore(0);
     setStreak(0);
     setAllCleared(false);
+    setMistakes(0);
+    setRoundReward(null);
   }, [clearAdvanceTimer, unlockOnce]);
 
   /**
@@ -358,6 +390,8 @@ export default function Page() {
       setScore(0);
       setStreak(0);
       setAllCleared(false);
+    setMistakes(0);
+    setRoundReward(null);
     },
     [level, storyId, baseCards, lv2Cards, clearAdvanceTimer, unlockOnce],
   );
@@ -372,6 +406,8 @@ export default function Page() {
     setScore(0);
     setStreak(0);
     setAllCleared(false);
+    setMistakes(0);
+    setRoundReward(null);
   }
 
   // 表示待ちのトレイピース(まだ置かれていないもの)
@@ -511,7 +547,14 @@ export default function Page() {
       <div className={styles.statusRow}>
         {level !== "stories" && <span>スコア: {score}</span>}
         {level !== "stories" && <span>れんぞく: {streak}</span>}
-        <span>カード: {index + 1} / {cards.length}</span>
+        {roundCount > 1 && (
+          <span>
+            ステージ: {roundIndex + 1} / {roundCount}
+          </span>
+        )}
+        <span>
+          カード: {index - roundStart + 1} / {roundEnd - roundStart}
+        </span>
       </div>
 
       <p className={styles.instruction}>えに あう ぶんを つくろう!</p>
@@ -637,6 +680,26 @@ export default function Page() {
       <p className={styles.hint}>
         ピースを ドラッグして スロットに いれてね。タップで えらんでも いいよ。
       </p>
+      {roundReward && (
+        <ResultDialog
+          title={roundEnd < cards.length ? `ステージ ${roundIndex + 1} クリア!` : "ぜんぶ クリア!"}
+          actions={[
+            roundEnd < cards.length
+              ? { label: "つぎの ステージ", onClick: () => startRoundAt(roundEnd) }
+              : {
+                  label: "おわり",
+                  onClick: () => {
+                    setRoundReward(null);
+                    setAllCleared(true);
+                  },
+                },
+            { label: "もういちど", variant: "secondary", onClick: () => startRoundAt(roundStart) },
+          ]}
+        >
+          <p style={{ margin: 0 }}>まちがい {mistakes}かい</p>
+          <RewardSummary result={roundReward} />
+        </ResultDialog>
+      )}
     </main>
   );
 }

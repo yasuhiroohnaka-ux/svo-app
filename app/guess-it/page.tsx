@@ -2,7 +2,10 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AppHeader from "@/app/components/AppHeader";
+import ResultDialog from "@/app/components/ResultDialog";
+import RewardSummary from "@/app/components/RewardSummary";
 import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
+import { recordStars, type RecordResult } from "@/app/lib/rewards";
 import SpeedControl from "@/app/components/SpeedControl";
 import { cancelSpeech, speakQueue, unlockSpeech } from "@/utils/speak";
 import styles from "./page.module.css";
@@ -46,6 +49,9 @@ export default function GuessItPage() {
   const [guess, setGuess] = useState("");
   const [lastGuess, setLastGuess] = useState("");
   const [attempts, setAttempts] = useState(0);
+  /** このラウンドで した しつもんの数(履歴は 9 件までしか のこさないので べつに数える) */
+  const [questionsAsked, setQuestionsAsked] = useState(0);
+  const [reward, setReward] = useState<RecordResult | null>(null);
   const [roundSeed, setRoundSeed] = useState(3);
   const [teacherPeek, setTeacherPeek] = useState(false);
   const rouletteTimer = useRef<NodeJS.Timeout | null>(null);
@@ -83,6 +89,8 @@ export default function GuessItPage() {
     setGuess("");
     setLastGuess("");
     setAttempts(0);
+    setQuestionsAsked(0);
+    setReward(null);
     setTeacherPeek(false);
     setRouletteWord("???");
 
@@ -121,6 +129,7 @@ export default function GuessItPage() {
 
       setActiveResponse(entry);
       setHistory((current) => [entry, ...current].slice(0, 9));
+      setQuestionsAsked((count) => count + 1);
       if (voiceEnabled) {
         speakQueue([question.text, response], 420, "en-US");
       }
@@ -155,6 +164,9 @@ export default function GuessItPage() {
       if (isCorrect) {
         setPhase("finished");
         setTeacherPeek(true);
+        // すくない しつもんで あてるほど ⭐ が ふえる(はずれた こたえは しつもん 2つぶん)
+        const effort = questionsAsked + attempts * 2;
+        setReward(recordStars("guess", target.id, effort <= 6 ? 3 : effort <= 12 ? 2 : 1));
         const response = `Yes! It is ${getArticle(target.word)} ${target.word}.`;
         setActiveResponse({
           id: `guess-${Date.now()}`,
@@ -182,7 +194,7 @@ export default function GuessItPage() {
         speakQueue([spokenQuestion, response], 420, "en-US");
       }
     },
-    [guess, target, voiceEnabled],
+    [attempts, guess, questionsAsked, target, voiceEnabled],
   );
 
   const resetRound = useCallback(() => {
@@ -195,10 +207,12 @@ export default function GuessItPage() {
     setGuess("");
     setLastGuess("");
     setAttempts(0);
+    setQuestionsAsked(0);
+    setReward(null);
     setTeacherPeek(false);
   }, []);
 
-  const questionCount = history.length;
+  const questionCount = questionsAsked;
 
   return (
     <main className={styles.shell}>
@@ -396,6 +410,21 @@ export default function GuessItPage() {
             )}
           </section>
         </div>
+      )}
+      {phase === "finished" && target && reward && (
+        <ResultDialog
+          title={`せいかい! ${target.icon} ${target.word}`}
+          actions={[
+            { label: "もういちど", onClick: startQuiz },
+            { label: "とじる", variant: "secondary", onClick: () => setReward(null) },
+          ]}
+          onClose={() => setReward(null)}
+        >
+          <p style={{ margin: 0 }}>
+            しつもん {questionsAsked}かい ・ こたえ {attempts}かい
+          </p>
+          <RewardSummary result={reward} />
+        </ResultDialog>
       )}
     </main>
   );

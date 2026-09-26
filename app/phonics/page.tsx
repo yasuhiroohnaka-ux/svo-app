@@ -15,6 +15,8 @@ import {
 } from "./PhonicsData";
 import BootDebugOverlay from "@/app/components/BootDebugOverlay";
 import HanamaruMark from "@/app/components/HanamaruMark";
+import StarRating from "@/app/components/StarRating";
+import { recordStars, starsFromMistakes, type Stars } from "@/app/lib/rewards";
 import AppHeader from "@/app/components/AppHeader";
 import { usePersistentStore } from "@/app/lib/persistentStore";
 import { autoAdvanceStore, correctWordsStore } from "./progress";
@@ -94,6 +96,7 @@ export default function PhonicsPage() {
     const [usedWordIds, setUsedWordIds] = useState<string[]>([]);
     const [answerSlots, setAnswerSlots] = useState<(string | null)[]>([]);
     const [hintLevel, setHintLevel] = useState(0);
+    const [wordStars, setWordStars] = useState<Stars | null>(null);
     const [feedback, setFeedback] = useState("まずは ことばを きいてみよう。");
     const [feedbackKind, setFeedbackKind] = useState<FeedbackKind>("idle");
     const [notice, setNotice] = useState(WORD_AUDIO_GUIDE);
@@ -218,6 +221,7 @@ export default function PhonicsPage() {
     const resetAnswerState = (word: LessonWord | null) => {
         setAnswerSlots(makeEmptySlots(word));
         setHintLevel(0);
+        setWordStars(null);
         wrongAttemptsRef.current = 0;
         setFeedback("まずは ことばを きいてみよう。");
         setFeedbackKind("idle");
@@ -514,6 +518,8 @@ export default function PhonicsPage() {
         const isCorrect = currentWord.phonics.every((id, index) => slots[index] === id);
         if (isCorrect) {
             markWordCorrectToday(selectedLevel.id, currentWord.id);
+            // ヒントも まちがいも なしで できたら ⭐3
+            setWordStars(recordStars("phonics", currentWord.id, starsFromMistakes(wrongAttemptsRef.current + hintLevel, 1)).stars);
             setFeedback("できた！");
             setFeedbackKind("correct");
             playChime();
@@ -903,6 +909,7 @@ export default function PhonicsPage() {
                                         )}
                                     </div>
                                     <p className={`${styles.feedback} ${styles[feedbackKind]}`}>{feedback}</p>
+                                    {feedbackKind === "correct" && wordStars && <StarRating stars={wordStars} />}
                                     {feedbackKind === "tryAgain" && (
                                         <button
                                             className={styles.retryButton}

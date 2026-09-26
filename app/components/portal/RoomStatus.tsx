@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 
 import type { AppId } from "@/app/lib/apps";
 import { usePersistentStore } from "@/app/lib/persistentStore";
+import { appStars, rewardsStore } from "@/app/lib/rewards";
 import { correctWordsStore } from "@/app/phonics/progress";
 import { sotaSpreads } from "@/app/sota/lib/book";
 import { useSotaProgress } from "@/app/sota/lib/progress";
@@ -63,7 +64,14 @@ const STATUS: Partial<Record<AppId, () => React.ReactNode>> = {
   quiz: () => <BestTimeStatus appKey="quiz" />,
 };
 
-/** 部屋カードの下に出す、その部屋での進み具合 */
+/** 部屋カードの下に出す、その部屋での進み具合(⭐ と、アプリごとの記録) */
 export default function RoomStatus({ appId }: { appId: AppId }) {
-  return STATUS[appId]?.() ?? null;
+  const rewards = usePersistentStore(rewardsStore);
+  const stars = appStars(rewards, appId);
+  return (
+    <>
+      {stars > 0 && <Pill>⭐ {stars}</Pill>}
+      {STATUS[appId]?.()}
+    </>
+  );
 }

@@ -6,6 +6,7 @@ import { use, useCallback } from "react";
 import StoryPlayer from "../../components/StoryPlayer";
 import { getPartById } from "../../lib/data";
 import { savePartProgress } from "../../lib/progress";
+import { recordStars, starsFromAccuracy } from "@/app/lib/rewards";
 import styles from "../../storyquiz.module.css";
 
 type SearchParams = Promise<{ run?: string }>;
@@ -31,8 +32,11 @@ export default function PlayPage({
         totalQuestions: summary.total,
         clearedAt: new Date().toISOString(),
       });
+      // 1 回目で正解できた問題の割合で ⭐ をつける
+      const reward = recordStars("story", part.id, starsFromAccuracy(summary.correct, summary.total));
+      const treasureIds = reward.newTreasures.map((treasure) => treasure.id).join(",");
       router.push(
-        `/storyquiz/${part.id}/result?c=${summary.correct}&t=${summary.total}`,
+        `/storyquiz/${part.id}/result?c=${summary.correct}&t=${summary.total}&s=${reward.stars}&pb=${reward.previousBest}&nt=${treasureIds}`,
       );
     },
     [part, router],

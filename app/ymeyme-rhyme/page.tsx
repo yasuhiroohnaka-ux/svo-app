@@ -3,6 +3,7 @@
 import AppHeader from "@/app/components/AppHeader";
 import { useEffect, useState } from "react";
 import SpeedControl from "@/app/components/SpeedControl";
+import { recordStars } from "@/app/lib/rewards";
 import { cancelSpeech, speak, speakQueue, unlockSpeech } from "@/utils/speak";
 import {
   BOOKLET_LABELS,
@@ -27,6 +28,8 @@ export default function YmeymeRhymePage() {
   /** 読み上げ中の行インデックス(-1 = なし) */
   const [readingLine, setReadingLine] = useState(-1);
   const [isReadingAll, setIsReadingAll] = useState(false);
+  /** さいごまで きいた詩(⭐ を あげたことを 知らせる) */
+  const [listenedPoemId, setListenedPoemId] = useState<string | null>(null);
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
 
   // ページを離れるときは読み上げを止める
@@ -62,6 +65,9 @@ export default function YmeymeRhymePage() {
       () => {
         setIsReadingAll(false);
         setReadingLine(-1);
+        // 詩を さいごまで きいたら ⭐1(詩ごとに 1かいだけ)
+        recordStars("rhyme", poem.id, 1);
+        setListenedPoemId(poem.id);
       },
       (idx) => setReadingLine(idx),
     );
@@ -156,7 +162,9 @@ export default function YmeymeRhymePage() {
                 ⏹ とめる
               </button>
             )}
-            <span className={styles.hint}>行をタップすると その行だけ 聞けるよ</span>
+            <span className={styles.hint}>
+              {listenedPoemId === selected.id ? "⭐ さいごまで きけたね!" : "行をタップすると その行だけ 聞けるよ"}
+            </span>
             <SpeedControl />
           </div>
 

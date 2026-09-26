@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import QuickStart from "@/app/components/portal/QuickStart";
+import RewardCounter from "@/app/components/portal/RewardCounter";
 import RoomStatus from "@/app/components/portal/RoomStatus";
 import { APPS, FLOORS } from "@/app/lib/apps";
 
@@ -23,6 +24,7 @@ export default function PortalPage() {
           </span>
         </div>
         <p className={styles.tagline}>えいごの ことばを あつめる ぼうけん</p>
+        <RewardCounter />
       </header>
 
       <QuickStart />

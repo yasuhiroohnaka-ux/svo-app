@@ -12,6 +12,8 @@ import AnswerMark from "@/app/components/AnswerMark";
 import AppHeader from "@/app/components/AppHeader";
 import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
 import ResultDialog from "@/app/components/ResultDialog";
+import RewardSummary from "@/app/components/RewardSummary";
+import { recordStars, starsFromTime, starsFromVs, type RecordResult } from "@/app/lib/rewards";
 import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
 import SpeedControl from "@/app/components/SpeedControl";
 import type { Card, ContentLang, Feedback, Mode, TrickSentence, UiLang } from "./types";
@@ -438,7 +440,8 @@ export default function Page() {
     setShowRanking,
     showRanking,
   } = useRanking({ appKey: APP_KEY });
-  const [vsResult, setVsResult] = useState<{ player: number; ai: number } | null>(null);
+  const [vsResult, setVsResult] = useState<{ player: number; ai: number; reward: RecordResult } | null>(null);
+  const [trialReward, setTrialReward] = useState<RecordResult | null>(null);
   const deckCardCount = deckSize === "all" ? cards.length : Math.min(Number(deckSize), cards.length);
 
   const { articleMode, clearSpokenText, isListening, setArticleMode, spokenText, startListening, toggleVoiceMode, voiceMode } =
@@ -597,11 +600,16 @@ export default function Page() {
 
             playChime();
             stopTimer();
-            setVsResult({ player: finalPlayerScore, ai: finalAiScore });
+            setVsResult({
+                player: finalPlayerScore,
+                ai: finalAiScore,
+                reward: recordStars("svo", `vs-${aiLevel}`, starsFromVs(finalPlayerScore, finalAiScore)),
+            });
           } else {
             playChime();
             stopTimer();
 
+            setTrialReward(recordStars("svo", `tt-${deckCardCount}`, starsFromTime(elapsedTime, deckCardCount)));
             promptForRankingEntry({
               name: "",
               time: elapsedTime,
@@ -624,6 +632,7 @@ export default function Page() {
       nextCard();
     },
     [
+      aiLevel,
       aiScore,
       cancelAiTurn,
       clearSilenceTimeout,
@@ -833,6 +842,7 @@ export default function Page() {
           playerName={playerName}
           onNameChange={setPlayerName}
           onSubmit={handleRankingRegister}
+          reward={trialReward}
         />
       )}
 
@@ -874,6 +884,7 @@ export default function Page() {
           ]}
         >
           <p style={{ margin: 0 }}>Player {vsResult.player} / AI {vsResult.ai}</p>
+          <RewardSummary result={vsResult.reward} />
         </ResultDialog>
       )}
     </>

@@ -8,6 +8,8 @@ import SpeedControl from "@/app/components/SpeedControl";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { getChoiceSpreads, getSotaImagePath, sotaCoverImagePath, sotaSpreads } from "../lib/book";
 import { markSotaSpreadCleared, useSotaProgress } from "../lib/progress";
+import RewardSummary from "@/app/components/RewardSummary";
+import { recordStars, starsFromMistakes, type RecordResult } from "@/app/lib/rewards";
 import { cancelSotaSpeech, speakSota, unlockSotaSpeech } from "../lib/speech";
 import type { SotaSpread } from "../types";
 import styles from "../sota.module.css";
@@ -50,6 +52,7 @@ export default function SotaPlayer() {
   const [hintStage, setHintStage] = useState(0);
   const [wrongAttempts, setWrongAttempts] = useState(0);
   const [nudgeChoiceId, setNudgeChoiceId] = useState<string | null>(null);
+  const [reward, setReward] = useState<RecordResult | null>(null);
   const nudgeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -91,6 +94,8 @@ export default function SotaPlayer() {
       playChime();
       setActiveSpreadId(spread.id);
       markSotaSpreadCleared(spread.id);
+      // まちがい・ヒントを使わずに みつけたら ⭐3
+      setReward(recordStars("sota", spread.id, starsFromMistakes(wrongAttempts + hintStage, 1)));
       setNudgeChoiceId(null);
       setPhase("correct");
       return;
@@ -111,6 +116,7 @@ export default function SotaPlayer() {
     setHintStage(0);
     setWrongAttempts(0);
     setNudgeChoiceId(null);
+    setReward(null);
   }
 
   if (!spread) {
@@ -255,6 +261,7 @@ export default function SotaPlayer() {
       {phase === "correct" && (
         <section className={styles.correctPanel} aria-live="polite">
           <p className={styles.correctBurst}>{willComplete ? "カラーえほん かんせい！" : "いろが ついた！"}</p>
+          {reward && <RewardSummary result={reward} />}
           <div>
             <p className={styles.summaryLabel}>わかったこと</p>
             <p className={styles.summaryText}>{spread.summaryJa}</p>

@@ -2,7 +2,10 @@
 
 import { formatTime, type RankEntry } from "@/utils/ranking";
 
+import type { RecordResult } from "@/app/lib/rewards";
+
 import ResultDialog, { type ResultAction } from "./ResultDialog";
+import RewardSummary from "./RewardSummary";
 import styles from "./Ranking.module.css";
 
 export type RankingLabels = {
@@ -31,21 +34,24 @@ type TimeTrialResultProps = {
   rank: number | null;
   playerName: string;
   onNameChange: (name: string) => void;
+  /** このクリアで もらった ⭐ */
+  reward?: RecordResult | null;
   /** ランクインなら名前を登録、ランク外ならそのまま閉じる */
   onSubmit: () => void;
 };
 
 /** タイムトライアルのクリア画面。ランクインしたときだけ名前を聞く */
-export function TimeTrialResultDialog({ labels, time, rank, playerName, onNameChange, onSubmit }: TimeTrialResultProps) {
+export function TimeTrialResultDialog({ labels, time, rank, playerName, onNameChange, onSubmit, reward }: TimeTrialResultProps) {
   const title = rank === 1 ? labels.newRecord : rank !== null ? labels.rankIn.replace("{n}", String(rank)) : labels.cleared;
 
   return (
     <ResultDialog
       title={title}
-      mark
+      mark={!reward}
       highlight={formatTime(time)}
       actions={[{ label: rank !== null ? "OK" : labels.playAgain, onClick: onSubmit }]}
     >
+      {reward && <RewardSummary result={reward} />}
       {rank !== null ? (
         <label className={styles.nameField}>
           <span>{labels.enterName}</span>

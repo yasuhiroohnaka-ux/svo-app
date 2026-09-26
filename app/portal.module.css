@@ -100,6 +100,27 @@
     color: #f4efe2;
 }
 
+.rewardCounter {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    min-height: var(--tap);
+    margin-top: 16px;
+    padding: 6px 18px;
+    border: 3px solid #ffe066;
+    background: rgba(0, 0, 0, 0.35);
+    font-size: 18px;
+    font-weight: 900;
+    color: #ffe066;
+}
+
+.rewardLink {
+    font-size: 13px;
+    color: #f4efe2;
+}
+
 /* ---- Quick start ---- */
 .quickStart {
     display: grid;

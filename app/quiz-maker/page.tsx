@@ -11,6 +11,8 @@ import AnswerMark from "@/app/components/AnswerMark";
 import AppHeader from "@/app/components/AppHeader";
 import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
 import ResultDialog from "@/app/components/ResultDialog";
+import RewardSummary from "@/app/components/RewardSummary";
+import { recordStars, starsFromTime, starsFromVs, type RecordResult } from "@/app/lib/rewards";
 import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
 import SpeedControl from "@/app/components/SpeedControl";
 import { useRanking } from "@/app/svo/useRanking";
@@ -352,7 +354,8 @@ export default function Page() {
         setShowRanking,
         showRanking,
     } = useRanking({ appKey: APP_KEY });
-    const [vsResult, setVsResult] = useState<{ player: number; ai: number } | null>(null);
+    const [vsResult, setVsResult] = useState<{ player: number; ai: number; reward: RecordResult } | null>(null);
+    const [trialReward, setTrialReward] = useState<RecordResult | null>(null);
 
     // 正解後 1 秒の演出中は次の判定を受け付けない(連打による二重加算・AI との同時得点を防ぐ)
     const answerLockRef = useRef(false);
@@ -831,7 +834,11 @@ export default function Page() {
                     const finalAiScore = winner === "ai" ? aiScore + 1 : aiScore;
                     playChime();
                     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-                    setVsResult({ player: finalPlayerScore, ai: finalAiScore });
+                    setVsResult({
+                        player: finalPlayerScore,
+                        ai: finalAiScore,
+                        reward: recordStars("quiz", `vs-${selectedDeck}-${aiLevel}`, starsFromVs(finalPlayerScore, finalAiScore)),
+                    });
                 } else {
                     // Time Trial Clear
                     playChime();
@@ -840,6 +847,7 @@ export default function Page() {
                     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
 
                     // Show Ranking Input
+                    setTrialReward(recordStars("quiz", `tt-${selectedDeck}-${deckCardCount}`, starsFromTime(elapsedTime, deckCardCount)));
                     promptForRankingEntry({
                         name: "",
                         time: elapsedTime,
@@ -1322,6 +1330,7 @@ export default function Page() {
                     playerName={playerName}
                     onNameChange={setPlayerName}
                     onSubmit={handleRankingRegister}
+                    reward={trialReward}
                 />
             )}
 
@@ -1363,6 +1372,7 @@ export default function Page() {
                     ]}
                 >
                     <p style={{ margin: 0 }}>Player {vsResult.player} / AI {vsResult.ai}</p>
+                    <RewardSummary result={vsResult.reward} />
                 </ResultDialog>
             )}
 

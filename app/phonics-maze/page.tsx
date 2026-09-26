@@ -2,6 +2,9 @@
 
 import Image from "next/image";
 import AppHeader from "@/app/components/AppHeader";
+import ResultDialog from "@/app/components/ResultDialog";
+import RewardSummary from "@/app/components/RewardSummary";
+import { recordStars, starsFromMistakes, type RecordResult } from "@/app/lib/rewards";
 import { useMemo, useState } from "react";
 import { applySpeechSpeed } from "@/utils/speak";
 import styles from "./page.module.css";
@@ -136,6 +139,9 @@ export default function PhonicsMazePage() {
   const [verdict, setVerdict] = useState<Verdict>("idle");
   const [spokenIndex, setSpokenIndex] = useState<number | null>(null);
   const [message, setMessage] = useState("Start のとなりをタップ");
+  /** この迷路で ゴールに ついたけど リズムが ちがった回数 */
+  const [missedTries, setMissedTries] = useState(0);
+  const [reward, setReward] = useState<RecordResult | null>(null);
 
   const rows = level.grid.length;
   const cols = level.grid[0].length;
@@ -193,6 +199,8 @@ export default function PhonicsMazePage() {
     setLevelIndex(nextIndex);
     setLevel(nextLevel);
     resetPath(nextLevel);
+    setMissedTries(0);
+    setReward(null);
   };
 
   const finishPath = async (nextPath: Coord[]) => {
@@ -219,9 +227,12 @@ export default function PhonicsMazePage() {
     if (soundsMatch(sounds, level.target)) {
       setVerdict("correct");
       setMessage("ぴったり。ゴールまで光ったね");
+      // 1 回目で ぴったりなら ⭐3。めいろの しゅるいごとに ベストを のこす
+      setReward(recordStars("maze", level.id, starsFromMistakes(missedTries, 1)));
       return;
     }
 
+    setMissedTries((count) => count + 1);
     setVerdict("tryAgain");
     setMessage("いまのリズムもおもしろい。もう一回いけるよ");
   };
@@ -413,6 +424,24 @@ export default function PhonicsMazePage() {
           {verdict === "tryAgain" && <strong>?</strong>}
         </div>
       </section>
+      {verdict === "correct" && reward && (
+        <ResultDialog
+          title="ゴール!"
+          actions={[
+            { label: "つぎの めいろ", onClick: nextLevel },
+            {
+              label: "もういちど",
+              variant: "secondary",
+              onClick: () => {
+                resetPath();
+                setReward(null);
+              },
+            },
+          ]}
+        >
+          <RewardSummary result={reward} />
+        </ResultDialog>
+      )}
     </main>
   );
 }

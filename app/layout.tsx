@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import TreasureToast from "@/app/components/TreasureToast";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -44,7 +45,10 @@ export default function RootLayout({
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <TreasureToast />
+      </body>
     </html>
   );
 }
