@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import SpeedControl from "@/app/components/SpeedControl";
 import { cancelSpeech, speakQueue, unlockSpeech } from "@/utils/speak";
@@ -189,7 +190,7 @@ const NOUNS: NounItem[] = [
     icon: "🚃",
     group: "vehicle",
     aliases: ["densha"],
-    facts: { vehicle: true, big: true, outside: true, moves: true, wheels: true, hard: true, use: true },
+    facts: { vehicle: true, big: true, outside: true, moves: true, wheels: true, hard: true, use: true, long: true },
   },
   {
     id: "airplane",
@@ -223,7 +224,7 @@ const NOUNS: NounItem[] = [
     ja: "つくえ",
     icon: "🏫",
     group: "school",
-    facts: { school: true, classroom: true, home: true, hard: true, use: true },
+    facts: { school: true, classroom: true, home: true, hard: true, use: true, legs: true },
   },
   {
     id: "book",
@@ -288,7 +289,7 @@ const NOUNS: NounItem[] = [
     ja: "コンピューター",
     icon: "💻",
     group: "thing",
-    facts: { school: true, classroom: true, home: true, hard: true, use: true },
+    facts: { school: true, classroom: true, home: true, hard: true, use: true, sound: true },
   },
   {
     id: "phone",
@@ -305,7 +306,7 @@ const NOUNS: NounItem[] = [
     ja: "スプーン",
     icon: "🥄",
     group: "home",
-    facts: { kitchen: true, home: true, small: true, hard: true, use: true },
+    facts: { kitchen: true, home: true, small: true, hard: true, use: true, long: true },
   },
   {
     id: "cup",
@@ -314,7 +315,7 @@ const NOUNS: NounItem[] = [
     icon: "🥤",
     group: "home",
     aliases: ["glass"],
-    facts: { kitchen: true, home: true, small: true, hard: true, use: true },
+    facts: { kitchen: true, home: true, small: true, hard: true, use: true, round: true },
   },
   {
     id: "shirt",
@@ -679,6 +680,9 @@ export default function GuessItPage() {
         </div>
 
         <div className={styles.modeStrip} aria-label="settings">
+          <Link href="/" className={styles.segment}>
+            トップ
+          </Link>
           <button
             type="button"
             className={`${styles.segment} ${displayMode === "easy" ? styles.segmentActive : ""}`}

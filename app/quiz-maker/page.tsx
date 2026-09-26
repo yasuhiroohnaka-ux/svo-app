@@ -1,12 +1,18 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { speak, speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
+import { speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { getRanking, saveRanking, clearRanking, formatTime, type RankEntry } from "@/utils/ranking";
 import BootDebugOverlay from "@/app/components/BootDebugOverlay";
 import SpeedControl from "@/app/components/SpeedControl";
+import type {
+    BrowserSpeechRecognition,
+    BrowserSpeechRecognitionResultEvent,
+    BrowserSpeechRecognitionWindow,
+} from "@/app/svo/useSpeechRecognition";
 import { hasFatalFeatureGap, runFeatureCheck, type BootStep } from "@/utils/bootDiagnostics";
 
 import styles from "./page.module.css";
@@ -22,6 +28,18 @@ type Card = {
 };
 
 type ContentLang = "en" | "zh";
+type AiLevel = "easy" | "normal" | "hard";
+
+type RawCard = {
+    id?: unknown;
+    deck?: unknown;
+    image?: unknown;
+    sentence?: unknown;
+    sentences?: unknown;
+    sentences_zh?: unknown;
+    target?: unknown;
+    target_zh?: unknown;
+};
 
 type Mode = "flash" | "karuta";
 type UiLang = "en" | "ja" | "zh";
@@ -257,7 +275,7 @@ export default function Page() {
 
     // VS Mode State (Simplified: removed complexity for now, can re-enable)
     const [isVsMode, setIsVsMode] = useState(false);
-    const [aiLevel, setAiLevel] = useState<"easy" | "normal" | "hard">("normal");
+    const [aiLevel, setAiLevel] = useState<AiLevel>("normal");
     const [aiScore, setAiScore] = useState(0);
 
     // Game Flow State
@@ -266,7 +284,7 @@ export default function Page() {
     const [countdown, setCountdown] = useState<number>(3);
 
     const aiTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const recognitionRef = useRef<any>(null);
+    const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
     const [voiceMode, setVoiceMode] = useState<boolean>(false);
     const [isListening, setIsListening] = useState<boolean>(false);
     const [spokenText, setSpokenText] = useState<string>("");
@@ -286,6 +304,18 @@ export default function Page() {
     const [isNewRecord, setIsNewRecord] = useState(false);
 
     const APP_KEY = "quiz";
+
+    // 正解後 1 秒の演出中は次の判定を受け付けない(連打による二重加算・AI との同時得点を防ぐ)
+    const answerLockRef = useRef(false);
+    const correctTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const clearPendingCorrect = useCallback(() => {
+        if (correctTimerRef.current) {
+            clearTimeout(correctTimerRef.current);
+            correctTimerRef.current = null;
+        }
+        answerLockRef.current = false;
+    }, []);
+    useEffect(() => clearPendingCorrect, [clearPendingCorrect]);
 
     const t = translations[uiLang];
 
@@ -344,11 +374,11 @@ export default function Page() {
 
                 // Validate and normalize
                 const arr = Array.isArray(data) ? data : [];
-                const normalized: Card[] = arr.map((x: any, i: number) => ({
-                    id: x.id,
+                const normalized: Card[] = (arr as RawCard[]).map((x, i) => ({
+                    id: String(x.id),
                     deck: typeof x.deck === "string" ? x.deck : `set${Math.floor(i / 16) + 1}`,
-                    image: x.image,
-                    sentences: Array.isArray(x.sentences) ? x.sentences : [x.sentence || ""],
+                    image: typeof x.image === "string" ? x.image : "",
+                    sentences: Array.isArray(x.sentences) ? x.sentences : [typeof x.sentence === "string" ? x.sentence : ""],
                     sentences_zh: Array.isArray(x.sentences_zh) ? x.sentences_zh : undefined,
                     target: typeof x.target === "string" ? x.target : undefined,
                     target_zh: typeof x.target_zh === "string" ? x.target_zh : undefined,
@@ -364,9 +394,9 @@ export default function Page() {
                 setScore(0);
                 setStreak(0);
                 setBootStep("ready");
-            } catch (e: any) {
+            } catch (e) {
                 console.error(e);
-                setError(e.message || "Unknown error occurred during loading.");
+                setError((e instanceof Error && e.message) || "Unknown error occurred during loading.");
                 setCards([]);
                 setBootStep("error");
             }
@@ -446,8 +476,29 @@ export default function Page() {
         setSpokenText("");
     }
 
+    function acceptCorrectAnswer(value: string) {
+        if (answerLockRef.current) return;
+        answerLockRef.current = true;
+        if (aiTimeoutRef.current) {
+            clearTimeout(aiTimeoutRef.current);
+            aiTimeoutRef.current = null;
+        }
+        setFeedback({ value, isCorrect: true });
+        playChime();
+        correctTimerRef.current = setTimeout(() => {
+            correctTimerRef.current = null;
+            answerLockRef.current = false;
+            handleCorrectAnswer();
+        }, 1000);
+    }
+
+    function handleSkip() {
+        if (answerLockRef.current) return;
+        nextCard();
+    }
+
     function judgeFlash(selectedText: string) {
-        if (!current) return;
+        if (!current || answerLockRef.current) return;
         unlockAudio();
         unlockSpeech();
 
@@ -456,9 +507,7 @@ export default function Page() {
         const ok = selectedText === correctText;
 
         if (ok) {
-            setFeedback({ value: selectedText, isCorrect: true });
-            playChime();
-            setTimeout(() => handleCorrectAnswer(), 1000);
+            acceptCorrectAnswer(selectedText);
         } else {
             setStreak(0);
             setFeedback({ value: selectedText, isCorrect: false });
@@ -518,6 +567,7 @@ export default function Page() {
                 // Fast reaction after reading S1
                 const delay = 400 + Math.random() * 800; // 0.4s - 1.2s delay
                 aiTimeoutRef.current = setTimeout(() => {
+                    if (answerLockRef.current) return;
                     handleCorrectAnswer(false, "ai");
                 }, delay);
             }
@@ -529,6 +579,7 @@ export default function Page() {
                 if (aiLevel === "normal") delay = 3500 + Math.random() * 2000;
 
                 aiTimeoutRef.current = setTimeout(() => {
+                    if (answerLockRef.current) return;
                     handleCorrectAnswer(false, "ai");
                 }, delay);
             }
@@ -560,13 +611,16 @@ export default function Page() {
         }
     }, [current, mode, contentLang, isSurvival]);
 
+    // VS AI は読み上げを聞いてから取りに来るので、VS 中は自動読み上げを常にオンにする
+    const effectiveAutoSpeak = autoSpeak || isVsMode;
+
     useEffect(() => {
-        if (!autoSpeak || !current || gameState !== "playing") return;
+        if (!effectiveAutoSpeak || !current || gameState !== "playing") return;
         const timer = setTimeout(() => {
             handleSpeak(undefined, checkAiTrigger);
         }, 500);
         return () => clearTimeout(timer);
-    }, [current, autoSpeak, mode, handleSpeak, checkAiTrigger, gameState]);
+    }, [current, effectiveAutoSpeak, mode, handleSpeak, checkAiTrigger, gameState]);
 
     useEffect(() => {
         if (gameState !== "countdown") return;
@@ -634,28 +688,28 @@ export default function Page() {
     };
 
     const toggleVsMode = () => {
-        setIsVsMode((prev) => {
-            const next = !prev;
-            if (next) {
-                // Determine deck size (if 'all' or specific)
-                const targetCount = deckSize === "all" ? deckCards.length : Number(deckSize);
-                const shuffled = shuffle(deckCards);
-                setRemainingCards(shuffled.slice(0, targetCount));
-                setScore(0);
-                setAiScore(0);
-                setStreak(0);
-                setIndex(0);
-                setGameState("idle");
-                setIsSurvival(true); // VS implies Survival (limited deck)
-            } else {
-                // Turning OFF VS Mode
-                resetGame();
-            }
-            return next;
-        });
+        const next = !isVsMode;
+        setIsVsMode(next);
+        if (next) {
+            clearPendingCorrect();
+            // Determine deck size (if 'all' or specific)
+            const targetCount = deckSize === "all" ? deckCards.length : Number(deckSize);
+            const shuffled = shuffle(deckCards);
+            setRemainingCards(shuffled.slice(0, targetCount));
+            setScore(0);
+            setAiScore(0);
+            setStreak(0);
+            setIndex(0);
+            setGameState("idle");
+            setIsSurvival(true); // VS implies Survival (limited deck)
+        } else {
+            // Turning OFF VS Mode
+            resetGame();
+        }
     };
 
     const resetGame = () => {
+        clearPendingCorrect();
         const targetCount = deckSize === "all" ? deckCards.length : Number(deckSize);
         setRemainingCards(shuffle(deckCards).slice(0, targetCount));
         setScore(0);
@@ -680,7 +734,7 @@ export default function Page() {
 
     // Simplified Voice Recognition (Loose check)
     function judgeVoice(spoken: string) {
-        if (!current) return;
+        if (!current || answerLockRef.current) return;
 
         // Target text depends on mode
         let correctText = "";
@@ -720,9 +774,7 @@ export default function Page() {
         const ok = (matchCount / baseLength >= 0.5);
 
         if (ok) {
-            setFeedback({ value: spoken, isCorrect: true });
-            playChime();
-            setTimeout(() => handleCorrectAnswer(), 1000);
+            acceptCorrectAnswer(spoken);
         } else {
             setStreak(0);
             setFeedback({ value: spoken, isCorrect: false });
@@ -731,7 +783,8 @@ export default function Page() {
     }
 
     const startListening = useCallback(() => {
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        const speechWindow = window as BrowserSpeechRecognitionWindow;
+        const SpeechRecognition = speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
         if (!SpeechRecognition) return;
         if (recognitionRef.current) recognitionRef.current.abort();
 
@@ -741,7 +794,7 @@ export default function Page() {
         recognition.maxAlternatives = 1;
 
         recognition.onstart = () => { setIsListening(true); setSpokenText(""); };
-        recognition.onresult = (event: any) => {
+        recognition.onresult = (event: BrowserSpeechRecognitionResultEvent) => {
             const transcript = event.results[0][0].transcript;
             setSpokenText(transcript);
             setIsListening(false);
@@ -780,7 +833,7 @@ export default function Page() {
                 if (isVsMode) {
                     const finalPlayerScore = winner === "player" ? score + 1 : score;
                     const finalAiScore = winner === "ai" ? aiScore + 1 : aiScore;
-                    let msg = finalPlayerScore > finalAiScore ? t.youWin : finalPlayerScore < finalAiScore ? t.youLose : t.draw;
+                    const msg = finalPlayerScore > finalAiScore ? t.youWin : finalPlayerScore < finalAiScore ? t.youLose : t.draw;
                     playChime();
                     alert(`${msg}\nPlayer: ${finalPlayerScore} - AI: ${finalAiScore}`);
                     resetGame();
@@ -812,15 +865,13 @@ export default function Page() {
     }
 
     function judgeKaruta(selectedImage: string) {
-        if (!current) return;
+        if (!current || answerLockRef.current) return;
         unlockAudio();
         unlockSpeech();
 
         const ok = selectedImage === current.image;
         if (ok) {
-            setFeedback({ value: selectedImage, isCorrect: true });
-            playChime();
-            setTimeout(() => handleCorrectAnswer(), 1000);
+            acceptCorrectAnswer(selectedImage);
         } else {
             setStreak(0);
             setFeedback({ value: selectedImage, isCorrect: false });
@@ -834,9 +885,9 @@ export default function Page() {
                 <h1 style={{ margin: 0 }}>Lightweight Mode</h1>
                 <p style={{ margin: 0 }}>Some features are not available on this device. Starting in lightweight mode.</p>
                 <p style={{ margin: 0, color: "#666" }}>Please open this app on a newer browser for full features.</p>
-                <button onClick={() => (window.location.href = "/")} style={{ minWidth: 44, minHeight: 44, padding: "10px 20px", borderRadius: 20, border: "none", background: "#333", color: "white", cursor: "pointer" }}>
+                <Link href="/" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 44, minHeight: 44, padding: "10px 20px", borderRadius: 20, background: "#333", color: "white" }}>
                     Back to Portal
-                </button>
+                </Link>
                 <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={null} />
             </main>
         );
@@ -872,6 +923,11 @@ export default function Page() {
     return (
         <main className={styles.container}>
             <h1 className={styles.header}>{t.appTitle}</h1>
+            <div className={styles.controlGroup} style={{ marginBottom: 8 }}>
+                <Link href="/" className={`${styles.button} ${styles.tapTarget}`}>
+                    トップ
+                </Link>
+            </div>
 
             {/* Score & Status */}
             <div className={styles.statusRow}>
@@ -962,9 +1018,11 @@ export default function Page() {
                         <div style={{ opacity: 0.7 }}>|</div>
                         <button
                             onClick={() => setAutoSpeak((v) => !v)}
-                            className={`${styles.button} ${styles.tapTarget} ${autoSpeak ? styles.buttonActive : ""}`}
+                            className={`${styles.button} ${styles.tapTarget} ${effectiveAutoSpeak ? styles.buttonActive : ""}`}
+                            disabled={isVsMode}
+                            title={isVsMode ? "VS AI中は自動で読み上げます" : undefined}
                         >
-                            {t.autoSpeak}: {autoSpeak ? t.on : t.off}
+                            {t.autoSpeak}: {effectiveAutoSpeak ? t.on : t.off}
                         </button>
                     </div>
                 )}
@@ -1049,7 +1107,7 @@ export default function Page() {
                             {isVsMode && (
                                 <select
                                     value={aiLevel}
-                                    onChange={(e) => setAiLevel(e.target.value as any)}
+                                    onChange={(e) => setAiLevel(e.target.value as AiLevel)}
                                     className={styles.select}
                                     style={{ marginLeft: 4 }}
                                 >
@@ -1140,7 +1198,7 @@ export default function Page() {
                                             )}
                                             <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
                                             <button onClick={() => handleSpeak()} className={`${styles.button} ${styles.tapTarget}`}>🔊 {t.speak}</button>
-                                            <button onClick={nextCard} className={`${styles.button} ${styles.tapTarget}`}>{t.skip}</button>
+                                            <button onClick={handleSkip} className={`${styles.button} ${styles.tapTarget}`}>{t.skip}</button>
                                             </div>
                                         </div>
                                     ) : (
@@ -1185,7 +1243,7 @@ export default function Page() {
                                         <button onClick={() => handleSpeak()} className={`${styles.button} ${styles.tapTarget}`} title={t.speak}>
                                             🔊 {t.speak}
                                         </button>
-                                        <button onClick={nextCard} className={`${styles.button} ${styles.tapTarget}`}>
+                                        <button onClick={handleSkip} className={`${styles.button} ${styles.tapTarget}`}>
                                             {t.skip}
                                         </button>
                                     </div>

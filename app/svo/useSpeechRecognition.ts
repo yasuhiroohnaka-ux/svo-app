@@ -13,7 +13,7 @@ type UseSpeechRecognitionOptions = {
   onIncorrect: (spokenText: string) => void;
 };
 
-type BrowserSpeechRecognition = {
+export type BrowserSpeechRecognition = {
   abort: () => void;
   end?: () => void;
   interimResults: boolean;
@@ -26,13 +26,13 @@ type BrowserSpeechRecognition = {
   start: () => void;
 };
 
-type BrowserSpeechRecognitionResultEvent = {
+export type BrowserSpeechRecognitionResultEvent = {
   results: ArrayLike<ArrayLike<{ transcript: string }>>;
 };
 
 type BrowserSpeechRecognitionConstructor = new () => BrowserSpeechRecognition;
 
-type BrowserSpeechRecognitionWindow = Window &
+export type BrowserSpeechRecognitionWindow = Window &
   typeof globalThis & {
     SpeechRecognition?: BrowserSpeechRecognitionConstructor;
     webkitSpeechRecognition?: BrowserSpeechRecognitionConstructor;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cancelSpeech, unlockSpeech } from "@/utils/speak";
@@ -198,6 +198,18 @@ export default function Page() {
   const [deckSize, setDeckSize] = useState<number | "all">("all");
 
   const APP_KEY = "svo";
+
+  // 正解後 1 秒の演出中は次の判定を受け付けない(連打による二重加算・AI との同時得点を防ぐ)
+  const answerLockRef = useRef(false);
+  const correctTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearPendingCorrect = useCallback(() => {
+    if (correctTimerRef.current) {
+      clearTimeout(correctTimerRef.current);
+      correctTimerRef.current = null;
+    }
+    answerLockRef.current = false;
+  }, []);
+  useEffect(() => clearPendingCorrect, [clearPendingCorrect]);
 
   const t = translations[uiLang];
 
@@ -445,20 +457,33 @@ export default function Page() {
     return shuffle([current, ...others]).map((card) => (contentLang === "zh" ? card.sentence_zh : card.sentence));
   }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, contentLang, survivalChoices]);
 
-  function handleVoiceCorrect(spoken: string) {
-    setFeedback({ value: spoken, isCorrect: true });
+  function acceptCorrectAnswer(value: string) {
+    if (answerLockRef.current) return;
+    answerLockRef.current = true;
+    cancelAiTurn();
+    clearSilenceTimeout();
+    setFeedback({ value, isCorrect: true });
     playChime();
-    setTimeout(() => handleCorrectAnswer(), 1000);
+    correctTimerRef.current = setTimeout(() => {
+      correctTimerRef.current = null;
+      answerLockRef.current = false;
+      handleCorrectAnswer();
+    }, 1000);
+  }
+
+  function handleVoiceCorrect(spoken: string) {
+    acceptCorrectAnswer(spoken);
   }
 
   function handleVoiceIncorrect(spoken: string) {
+    if (answerLockRef.current) return;
     setStreak(0);
     setFeedback({ value: spoken, isCorrect: false });
     playBuzz();
   }
 
   function judgeFlash(selectedSentence: string) {
-    if (!current) return;
+    if (!current || answerLockRef.current) return;
 
     unlockAudio();
     unlockSpeech();
@@ -467,9 +492,7 @@ export default function Page() {
     const ok = selectedSentence === correctText;
 
     if (ok) {
-      setFeedback({ value: selectedSentence, isCorrect: true });
-      playChime();
-      setTimeout(() => handleCorrectAnswer(), 1000);
+      acceptCorrectAnswer(selectedSentence);
     } else {
       setStreak(0);
       setFeedback({ value: selectedSentence, isCorrect: false });
@@ -479,6 +502,7 @@ export default function Page() {
 
   const resetGame = useCallback(() => {
     cancelSpeech();
+    clearPendingCorrect();
     clearSilenceTimeout();
     cancelAiTurn();
     resetGameTimer();
@@ -492,7 +516,7 @@ export default function Page() {
     setIndex(pickRandomIndex(Math.min(targetCount, shuffled.length)));
     setFeedback(null);
     clearSpokenText();
-  }, [cancelAiTurn, cards, clearSpokenText, clearSilenceTimeout, deckSize, resetGameTimer, setAiScore]);
+  }, [cancelAiTurn, cards, clearPendingCorrect, clearSpokenText, clearSilenceTimeout, deckSize, resetGameTimer, setAiScore]);
 
   const nextCard = useCallback(() => {
     if (activePool.length === 0) return;
@@ -588,33 +612,52 @@ export default function Page() {
     ],
   );
 
+  // handleCorrectAnswer はタイマー(elapsedTime)更新のたびに作り直される。
+  // 読み上げ・AI の予約がそのたびに張り直されて永遠に発火しなくならないよう、
+  // 予約側からは ref 経由で最新版を呼ぶ。
+  const handleCorrectAnswerRef = useRef(handleCorrectAnswer);
+  useEffect(() => {
+    handleCorrectAnswerRef.current = handleCorrectAnswer;
+  }, [handleCorrectAnswer]);
+
   const onSpeakComplete = useCallback(() => {
     if (isTrickActive && trickSentence) {
       scheduleSilenceTimeout(() => {
-        handleCorrectAnswer(true, "player");
+        if (answerLockRef.current) return;
+        handleCorrectAnswerRef.current(true, "player");
       }, 2000);
       return;
     }
 
     if (isVsMode && current) {
       scheduleAiTurn(() => {
-        handleCorrectAnswer(false, "ai");
+        if (answerLockRef.current) return;
+        handleCorrectAnswerRef.current(false, "ai");
       });
     }
-  }, [current, handleCorrectAnswer, isTrickActive, isVsMode, scheduleAiTurn, scheduleSilenceTimeout, trickSentence]);
+  }, [current, isTrickActive, isVsMode, scheduleAiTurn, scheduleSilenceTimeout, trickSentence]);
+
+  // VS AI は読み上げを聞いてから取りに来るので、VS 中は自動読み上げを常にオンにする
+  const effectiveAutoSpeak = autoSpeak || isVsMode;
 
   useEffect(() => {
-    if (!autoSpeak || !current || mode === "flash" || gameState !== "playing") return;
+    if (!effectiveAutoSpeak || !current || mode === "flash" || gameState !== "playing") return;
 
     const timer = setTimeout(() => {
       handleSpeak(onSpeakComplete);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [autoSpeak, current, gameState, mode, handleSpeak, onSpeakComplete]);
+  }, [effectiveAutoSpeak, current, gameState, mode, handleSpeak, onSpeakComplete]);
+
+  const handleSkip = () => {
+    if (answerLockRef.current) return;
+    nextCard();
+  };
 
   const quitSpecialMode = () => {
     cancelSpeech();
+    clearPendingCorrect();
     clearSilenceTimeout();
     disableVsMode();
     stopTimer();
@@ -638,6 +681,7 @@ export default function Page() {
 
     // 進行中の副作用をすべて停止
     cancelSpeech();
+    clearPendingCorrect();
     clearSilenceTimeout();
     cancelAiTurn();
     disableVsMode();
@@ -669,7 +713,7 @@ export default function Page() {
   };
 
   function judgeKaruta(selectedImage: string) {
-    if (!current) return;
+    if (!current || answerLockRef.current) return;
 
     unlockAudio();
     unlockSpeech();
@@ -677,9 +721,7 @@ export default function Page() {
 
     const ok = selectedImage === current.image;
     if (ok) {
-      setFeedback({ value: selectedImage, isCorrect: true });
-      playChime();
-      setTimeout(() => handleCorrectAnswer(), 1000);
+      acceptCorrectAnswer(selectedImage);
     } else {
       setStreak(0);
       setFeedback({ value: selectedImage, isCorrect: false });
@@ -705,6 +747,7 @@ export default function Page() {
 
   const handleToggleSurvivalMode = () => {
     if (isVsMode) return;
+    clearPendingCorrect();
 
     const nextValue = !isSurvival;
     setIsSurvival(nextValue);
@@ -727,6 +770,7 @@ export default function Page() {
   };
 
   const handleToggleVsMode = () => {
+    clearPendingCorrect();
     if (isVsMode) {
       disableVsMode();
       setIsSurvival(false);
@@ -778,17 +822,6 @@ export default function Page() {
         <div style={{ marginTop: "1rem", color: "#666", fontSize: "0.9rem" }}>
           Status: {step}
         </div>
-        <div id="boot-probe" style={{ marginTop: "0.5rem", color: "#666", fontSize: "0.8rem" }}>
-          BOOT_OK: ...
-          {" / "}
-          HYDRATED_OK: ...
-        </div>
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(){var w=window;var el=document.getElementById('boot-probe');if(!el)return;var render=function(){el.textContent='BOOT_OK: '+(w.BOOT_OK===true)+' / HYDRATED_OK: '+(w.HYDRATED_OK===true);};render();setTimeout(render,1500);})();",
-          }}
-        />
       </div>
     );
   }
@@ -933,9 +966,11 @@ export default function Page() {
             <div style={{ opacity: 0.7 }}>|</div>
             <button
               onClick={() => setAutoSpeak((v) => !v)}
-              className={`${styles.button} ${styles.tapTarget} ${autoSpeak ? styles.buttonActive : ""}`}
+              className={`${styles.button} ${styles.tapTarget} ${effectiveAutoSpeak ? styles.buttonActive : ""}`}
+              disabled={isVsMode}
+              title={isVsMode ? "VS AI中は自動で読み上げます" : undefined}
             >
-              {t.autoSpeak}: {autoSpeak ? t.on : t.off}
+              {t.autoSpeak}: {effectiveAutoSpeak ? t.on : t.off}
             </button>
           </div>
         )}
@@ -1071,7 +1106,7 @@ export default function Page() {
       <div className={styles.gameArea}>
         {mode === "flash" ? (
           <div className={styles.flashGrid}>
-            {/* 蟾ｦ: 逕ｻ蜒・*/}
+            {/* 左: 画像 */}
             <div>
               <div style={{ marginBottom: 10, opacity: 0.8 }}>
                 {t.flashInstruction} ({contentLang === "en" ? t.english : t.chinese})
@@ -1138,7 +1173,7 @@ export default function Page() {
                     >
                       {t.speak}
                     </button>
-                    <button onClick={nextCard} className={`${styles.button} ${styles.tapTarget}`}>
+                    <button onClick={handleSkip} className={`${styles.button} ${styles.tapTarget}`}>
                       {t.skip}
                     </button>
                   </div>
@@ -1189,7 +1224,7 @@ export default function Page() {
                   {t.speak}
                 </button>
                 <button
-                  onClick={nextCard}
+                  onClick={handleSkip}
                   className={`${styles.button} ${styles.tapTarget}`}
                 >
                   {t.skip}
