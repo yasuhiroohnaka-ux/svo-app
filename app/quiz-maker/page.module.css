@@ -125,6 +125,7 @@
 }
 
 .select {
+    min-height: var(--tap);
     padding: 6px 10px;
     border-radius: 8px;
     border: 2px solid #143743;
@@ -192,6 +193,7 @@
 }
 
 .sentenceButton {
+    min-height: var(--tap);
     text-align: left;
     padding: 16px;
     border: 2px solid #143743;
