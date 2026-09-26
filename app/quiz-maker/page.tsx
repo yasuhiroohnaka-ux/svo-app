@@ -5,10 +5,13 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import { speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
-import { getRanking, saveRanking, clearRanking, formatTime, type RankEntry } from "@/utils/ranking";
+import { clearRanking, formatTime } from "@/utils/ranking";
 import BootDebugOverlay from "@/app/components/BootDebugOverlay";
 import AppHeader from "@/app/components/AppHeader";
+import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
+import ResultDialog from "@/app/components/ResultDialog";
 import SpeedControl from "@/app/components/SpeedControl";
+import { useRanking } from "@/app/svo/useRanking";
 import type {
     BrowserSpeechRecognition,
     BrowserSpeechRecognitionResultEvent,
@@ -102,6 +105,12 @@ const translations = {
         youWin: "YOU WIN!",
         youLose: "YOU LOSE!",
         draw: "DRAW!",
+        rankIn: "Rank #{n}!",
+        cleared: "Cleared!",
+        outOfRank: "Not in the top 10 this time.",
+        playAgain: "Play again",
+        quit: "Quit",
+        cardsUnit: " cards",
     },
     ja: {
         loading: "準備中...",
@@ -159,6 +168,12 @@ const translations = {
         youWin: "あなたの勝ち！",
         youLose: "あなたの負け...",
         draw: "引き分け",
+        rankIn: "{n}位に ランクイン!",
+        cleared: "クリア!",
+        outOfRank: "こんかいは 10位に とどかなかったよ。",
+        playAgain: "もういちど",
+        quit: "やめる",
+        cardsUnit: "まい",
     },
     zh: {
         loading: "准备中...",
@@ -216,6 +231,12 @@ const translations = {
         youWin: "你赢了！",
         youLose: "你输了...",
         draw: "平局",
+        rankIn: "第{n}名！",
+        cleared: "通关！",
+        outOfRank: "这次没有进入前10名。",
+        playAgain: "再玩一次",
+        quit: "退出",
+        cardsUnit: "张",
     }
 };
 
@@ -296,15 +317,24 @@ export default function Page() {
     const [elapsedTime, setElapsedTime] = useState<number>(0);
     const timerStartRef = useRef<number>(0);
 
-    // Ranking state
-    const [showRanking, setShowRanking] = useState(false);
-    const [rankingData, setRankingData] = useState<RankEntry[]>([]);
-    const [pendingEntry, setPendingEntry] = useState<RankEntry | null>(null);
-    const [playerName, setPlayerName] = useState("");
-    const [nameInputVisible, setNameInputVisible] = useState(false);
-    const [isNewRecord, setIsNewRecord] = useState(false);
-
     const APP_KEY = "quiz";
+
+    // Ranking state
+    const {
+        handleRankingRegister: registerRankingEntry,
+        openRanking,
+        pendingEntry,
+        pendingRank,
+        playerName,
+        promptForRankingEntry,
+        rankingCards,
+        rankingData,
+        resultVisible,
+        setPlayerName,
+        setShowRanking,
+        showRanking,
+    } = useRanking({ appKey: APP_KEY });
+    const [vsResult, setVsResult] = useState<{ player: number; ai: number } | null>(null);
 
     // 正解後 1 秒の演出中は次の判定を受け付けない(連打による二重加算・AI との同時得点を防ぐ)
     const answerLockRef = useRef(false);
@@ -335,6 +365,7 @@ export default function Page() {
         if (selectedDeck === "all") return cards;
         return cards.filter((card) => (card.deck || "set1") === selectedDeck);
     }, [cards, selectedDeck]);
+    const deckCardCount = deckSize === "all" ? deckCards.length : Math.min(Number(deckSize), deckCards.length);
 
     useEffect(() => {
         if (cards.length === 0) return;
@@ -723,11 +754,7 @@ export default function Page() {
 
     const handleRankingRegister = () => {
         if (!pendingEntry) return;
-        const entry = { ...pendingEntry, name: playerName || "Anonymous" };
-        saveRanking(APP_KEY, entry);
-        setNameInputVisible(false);
-        setRankingData(getRanking(APP_KEY));
-        setShowRanking(true);
+        registerRankingEntry();
         resetGame();
     };
 
@@ -834,10 +861,9 @@ export default function Page() {
                 if (isVsMode) {
                     const finalPlayerScore = winner === "player" ? score + 1 : score;
                     const finalAiScore = winner === "ai" ? aiScore + 1 : aiScore;
-                    const msg = finalPlayerScore > finalAiScore ? t.youWin : finalPlayerScore < finalAiScore ? t.youLose : t.draw;
                     playChime();
-                    alert(`${msg}\nPlayer: ${finalPlayerScore} - AI: ${finalAiScore}`);
-                    resetGame();
+                    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+                    setVsResult({ player: finalPlayerScore, ai: finalAiScore });
                 } else {
                     // Time Trial Clear
                     playChime();
@@ -846,14 +872,12 @@ export default function Page() {
                     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
 
                     // Show Ranking Input
-                    const cardCount = deckSize === "all" ? deckCards.length : Number(deckSize);
-                    setPendingEntry({
+                    promptForRankingEntry({
                         name: "",
                         time: elapsedTime,
                         date: new Date().toISOString(),
-                        cards: cardCount
+                        cards: deckCardCount,
                     });
-                    setNameInputVisible(true);
                 }
             } else {
                 setIndex(Math.floor(Math.random() * newPool.length));
@@ -1089,6 +1113,12 @@ export default function Page() {
                             >
                                 {t.survivalMode}: {isSurvival ? t.on : t.off}
                             </button>
+                            <button
+                                onClick={() => openRanking(deckCardCount)}
+                                className={`${styles.button} ${styles.tapTarget}`}
+                            >
+                                🏆 {t.ranking}
+                            </button>
                         </div>
 
                         <div className={styles.controlGroup}>
@@ -1294,76 +1324,56 @@ export default function Page() {
                 )}
             </div>
 
-            {/* Ranking Name Input Modal */}
-            {nameInputVisible && (
-                <div className={styles.rankingOverlay}>
-                    <div className={styles.rankingModal}>
-                        <h2>{t.newRecord}</h2>
-                        <p>{t.yourTime}: {pendingEntry && formatTime(pendingEntry.time)}</p>
-                        <p>{t.enterName}</p>
-                        <input
-                            type="text"
-                            value={playerName}
-                            onChange={(e) => setPlayerName(e.target.value)}
-                            className={styles.nameInput}
-                            autoFocus
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") handleRankingRegister();
-                            }}
-                        />
-                        <div className={styles.modalButtons}>
-                            <button onClick={handleRankingRegister} className={styles.button}>OK</button>
-                        </div>
-                    </div>
-                </div>
+            {resultVisible && pendingEntry && (
+                <TimeTrialResultDialog
+                    labels={t}
+                    time={pendingEntry.time}
+                    rank={pendingRank}
+                    playerName={playerName}
+                    onNameChange={setPlayerName}
+                    onSubmit={handleRankingRegister}
+                />
             )}
 
-            {/* Ranking Display Modal */}
             {showRanking && (
-                <div className={styles.rankingOverlay}>
-                    <div className={styles.rankingModal}>
-                        <h2>{t.rankingTitle}</h2>
-                        <table className={styles.rankingTable}>
-                            <thead>
-                                <tr>
-                                    <th>{t.rank}</th>
-                                    <th>{t.name}</th>
-                                    <th>{t.time}</th>
-                                    <th>{t.date}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {rankingData.map((entry, i) => (
-                                    <tr key={i} className={isNewRecord && entry.date === pendingEntry?.date ? styles.newRecordRow : ""}>
-                                        <td>{i + 1}</td>
-                                        <td>{entry.name}</td>
-                                        <td>{formatTime(entry.time)}</td>
-                                        <td>{new Date(entry.date).toLocaleDateString()}</td>
-                                    </tr>
-                                ))}
-                                {rankingData.length === 0 && (
-                                    <tr>
-                                        <td colSpan={4} style={{ textAlign: "center" }}>{t.noRecords}</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                        <div className={styles.modalButtons}>
-                            <button onClick={() => {
-                                const confirmed = window.confirm("Clear ranking?");
-                                if (confirmed) {
-                                    clearRanking(APP_KEY);
-                                    setRankingData([]);
-                                }
-                            }} className={styles.button} style={{ background: "#ff8787" }}>
-                                {t.clearRanking}
-                            </button>
-                            <button onClick={() => setShowRanking(false)} className={styles.button}>
-                                {t.close}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <RankingDialog
+                    labels={t}
+                    cards={rankingCards}
+                    entries={rankingData}
+                    highlightDate={pendingEntry?.date}
+                    onClose={() => setShowRanking(false)}
+                    onClear={() => {
+                        clearRanking(APP_KEY);
+                        openRanking(rankingCards);
+                    }}
+                />
+            )}
+
+            {vsResult && (
+                <ResultDialog
+                    title={vsResult.player > vsResult.ai ? t.youWin : vsResult.player < vsResult.ai ? t.youLose : t.draw}
+                    mark={vsResult.player > vsResult.ai ? true : vsResult.player < vsResult.ai ? "🤖" : "🤝"}
+                    highlight={`${vsResult.player} - ${vsResult.ai}`}
+                    actions={[
+                        {
+                            label: t.playAgain,
+                            onClick: () => {
+                                setVsResult(null);
+                                resetGame();
+                            },
+                        },
+                        {
+                            label: t.quit,
+                            variant: "secondary",
+                            onClick: () => {
+                                setVsResult(null);
+                                toggleVsMode();
+                            },
+                        },
+                    ]}
+                >
+                    <p style={{ margin: 0 }}>Player {vsResult.player} / AI {vsResult.ai}</p>
+                </ResultDialog>
             )}
 
             <footer className={styles.copyright}>

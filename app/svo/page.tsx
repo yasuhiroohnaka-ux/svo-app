@@ -4,11 +4,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { cancelSpeech, unlockSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
-import { formatTime } from "@/utils/ranking";
+import { clearRanking, formatTime } from "@/utils/ranking";
 
 import { loadCards, pickRandomIndex, shuffle } from "./data";
 import { loadLv2Cards } from "@/app/lib/lv2Cards";
 import AppHeader from "@/app/components/AppHeader";
+import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
+import ResultDialog from "@/app/components/ResultDialog";
 import SpeedControl from "@/app/components/SpeedControl";
 import type { Card, ContentLang, Feedback, Mode, TrickSentence, UiLang } from "./types";
 import { useGameTimer } from "./useGameTimer";
@@ -68,6 +70,15 @@ const translations = {
     newRecord: "New Record!",
     yourTime: "Your time",
     level2Cards: "Level 2 cards",
+    rankIn: "Rank #{n}!",
+    cleared: "Cleared!",
+    outOfRank: "Not in the top 10 this time.",
+    playAgain: "Play again",
+    quit: "Quit",
+    cardsUnit: " cards",
+    youWin: "YOU WIN!",
+    youLose: "YOU LOSE...",
+    draw: "DRAW!",
   },
   ja: {
     loading: "じゅんびちゅう...",
@@ -117,6 +128,15 @@ const translations = {
     newRecord: "新記録！",
     yourTime: "あなたのタイム",
     level2Cards: "レベル2カード",
+    rankIn: "{n}位に ランクイン!",
+    cleared: "クリア!",
+    outOfRank: "こんかいは 10位に とどかなかったよ。",
+    playAgain: "もういちど",
+    quit: "やめる",
+    cardsUnit: "まい",
+    youWin: "かち!",
+    youLose: "まけ...",
+    draw: "ひきわけ!",
   },
   zh: {
     loading: "加载中...",
@@ -166,6 +186,15 @@ const translations = {
     newRecord: "新纪录！",
     yourTime: "你的时间",
     level2Cards: "第2级卡片",
+    rankIn: "第{n}名！",
+    cleared: "通关！",
+    outOfRank: "这次没有进入前10名。",
+    playAgain: "再玩一次",
+    quit: "退出",
+    cardsUnit: "张",
+    youWin: "你赢了！",
+    youLose: "你输了...",
+    draw: "平局！",
   }
 };
 
@@ -400,8 +429,22 @@ export default function Page() {
     trickSentence,
   });
 
-  const { handleRankingRegister: registerRankingEntry, nameInputVisible, pendingEntry, playerName, promptForRankingEntry, rankingData, setPlayerName, setShowRanking, showRanking } =
-    useRanking({ appKey: APP_KEY });
+  const {
+    handleRankingRegister: registerRankingEntry,
+    openRanking,
+    pendingEntry,
+    pendingRank,
+    playerName,
+    promptForRankingEntry,
+    rankingCards,
+    rankingData,
+    resultVisible,
+    setPlayerName,
+    setShowRanking,
+    showRanking,
+  } = useRanking({ appKey: APP_KEY });
+  const [vsResult, setVsResult] = useState<{ player: number; ai: number } | null>(null);
+  const deckCardCount = deckSize === "all" ? cards.length : Math.min(Number(deckSize), cards.length);
 
   const { articleMode, clearSpokenText, isListening, setArticleMode, spokenText, startListening, toggleVoiceMode, voiceMode } =
     useSpeechRecognition({
@@ -557,24 +600,18 @@ export default function Page() {
             const finalPlayerScore = winner === "player" ? score + 1 : score;
             const finalAiScore = winner === "ai" ? aiScore + 1 : aiScore;
 
-            let message = "";
-            if (finalPlayerScore > finalAiScore) message = "YOU WIN!";
-            else if (finalPlayerScore < finalAiScore) message = "YOU LOSE!";
-            else message = "DRAW!";
-
             playChime();
-            alert(`${message}\nPlayer: ${finalPlayerScore} - AI: ${finalAiScore}`);
-            resetGame();
+            stopTimer();
+            setVsResult({ player: finalPlayerScore, ai: finalAiScore });
           } else {
             playChime();
             stopTimer();
 
-            const cardCount = deckSize === "all" ? cards.length : Number(deckSize);
             promptForRankingEntry({
               name: "",
               time: elapsedTime,
               date: new Date().toISOString(),
-              cards: cardCount,
+              cards: deckCardCount,
             });
           }
         } else {
@@ -594,10 +631,9 @@ export default function Page() {
     [
       aiScore,
       cancelAiTurn,
-      cards.length,
       clearSilenceTimeout,
       current,
-      deckSize,
+      deckCardCount,
       elapsedTime,
       isSurvival,
       isVsMode,
@@ -605,7 +641,6 @@ export default function Page() {
       nextCard,
       promptForRankingEntry,
       remainingCards,
-      resetGame,
       score,
       setAiScore,
       stopTimer,
@@ -792,6 +827,63 @@ export default function Page() {
     resetGameTimer();
   };
 
+  // 結果・ランキングのダイアログ。カードが尽きた後(current なし)でも出す
+  const dialogs = (
+    <>
+      {resultVisible && pendingEntry && (
+        <TimeTrialResultDialog
+          labels={t}
+          time={pendingEntry.time}
+          rank={pendingRank}
+          playerName={playerName}
+          onNameChange={setPlayerName}
+          onSubmit={handleRankingRegister}
+        />
+      )}
+
+      {showRanking && (
+        <RankingDialog
+          labels={t}
+          cards={rankingCards}
+          entries={rankingData}
+          highlightDate={pendingEntry?.date}
+          onClose={() => setShowRanking(false)}
+          onClear={() => {
+            clearRanking(APP_KEY);
+            openRanking(rankingCards);
+          }}
+        />
+      )}
+
+      {vsResult && (
+        <ResultDialog
+          title={vsResult.player > vsResult.ai ? t.youWin : vsResult.player < vsResult.ai ? t.youLose : t.draw}
+          mark={vsResult.player > vsResult.ai ? true : vsResult.player < vsResult.ai ? "🤖" : "🤝"}
+          highlight={`${vsResult.player} - ${vsResult.ai}`}
+          actions={[
+            {
+              label: t.playAgain,
+              onClick: () => {
+                setVsResult(null);
+                resetGame();
+              },
+            },
+            {
+              label: t.quit,
+              variant: "secondary",
+              onClick: () => {
+                setVsResult(null);
+                quitSpecialMode();
+              },
+            },
+          ]}
+        >
+          <p style={{ margin: 0 }}>Player {vsResult.player} / AI {vsResult.ai}</p>
+        </ResultDialog>
+      )}
+    </>
+  );
+
   if (initError) {
     return (
       <div style={{ padding: 20, color: "red", background: "#ffebee", height: "100vh" }}>
@@ -827,10 +919,12 @@ export default function Page() {
   }
 
   if (!current) {
+    const showingResult = resultVisible || showRanking || vsResult !== null;
     return (
       <main className={styles.container}>
-        <h1 className={styles.header}>{t.appTitle || "SVO Karuta"}</h1>
-        <p style={{ marginTop: 12 }}>{t.loading}</p>
+        <AppHeader title={t.appTitle} accent="var(--accent-svo)" />
+        {!showingResult && <p style={{ marginTop: 12 }}>{t.loading}</p>}
+        {dialogs}
       </main>
     );
   }
@@ -1048,6 +1142,12 @@ export default function Page() {
                     style={{ opacity: isVsMode ? 0.5 : 1, cursor: isVsMode ? "not-allowed" : "pointer" }}
                   >
                     {t.survivalMode}: {isSurvival ? t.on : t.off}
+                  </button>
+                  <button
+                    onClick={() => openRanking(deckCardCount)}
+                    className={`${styles.button} ${styles.tapTarget}`}
+                  >
+                    🏆 {t.ranking}
                   </button>
                 </div>
 
@@ -1272,69 +1372,7 @@ export default function Page() {
           </div>
         )}
       </div>
-      {/* Name Input Modal */}
-      {nameInputVisible && (
-        <div className={styles.rankingOverlay}>
-          <div className={styles.rankingModal}>
-            <div className={styles.rankingHeader}>{t.rankingTitle}</div>
-            <div style={{ marginBottom: 12 }}>{t.newRecord}</div>
-            <div style={{ marginBottom: 20, fontSize: 32, fontWeight: "bold", color: "#ffca28" }}>{formatTime(pendingEntry?.time || 0)}</div>
-            <div style={{ marginBottom: 8 }}>{t.enterName}</div>
-            <input
-              type="text"
-              className={styles.rankingInput}
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              placeholder="Name"
-              maxLength={10}
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleRankingRegister();
-              }}
-            />
-            <button className={styles.rankingButton} onClick={handleRankingRegister}>
-              OK
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Ranking List Modal */}
-      {showRanking && (
-        <div className={styles.rankingOverlay}>
-          <div className={styles.rankingModal}>
-            <div className={styles.rankingHeader}>{t.ranking}</div>
-            <table className={styles.rankingTable}>
-              <thead>
-                <tr>
-                  <th>{t.rank}</th>
-                  <th>{t.name}</th>
-                  <th>{t.time}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rankingData.length === 0 ? (
-                  <tr><td colSpan={3}>{t.noRecords}</td></tr>
-                ) : (
-                  rankingData.map((d, i) => (
-                    <tr key={i} className={pendingEntry && d.date === pendingEntry.date ? styles.rankingRowNew : ""}>
-                      <td>{i + 1}</td>
-                      <td>{d.name}</td>
-                      <td>{formatTime(d.time)}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-            <button
-              className={styles.rankingCloseButton}
-              onClick={() => setShowRanking(false)}
-            >
-              {t.close}
-            </button>
-          </div>
-        </div>
-      )}
+      {dialogs}
 
       <footer className={styles.copyright}>
         (c) 2026 Yasuhiro Ohnaka - All rights reserved

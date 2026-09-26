@@ -16,6 +16,7 @@ import {
 import BootDebugOverlay from "@/app/components/BootDebugOverlay";
 import HanamaruMark from "@/app/components/HanamaruMark";
 import AppHeader from "@/app/components/AppHeader";
+import { createPersistentStore, usePersistentStore } from "@/app/lib/persistentStore";
 import SpeedControl from "@/app/components/SpeedControl";
 import { hasFatalFeatureGap, runFeatureCheck, type BootStep } from "@/utils/bootDiagnostics";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
@@ -52,32 +53,30 @@ const getLocalDateStamp = (): string => {
 
 const getCorrectWordsStorageKey = (): string => `${CORRECT_WORDS_STORAGE_PREFIX}${getLocalDateStamp()}`;
 
-const parseCorrectWordsByLevel = (value: string | null): CorrectWordsByLevel => {
-    if (!value) return {};
+const EMPTY_CORRECT_WORDS: CorrectWordsByLevel = {};
 
-    try {
-        const parsed = JSON.parse(value) as unknown;
-        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+const parseCorrectWordsByLevel = (value: unknown): CorrectWordsByLevel => {
+    if (!value || typeof value !== "object" || Array.isArray(value)) return EMPTY_CORRECT_WORDS;
 
-        return Object.fromEntries(
-            Object.entries(parsed)
-                .filter((entry): entry is [string, unknown[]] => Array.isArray(entry[1]))
-                .map(([levelId, wordIds]) => [levelId, wordIds.filter((wordId): wordId is string => typeof wordId === "string")]),
-        );
-    } catch {
-        return {};
-    }
+    return Object.fromEntries(
+        Object.entries(value)
+            .filter((entry): entry is [string, unknown[]] => Array.isArray(entry[1]))
+            .map(([levelId, wordIds]) => [levelId, wordIds.filter((wordId): wordId is string => typeof wordId === "string")]),
+    );
 };
 
-const readCorrectWordsByLevelFromStorage = (): CorrectWordsByLevel => {
-    if (typeof window === "undefined") return {};
+// 「きょう正解したことば」は日付ごとのキーに保存する(日付が変わると自然にリセットされる)
+const correctWordsStore = createPersistentStore<CorrectWordsByLevel>({
+    key: getCorrectWordsStorageKey,
+    fallback: EMPTY_CORRECT_WORDS,
+    parse: parseCorrectWordsByLevel,
+});
 
-    try {
-        return parseCorrectWordsByLevel(window.localStorage.getItem(getCorrectWordsStorageKey()));
-    } catch {
-        return {};
-    }
-};
+const autoAdvanceStore = createPersistentStore<boolean>({
+    key: AUTO_ADVANCE_STORAGE_KEY,
+    fallback: true,
+    parse: (value) => value !== false,
+});
 
 const pickRandomWord = (words: LessonWord[], usedWordIds: string[]): LessonWord | null => {
     if (words.length === 0) return null;
@@ -141,17 +140,8 @@ export default function PhonicsPage() {
     const [soundQuizFeedback, setSoundQuizFeedback] = useState("きいて、どのカードか さがそう。");
     const [soundQuizFeedbackKind, setSoundQuizFeedbackKind] = useState<FeedbackKind>("idle");
     const [teacherPanelOpen, setTeacherPanelOpen] = useState(false);
-    const [autoAdvance, setAutoAdvance] = useState(() => {
-        if (typeof window === "undefined") return true;
-        try {
-            return window.localStorage.getItem(AUTO_ADVANCE_STORAGE_KEY) !== "false";
-        } catch {
-            return true;
-        }
-    });
-    const [correctWordsByLevel, setCorrectWordsByLevel] = useState<CorrectWordsByLevel>(() =>
-        readCorrectWordsByLevelFromStorage(),
-    );
+    const autoAdvance = usePersistentStore(autoAdvanceStore);
+    const correctWordsByLevel = usePersistentStore(correctWordsStore);
     const teacherHoldTimerRef = useRef<number | null>(null);
     const wordAdvanceTimerRef = useRef<number | null>(null);
     const soundAdvanceTimerRef = useRef<number | null>(null);
@@ -211,29 +201,21 @@ export default function PhonicsPage() {
         }
     };
 
-    const writeCorrectWordsByLevel = (nextCorrectWords: CorrectWordsByLevel): void => {
-        safeSetLocalStorage(getCorrectWordsStorageKey(), JSON.stringify(nextCorrectWords));
-    };
-
     const markWordCorrectToday = (levelId: string, wordId: string): void => {
-        setCorrectWordsByLevel((current) => {
-            const currentLevelWords = current[levelId] ?? [];
-            if (currentLevelWords.includes(wordId)) return current;
+        const current = correctWordsStore.get();
+        const currentLevelWords = current[levelId] ?? [];
+        if (currentLevelWords.includes(wordId)) return;
 
-            const nextCorrectWords = {
-                ...current,
-                [levelId]: [...currentLevelWords, wordId],
-            };
-            writeCorrectWordsByLevel(nextCorrectWords);
-            return nextCorrectWords;
+        correctWordsStore.set({
+            ...current,
+            [levelId]: [...currentLevelWords, wordId],
         });
     };
 
     const resetTodayCorrectWordsForLevel = (): void => {
         const nextCorrectWords = { ...correctWordsByLevel };
         delete nextCorrectWords[selectedLevel.id];
-        writeCorrectWordsByLevel(nextCorrectWords);
-        setCorrectWordsByLevel(nextCorrectWords);
+        correctWordsStore.set(nextCorrectWords);
         setUsedWordIds([]);
 
         const nextWord = pickRandomWord(getPreferredWordPool(selectedLevel.id, levelWords), []);
@@ -611,8 +593,7 @@ export default function PhonicsPage() {
     };
 
     const setAutoAdvancePreference = (enabled: boolean) => {
-        setAutoAdvance(enabled);
-        safeSetLocalStorage(AUTO_ADVANCE_STORAGE_KEY, String(enabled));
+        autoAdvanceStore.set(enabled);
         if (!enabled) {
             if (wordAdvanceTimerRef.current) clearTimeout(wordAdvanceTimerRef.current);
             if (soundAdvanceTimerRef.current) clearTimeout(soundAdvanceTimerRef.current);

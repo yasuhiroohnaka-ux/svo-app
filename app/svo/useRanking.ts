@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { getRanking, saveRanking, type RankEntry } from "@/utils/ranking";
+import { getRankPosition, getRanking, rankingForCards, saveRanking, type RankEntry } from "@/utils/ranking";
 
 type UseRankingOptions = {
   appKey: string;
@@ -9,39 +9,63 @@ type UseRankingOptions = {
 
 export function useRanking({ appKey, onRegistered }: UseRankingOptions) {
   const [showRanking, setShowRanking] = useState(false);
-  const [rankingData, setRankingData] = useState<RankEntry[]>([]);
+  const [allEntries, setAllEntries] = useState<RankEntry[]>([]);
+  /** ランキング表に出す枚数(枚数が違うタイムは比べない) */
+  const [rankingCards, setRankingCards] = useState(0);
   const [pendingEntry, setPendingEntry] = useState<RankEntry | null>(null);
+  /** クリアしたタイムの順位。ランク外なら null */
+  const [pendingRank, setPendingRank] = useState<number | null>(null);
   const [playerName, setPlayerName] = useState("");
-  const [nameInputVisible, setNameInputVisible] = useState(false);
+  const [resultVisible, setResultVisible] = useState(false);
 
   useEffect(() => {
-    setRankingData(getRanking(appKey));
+    setAllEntries(getRanking(appKey));
   }, [appKey]);
 
-  const promptForRankingEntry = useCallback((entry: RankEntry) => {
-    setPendingEntry(entry);
-    setPlayerName("");
-    setNameInputVisible(true);
-  }, []);
+  const promptForRankingEntry = useCallback(
+    (entry: RankEntry) => {
+      const entries = getRanking(appKey);
+      setAllEntries(entries);
+      setPendingEntry(entry);
+      setPendingRank(getRankPosition(entries, entry.cards, entry.time));
+      setRankingCards(entry.cards);
+      setPlayerName("");
+      setResultVisible(true);
+    },
+    [appKey],
+  );
 
   const handleRankingRegister = useCallback(() => {
     if (!pendingEntry) return;
 
-    const entry = { ...pendingEntry, name: playerName || "Anonymous" };
-    saveRanking(appKey, entry);
-    setNameInputVisible(false);
-    setRankingData(getRanking(appKey));
-    setShowRanking(true);
+    if (pendingRank !== null) {
+      saveRanking(appKey, { ...pendingEntry, name: playerName.trim() || "Anonymous" });
+      setAllEntries(getRanking(appKey));
+      setShowRanking(true);
+    }
+    setResultVisible(false);
     onRegistered?.();
-  }, [appKey, onRegistered, pendingEntry, playerName]);
+  }, [appKey, onRegistered, pendingEntry, pendingRank, playerName]);
+
+  const openRanking = useCallback(
+    (cards: number) => {
+      setAllEntries(getRanking(appKey));
+      setRankingCards(cards);
+      setShowRanking(true);
+    },
+    [appKey],
+  );
 
   return {
     handleRankingRegister,
-    nameInputVisible,
+    openRanking,
     pendingEntry,
+    pendingRank,
     playerName,
     promptForRankingEntry,
-    rankingData,
+    rankingCards,
+    rankingData: rankingForCards(allEntries, rankingCards),
+    resultVisible,
     setPlayerName,
     setShowRanking,
     showRanking,
