@@ -505,6 +505,96 @@
   }
 }
 
+/* ---- たんていボード ---- */
+.board {
+  max-width: 1240px;
+  margin: 16px auto 0;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 2px solid #1b2430;
+  border-radius: 8px;
+  box-shadow: 5px 5px 0 #1b2430;
+}
+
+.boardHeader {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.boardTitle {
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.boardCount strong {
+  font-size: 1.6rem;
+  color: #0e7c86;
+}
+
+.boardHint {
+  margin: 4px 0 10px;
+  font-size: 0.85rem;
+  color: #52627a;
+}
+
+.boardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+  gap: 6px;
+}
+
+.boardTile,
+.boardTileOut {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-height: 64px;
+  padding: 6px 2px;
+  border: 2px solid #1b2430;
+  border-radius: 8px;
+  background: #ffffff;
+  font: inherit;
+  cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.boardTile span,
+.boardTileOut span {
+  font-size: 26px;
+  line-height: 1.1;
+}
+
+.boardTile small,
+.boardTileOut small {
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.boardTile:not(:disabled):hover {
+  background: #fff7c2;
+}
+
+.boardTileOut {
+  position: relative;
+  opacity: 0.28;
+  transform: scale(0.92);
+  cursor: default;
+  filter: grayscale(1);
+}
+
+.boardTileOut::after {
+  content: "✕";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+  color: #d9534f;
+}
+
 @media (max-width: 980px) {
   .stage,
   .playArea {

@@ -13,6 +13,7 @@ import AppHeader from "@/app/components/AppHeader";
 import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
 import ResultDialog from "@/app/components/ResultDialog";
 import RewardSummary from "@/app/components/RewardSummary";
+import PenaltyFlash from "@/app/components/PenaltyFlash";
 import { recordMistake } from "@/app/lib/mistakes";
 import { recordStars, starsFromTime, starsFromVs, type RecordResult } from "@/app/lib/rewards";
 import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
@@ -443,6 +444,10 @@ export default function Page() {
   } = useRanking({ appKey: APP_KEY });
   const [vsResult, setVsResult] = useState<{ player: number; ai: number; reward: RecordResult } | null>(null);
   const [trialReward, setTrialReward] = useState<RecordResult | null>(null);
+  /** タイムトライアルの お手つき回数(1回ごとに PENALTY_SECONDS 秒たす) */
+  const [penaltyCount, setPenaltyCount] = useState(0);
+  const PENALTY_SECONDS = 2;
+  const trialTime = elapsedTime + penaltyCount * PENALTY_SECONDS;
   const deckCardCount = deckSize === "all" ? cards.length : Math.min(Number(deckSize), cards.length);
 
   const { articleMode, clearSpokenText, isListening, setArticleMode, spokenText, startListening, toggleVoiceMode, voiceMode } =
@@ -546,6 +551,7 @@ export default function Page() {
 
   const resetGame = useCallback(() => {
     cancelSpeech();
+    setPenaltyCount(0);
     clearPendingCorrect();
     clearSilenceTimeout();
     cancelAiTurn();
@@ -612,10 +618,10 @@ export default function Page() {
             playChime();
             stopTimer();
 
-            setTrialReward(recordStars("svo", `tt-${deckCardCount}`, starsFromTime(elapsedTime, deckCardCount)));
+            setTrialReward(recordStars("svo", `tt-${deckCardCount}`, starsFromTime(trialTime, deckCardCount)));
             promptForRankingEntry({
               name: "",
-              time: elapsedTime,
+              time: trialTime,
               date: new Date().toISOString(),
               cards: deckCardCount,
             });
@@ -641,7 +647,7 @@ export default function Page() {
       clearSilenceTimeout,
       current,
       deckCardCount,
-      elapsedTime,
+      trialTime,
       isSurvival,
       isVsMode,
       mode,
@@ -699,6 +705,7 @@ export default function Page() {
 
   const quitSpecialMode = () => {
     cancelSpeech();
+    setPenaltyCount(0);
     clearPendingCorrect();
     clearSilenceTimeout();
     disableVsMode();
@@ -723,6 +730,7 @@ export default function Page() {
 
     // 進行中の副作用をすべて停止
     cancelSpeech();
+    setPenaltyCount(0);
     clearPendingCorrect();
     clearSilenceTimeout();
     cancelAiTurn();
@@ -766,6 +774,8 @@ export default function Page() {
       acceptCorrectAnswer(selectedImage);
     } else {
       recordMistake("svo", current.id);
+      // タイムトライアル中の お手つきは +2 秒(あてずっぽうの れんだで 速くならないように)
+      if (isSurvival && !isVsMode && gameState === "playing") setPenaltyCount((count) => count + 1);
       setStreak(0);
       setFeedback({ value: selectedImage, isCorrect: false });
       playBuzz();
@@ -773,6 +783,7 @@ export default function Page() {
   }
 
   const startRound = () => {
+    setPenaltyCount(0);
     unlockAudio();
     unlockSpeech();
     startGame();
@@ -813,6 +824,7 @@ export default function Page() {
   };
 
   const handleToggleVsMode = () => {
+    setPenaltyCount(0);
     clearPendingCorrect();
     if (isVsMode) {
       disableVsMode();
@@ -1038,7 +1050,10 @@ export default function Page() {
           </>
         )}
         {mode === "karuta" && isSurvival && (
-          <span className={styles.timer}>{formatTime(elapsedTime)}</span>
+          <span className={styles.timer}>
+            {formatTime(trialTime)}
+            <PenaltyFlash count={penaltyCount} seconds={PENALTY_SECONDS} />
+          </span>
         )}
       </div>
 

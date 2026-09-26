@@ -488,3 +488,13 @@ export function buildQuestionDeck(target: NounItem | null, seed: number, mode: Q
     .sort((a, b) => seededNoise(seed, a.question.id) - seededNoise(seed, b.question.id))
     .map(({ question }) => question);
 }
+
+/** これまでの しつもんの こたえ(たんていボード用) */
+export type Clue = { key: FactKey; answer: boolean };
+
+/** こたえと むじゅんしない お題だけを のこす(はずれた こたえも のぞく) */
+export function remainingCandidates(clues: Clue[], excludedIds: ReadonlySet<string> = new Set()): NounItem[] {
+  return NOUNS.filter(
+    (noun) => !excludedIds.has(noun.id) && clues.every((clue) => (noun.facts[clue.key] === true) === clue.answer),
+  );
+}

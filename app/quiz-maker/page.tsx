@@ -12,6 +12,7 @@ import AppHeader from "@/app/components/AppHeader";
 import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
 import ResultDialog from "@/app/components/ResultDialog";
 import RewardSummary from "@/app/components/RewardSummary";
+import PenaltyFlash from "@/app/components/PenaltyFlash";
 import { recordMistake } from "@/app/lib/mistakes";
 import { recordStars, starsFromTime, starsFromVs, type RecordResult } from "@/app/lib/rewards";
 import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
@@ -357,6 +358,10 @@ export default function Page() {
     } = useRanking({ appKey: APP_KEY });
     const [vsResult, setVsResult] = useState<{ player: number; ai: number; reward: RecordResult } | null>(null);
     const [trialReward, setTrialReward] = useState<RecordResult | null>(null);
+    /** タイムトライアルの お手つき回数(1回ごとに PENALTY_SECONDS 秒たす) */
+    const [penaltyCount, setPenaltyCount] = useState(0);
+    const PENALTY_SECONDS = 2;
+    const trialTime = elapsedTime + penaltyCount * PENALTY_SECONDS;
 
     // 正解後 1 秒の演出中は次の判定を受け付けない(連打による二重加算・AI との同時得点を防ぐ)
     const answerLockRef = useRef(false);
@@ -685,6 +690,7 @@ export default function Page() {
     }, []);
 
     const startGame = () => {
+        setPenaltyCount(0);
         unlockAudio();
         unlockSpeech();
         setCountdown(3);
@@ -727,6 +733,7 @@ export default function Page() {
     };
 
     const toggleVsMode = () => {
+        setPenaltyCount(0);
         const next = !isVsMode;
         setIsVsMode(next);
         if (next) {
@@ -748,6 +755,7 @@ export default function Page() {
     };
 
     const resetGame = () => {
+        setPenaltyCount(0);
         clearPendingCorrect();
         const targetCount = deckSize === "all" ? deckCards.length : Number(deckSize);
         setRemainingCards(shuffle(deckCards).slice(0, targetCount));
@@ -850,10 +858,10 @@ export default function Page() {
                     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
 
                     // Show Ranking Input
-                    setTrialReward(recordStars("quiz", `tt-${selectedDeck}-${deckCardCount}`, starsFromTime(elapsedTime, deckCardCount)));
+                    setTrialReward(recordStars("quiz", `tt-${selectedDeck}-${deckCardCount}`, starsFromTime(trialTime, deckCardCount)));
                     promptForRankingEntry({
                         name: "",
-                        time: elapsedTime,
+                        time: trialTime,
                         date: new Date().toISOString(),
                         cards: deckCardCount,
                     });
@@ -878,6 +886,8 @@ export default function Page() {
             acceptCorrectAnswer(selectedImage);
         } else {
             recordMistake("quiz", current.id);
+            // タイムトライアル中の お手つきは +2 秒(あてずっぽうの れんだで 速くならないように)
+            if (isSurvival && !isVsMode && gameState === "playing") setPenaltyCount((count) => count + 1);
             setStreak(0);
             setFeedback({ value: selectedImage, isCorrect: false });
             playBuzz();
@@ -1006,7 +1016,8 @@ export default function Page() {
                 )}
                 {isSurvival && (
                     <div className={styles.timer}>
-                        {t.timer}: {formatTime(elapsedTime)}
+                        {t.timer}: {formatTime(trialTime)}
+                        <PenaltyFlash count={penaltyCount} seconds={PENALTY_SECONDS} />
                     </div>
                 )}
             </div>
@@ -1098,6 +1109,7 @@ export default function Page() {
                                 onClick={() => {
                                     if (isVsMode) return;
                                     setIsSurvival(v => !v);
+                                    setPenaltyCount(0);
                                     setRemainingCards(deckCards);
                                     setScore(0);
                                     setGameState("idle");

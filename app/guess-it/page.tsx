@@ -23,6 +23,8 @@ import {
   normalize,
   findGuessItem,
   buildQuestionDeck,
+  remainingCandidates,
+  type Clue,
 } from "./data";
 
 type HistoryEntry = {
@@ -52,6 +54,11 @@ export default function GuessItPage() {
   /** このラウンドで した しつもんの数(履歴は 9 件までしか のこさないので べつに数える) */
   const [questionsAsked, setQuestionsAsked] = useState(0);
   const [reward, setReward] = useState<RecordResult | null>(null);
+  /** たんていボード: しつもんの こたえと、はずれた こたえ */
+  const [clues, setClues] = useState<Clue[]>([]);
+  const [wrongGuessIds, setWrongGuessIds] = useState<ReadonlySet<string>>(new Set());
+  const candidates = useMemo(() => remainingCandidates(clues, wrongGuessIds), [clues, wrongGuessIds]);
+  const candidateIds = useMemo(() => new Set(candidates.map((noun) => noun.id)), [candidates]);
   const [roundSeed, setRoundSeed] = useState(3);
   const [teacherPeek, setTeacherPeek] = useState(false);
   const rouletteTimer = useRef<NodeJS.Timeout | null>(null);
@@ -91,6 +98,8 @@ export default function GuessItPage() {
     setAttempts(0);
     setQuestionsAsked(0);
     setReward(null);
+    setClues([]);
+    setWrongGuessIds(new Set());
     setTeacherPeek(false);
     setRouletteWord("???");
 
@@ -130,6 +139,7 @@ export default function GuessItPage() {
       setActiveResponse(entry);
       setHistory((current) => [entry, ...current].slice(0, 9));
       setQuestionsAsked((count) => count + 1);
+      setClues((current) => [...current, { key: question.key, answer: answer === "yes" }]);
       if (voiceEnabled) {
         speakQueue([question.text, response], 420, "en-US");
       }
@@ -182,6 +192,7 @@ export default function GuessItPage() {
       }
 
       const response = "No, try again!";
+      if (matched) setWrongGuessIds((current) => new Set(current).add(matched.id));
       setPhase("playing");
       setActiveResponse({
         id: `guess-${Date.now()}`,
@@ -209,6 +220,8 @@ export default function GuessItPage() {
     setAttempts(0);
     setQuestionsAsked(0);
     setReward(null);
+    setClues([]);
+    setWrongGuessIds(new Set());
     setTeacherPeek(false);
   }, []);
 
@@ -363,6 +376,40 @@ export default function GuessItPage() {
           </div>
         </aside>
       </section>
+
+      {phase !== "idle" && phase !== "spinning" && (
+        <section className={styles.board} aria-label="たんていボード">
+          <div className={styles.boardHeader}>
+            <span className={styles.boardTitle}>🕵️ たんていボード</span>
+            <span className={styles.boardCount}>
+              のこり <strong>{candidates.length}</strong> / {NOUNS.length}
+            </span>
+          </div>
+          <p className={styles.boardHint}>しつもんの こたえに あわない ものは きえるよ。あやしい ものを タップして こたえよう。</p>
+          <div className={styles.boardGrid}>
+            {NOUNS.map((noun) => {
+              const alive = candidateIds.has(noun.id);
+              return (
+                <button
+                  type="button"
+                  key={noun.id}
+                  className={alive ? styles.boardTile : styles.boardTileOut}
+                  disabled={!alive || phase !== "playing"}
+                  onClick={() => {
+                    unlockSpeech();
+                    setGuess(noun.word);
+                    setPhase("guessing");
+                  }}
+                  aria-label={alive ? `${noun.word}(${noun.ja})` : `${noun.word} は ちがう`}
+                >
+                  <span aria-hidden="true">{noun.icon}</span>
+                  <small>{noun.word}</small>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {(phase === "guessing" || phase === "finished") && target && (
         <div className={styles.guessLayer}>
