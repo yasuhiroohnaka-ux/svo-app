@@ -1,0 +1,47 @@
+.correct,
+.wrong {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: var(--border-w) solid var(--ink);
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 2px 2px 0 var(--ink);
+  pointer-events: none;
+  animation: pop 0.25s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+/* 文のボタンなど背の低い要素では、右端の中央に小さく出す */
+.end {
+  top: 50%;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  margin-top: -14px;
+  font-size: 17px;
+}
+
+.correct {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.wrong {
+  background: var(--ng-soft);
+  color: var(--ng);
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+}

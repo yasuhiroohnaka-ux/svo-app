@@ -7,6 +7,7 @@ import { speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { clearRanking, formatTime } from "@/utils/ranking";
 import BootDebugOverlay from "@/app/components/BootDebugOverlay";
+import AnswerMark from "@/app/components/AnswerMark";
 import AppHeader from "@/app/components/AppHeader";
 import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
 import ResultDialog from "@/app/components/ResultDialog";
@@ -1164,7 +1165,7 @@ export default function Page() {
                                     >
                                         <Image
                                             src={current.image}
-                                            alt="card"
+                                            alt="もんだいの え"
                                             className={styles.flashImage}
                                             width={545}
                                             height={771}
@@ -1217,10 +1218,15 @@ export default function Page() {
                                                         onClick={() => judgeFlash(String(s))}
                                                         className={styles.sentenceButton}
                                                         style={{
-                                                            border: feedback?.value === String(s) ? `2px solid ${feedback.isCorrect ? "green" : "red"}` : "1px solid #222",
+                                                            position: "relative",
+                                                            paddingRight: 44,
+                                                            border: feedback?.value === String(s)
+                                                                ? `3px solid ${feedback.isCorrect ? "var(--ok)" : "var(--ng)"}`
+                                                                : "1px solid #222",
                                                         }}
                                                     >
                                                         {String(s)}
+                                                        {feedback?.value === String(s) && <AnswerMark correct={feedback.isCorrect} placement="end" />}
                                                     </button>
                                                 ))}
                                             </div>
@@ -1267,17 +1273,21 @@ export default function Page() {
                                             onClick={() => judgeKaruta(String(img))}
                                             className={styles.karutaCard}
                                             style={{
-                                                border: feedback?.value === String(img) ? `2px solid ${feedback.isCorrect ? "green" : "red"}` : "1px solid #222",
+                                                position: "relative",
+                                                border: feedback?.value === String(img)
+                                                    ? `3px solid ${feedback.isCorrect ? "var(--ok)" : "var(--ng)"}`
+                                                    : "1px solid #222",
                                             }}
                                         >
                                             <Image
                                                 src={String(img)}
-                                                alt={`choice-${i}`}
+                                                alt={`えのカード ${i + 1}`}
                                                 className={styles.karutaImage}
                                                 width={545}
                                                 height={771}
                                                 sizes="(max-width: 480px) 30vw, (max-width: 1024px) 20vw, 180px"
                                             />
+                                            {feedback?.value === String(img) && <AnswerMark correct={feedback.isCorrect} />}
                                         </button>
                                     ))}
                                 </div>

@@ -8,6 +8,7 @@ import { clearRanking, formatTime } from "@/utils/ranking";
 
 import { loadCards, pickRandomIndex, shuffle } from "./data";
 import { loadLv2Cards } from "@/app/lib/lv2Cards";
+import AnswerMark from "@/app/components/AnswerMark";
 import AppHeader from "@/app/components/AppHeader";
 import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
 import ResultDialog from "@/app/components/ResultDialog";
@@ -1185,7 +1186,7 @@ export default function Page() {
               >
                 <Image
                   src={current.image}
-                  alt="card"
+                  alt="もんだいの え"
                   className={styles.flashImage}
                   width={544}
                   height={387}
@@ -1252,12 +1253,15 @@ export default function Page() {
                         onClick={() => judgeFlash(String(s))}
                         className={styles.sentenceButton}
                         style={{
+                          position: "relative",
+                          paddingRight: 44,
                           border: feedback?.value === String(s)
-                            ? `2px solid ${feedback.isCorrect ? "green" : "red"}`
-                            : "1px solid #222",
+                              ? `3px solid ${feedback.isCorrect ? "var(--ok)" : "var(--ng)"}`
+                              : "1px solid #222",
                         }}
                       >
                         {String(s)}
+                        {feedback?.value === String(s) && <AnswerMark correct={feedback.isCorrect} placement="end" />}
                       </button>
                     ))}
                   </div>
@@ -1306,19 +1310,21 @@ export default function Page() {
                   onClick={() => judgeKaruta(String(img))}
                   className={styles.karutaCard}
                   style={{
+                    position: "relative",
                     border: feedback?.value === String(img)
-                      ? `2px solid ${feedback.isCorrect ? "green" : "red"}`
-                      : "1px solid #222",
+                        ? `3px solid ${feedback.isCorrect ? "var(--ok)" : "var(--ng)"}`
+                        : "1px solid #222",
                   }}
                 >
                   <Image
                     src={String(img)}
-                    alt={`choice-${i}`}
+                    alt={`えのカード ${i + 1}`}
                     className={styles.karutaImage}
                     width={544}
                     height={387}
                     sizes="(max-width: 480px) 45vw, (max-width: 1024px) 20vw, 200px"
                   />
+                  {feedback?.value === String(img) && <AnswerMark correct={feedback.isCorrect} />}
                 </button>
               ))}
             </div>
