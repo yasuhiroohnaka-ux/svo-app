@@ -10,6 +10,7 @@ import BootDebugOverlay from "@/app/components/BootDebugOverlay";
 import AppHeader from "@/app/components/AppHeader";
 import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
 import ResultDialog from "@/app/components/ResultDialog";
+import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
 import SpeedControl from "@/app/components/SpeedControl";
 import { useRanking } from "@/app/svo/useRanking";
 import { isVoiceAnswerCorrect } from "./voice";
@@ -112,6 +113,11 @@ const translations = {
         playAgain: "Play again",
         quit: "Quit",
         cardsUnit: " cards",
+        settings: "Settings",
+        speechSpeed: "Reading speed",
+        menu: "Menu",
+        closeMenu: "Close menu",
+        vsAutoSpeakNote: "In VS AI the cards are always read aloud.",
     },
     ja: {
         loading: "準備中...",
@@ -175,6 +181,11 @@ const translations = {
         playAgain: "もういちど",
         quit: "やめる",
         cardsUnit: "まい",
+        settings: "せってい",
+        speechSpeed: "よみあげの はやさ",
+        menu: "メニュー",
+        closeMenu: "メニューをとじる",
+        vsAutoSpeakNote: "VS AI のときは いつも よみあげます。",
     },
     zh: {
         loading: "准备中...",
@@ -238,6 +249,11 @@ const translations = {
         playAgain: "再玩一次",
         quit: "退出",
         cardsUnit: "张",
+        settings: "设置",
+        speechSpeed: "朗读速度",
+        menu: "菜单",
+        closeMenu: "关闭菜单",
+        vsAutoSpeakNote: "对战 AI 时总是自动朗读。",
     }
 };
 
@@ -457,22 +473,6 @@ export default function Page() {
         return s[2] || s[0];
     };
     const getFullText = (c: Card) => getSentences(c).join(" ");
-
-    const toggleUiLang = () => {
-        setUiLang((prev) => {
-            if (prev === "en") return "ja";
-            if (prev === "ja") return "zh";
-            return "en";
-        });
-    };
-
-    const getUiLangLabel = () => {
-        if (uiLang === "en") return t.english;
-        if (uiLang === "ja") return t.japanese;
-        return t.chinese;
-    };
-
-    const toggleContentLang = () => setContentLang(prev => prev === "en" ? "zh" : "en");
 
     useEffect(() => {
         if (index >= activePool.length && activePool.length > 0) {
@@ -912,9 +912,71 @@ export default function Page() {
         );
     }
 
+    const onOff = [
+        { value: "on" as const, label: t.on },
+        { value: "off" as const, label: t.off },
+    ];
+    const settings = (
+        <SettingsSheet title={t.settings} label={t.settings}>
+            <SettingsRow label={t.uiLang}>
+                <SettingsChoice
+                    value={uiLang}
+                    options={[
+                        { value: "ja", label: t.japanese },
+                        { value: "en", label: t.english },
+                        { value: "zh", label: t.chinese },
+                    ]}
+                    onChange={setUiLang}
+                />
+            </SettingsRow>
+            <SettingsRow label={t.contentLang}>
+                <SettingsChoice
+                    value={contentLang}
+                    options={[
+                        { value: "en", label: t.contentEn },
+                        { value: "zh", label: t.contentZh },
+                    ]}
+                    onChange={setContentLang}
+                />
+            </SettingsRow>
+            <SettingsRow label={t.speechSpeed}>
+                <SpeedControl showLabel={false} />
+            </SettingsRow>
+            <SettingsRow label={t.autoSpeak}>
+                <SettingsChoice
+                    value={effectiveAutoSpeak ? "on" : "off"}
+                    options={onOff}
+                    onChange={(value) => setAutoSpeak(value === "on")}
+                    disabled={isVsMode}
+                />
+                {isVsMode && <small>{t.vsAutoSpeakNote}</small>}
+            </SettingsRow>
+            <SettingsRow label={`${t.flash}: ${t.voiceMode}`}>
+                <SettingsChoice
+                    value={voiceMode ? "on" : "off"}
+                    options={onOff}
+                    onChange={(value) => {
+                        const next = value === "on";
+                        setVoiceMode(next);
+                        setShowText(!next); // 声で答えるときは文を隠す
+                    }}
+                />
+            </SettingsRow>
+            {!voiceMode && (
+                <SettingsRow label={`${t.flash}: ${t.choices}`}>
+                    <SettingsChoice
+                        value={choiceCount}
+                        options={[2, 3, 4, 5].map((n) => ({ value: n, label: n }))}
+                        onChange={setChoiceCount}
+                    />
+                </SettingsRow>
+            )}
+        </SettingsSheet>
+    );
+
     return (
         <main className={styles.container}>
-            <AppHeader title={t.appTitle} accent="var(--accent-quiz)" />
+            <AppHeader title={t.appTitle} accent="var(--accent-quiz)" right={settings} />
 
             {/* Score & Status */}
             <div className={styles.statusRow}>
@@ -937,18 +999,6 @@ export default function Page() {
             </div>
 
             <div className={styles.controls}>
-                <div className={styles.controlGroup}>
-                    <button onClick={toggleUiLang} className={`${styles.button} ${styles.tapTarget}`} title={t.uiLang}>
-                        {t.uiLang}: {getUiLangLabel()}
-                    </button>
-                    <button
-                        onClick={toggleContentLang}
-                        className={`${styles.button} ${styles.tapTarget} ${contentLang === "zh" ? styles.buttonActive : ""}`}
-                        title={t.contentLang}
-                    >
-                        {t.contentLang}: {contentLang === "en" ? t.contentEn : t.contentZh}
-                    </button>
-                </div>
                 <div className={styles.controlGroup}>
                     <span style={{ fontSize: 14 }}>{t.deck}:</span>
                     <select
@@ -976,51 +1026,14 @@ export default function Page() {
                     <button onClick={() => setMode("karuta")} className={`${styles.button} ${styles.tapTarget} ${mode === "karuta" ? styles.buttonActive : ""}`}>
                         {t.karuta}
                     </button>
-                    {showAdvancedControls && mode === "flash" && (
-                        <button
-                            onClick={() => {
-                                const next = !voiceMode;
-                                setVoiceMode(next);
-                                setShowText(!next); // Hide text if voice ON
-                            }}
-                            className={`${styles.button} ${styles.tapTarget} ${voiceMode ? styles.buttonActive : ""}`}
-                            title={t.voiceMode}
-                        >
-                            🎤
-                        </button>
-                    )}
-                </div>
-
-                <div className={styles.controlGroup}>
                     <button
                         onClick={() => setShowAdvancedControls((v) => !v)}
                         className={`${styles.button} ${styles.tapTarget}`}
+                        aria-expanded={showAdvancedControls}
                     >
-                        {showAdvancedControls ? "詳細を隠す" : "詳細を表示"}
+                        {showAdvancedControls ? t.closeMenu : t.menu}
                     </button>
                 </div>
-
-                {showAdvancedControls && (
-                    <div className={styles.controlGroup}>
-                        <div style={{ opacity: 0.7 }}>|</div>
-                        <button
-                            onClick={() => setAutoSpeak((v) => !v)}
-                            className={`${styles.button} ${styles.tapTarget} ${effectiveAutoSpeak ? styles.buttonActive : ""}`}
-                            disabled={isVsMode}
-                            title={isVsMode ? "VS AI中は自動で読み上げます" : undefined}
-                        >
-                            {t.autoSpeak}: {effectiveAutoSpeak ? t.on : t.off}
-                        </button>
-                    </div>
-                )}
-
-                {showAdvancedControls && (
-                    <div className={styles.controlGroup}>
-                        <div style={{ opacity: 0.7 }}>|</div>
-                        <SpeedControl />
-                    </div>
-                )}
-
 
                 <div className={styles.controlGroup}>
                     {gameState === "idle" && (
@@ -1043,7 +1056,7 @@ export default function Page() {
                             className={`${styles.button} ${styles.tapTarget} ${styles.buttonActive}`}
                             style={{ background: "#42a5f5", borderColor: "#1e88e5" }}
                         >
-                            笆ｶ RESUME
+                            ▶ RESUME
                         </button>
                     )}
                 </div>

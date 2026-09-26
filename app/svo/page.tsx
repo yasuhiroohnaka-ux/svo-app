@@ -11,6 +11,7 @@ import { loadLv2Cards } from "@/app/lib/lv2Cards";
 import AppHeader from "@/app/components/AppHeader";
 import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
 import ResultDialog from "@/app/components/ResultDialog";
+import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
 import SpeedControl from "@/app/components/SpeedControl";
 import type { Card, ContentLang, Feedback, Mode, TrickSentence, UiLang } from "./types";
 import { useGameTimer } from "./useGameTimer";
@@ -70,6 +71,11 @@ const translations = {
     newRecord: "New Record!",
     yourTime: "Your time",
     level2Cards: "Level 2 cards",
+    settings: "Settings",
+    speechSpeed: "Reading speed",
+    menu: "Menu",
+    closeMenu: "Close menu",
+    vsAutoSpeakNote: "In VS AI the cards are always read aloud.",
     rankIn: "Rank #{n}!",
     cleared: "Cleared!",
     outOfRank: "Not in the top 10 this time.",
@@ -128,6 +134,11 @@ const translations = {
     newRecord: "新記録！",
     yourTime: "あなたのタイム",
     level2Cards: "レベル2カード",
+    settings: "せってい",
+    speechSpeed: "よみあげの はやさ",
+    menu: "メニュー",
+    closeMenu: "メニューをとじる",
+    vsAutoSpeakNote: "VS AI のときは いつも よみあげます。",
     rankIn: "{n}位に ランクイン!",
     cleared: "クリア!",
     outOfRank: "こんかいは 10位に とどかなかったよ。",
@@ -186,6 +197,11 @@ const translations = {
     newRecord: "新纪录！",
     yourTime: "你的时间",
     level2Cards: "第2级卡片",
+    settings: "设置",
+    speechSpeed: "朗读速度",
+    menu: "菜单",
+    closeMenu: "关闭菜单",
+    vsAutoSpeakNote: "对战 AI 时总是自动朗读。",
     rankIn: "第{n}名！",
     cleared: "通关！",
     outOfRank: "这次没有进入前10名。",
@@ -329,28 +345,6 @@ export default function Page() {
       clearTimeout(timer);
     };
   }, []);
-
-  // Cycle UI Language: en -> ja -> zh -> en
-  const toggleUiLang = () => {
-    setUiLang((prev) => {
-      if (prev === "en") return "ja";
-      if (prev === "ja") return "zh";
-      return "en";
-    });
-  };
-
-  // Helper for UI lang label
-  const getUiLangLabel = () => {
-    if (uiLang === "en") return t.english;
-    if (uiLang === "ja") return t.japanese;
-    return t.chinese;
-  };
-
-  // Helper for Content lang label
-  const getContentLangLabel = () => {
-    if (contentLang === "en") return t.english;
-    return t.chinese;
-  };
 
   // Effect to reset index if out of bounds (e.g. after removing a card)
   useEffect(() => {
@@ -929,13 +923,94 @@ export default function Page() {
     );
   }
 
+  const onOff = [
+    { value: "on" as const, label: t.on },
+    { value: "off" as const, label: t.off },
+  ];
+  const settings = (
+    <SettingsSheet title={t.settings} label={t.settings}>
+      <SettingsRow label={t.uiLang}>
+        <SettingsChoice
+          value={uiLang}
+          options={[
+            { value: "ja", label: t.japanese },
+            { value: "en", label: t.english },
+            { value: "zh", label: t.chinese },
+          ]}
+          onChange={setUiLang}
+        />
+      </SettingsRow>
+      <SettingsRow label={t.contentLang}>
+        <SettingsChoice
+          value={contentLang}
+          options={[
+            { value: "en", label: t.english },
+            { value: "zh", label: t.chinese },
+          ]}
+          onChange={setContentLang}
+        />
+      </SettingsRow>
+      <SettingsRow label={t.speechSpeed}>
+        <SpeedControl showLabel={false} />
+      </SettingsRow>
+      <SettingsRow label={t.autoSpeak}>
+        <SettingsChoice
+          value={effectiveAutoSpeak ? "on" : "off"}
+          options={onOff}
+          onChange={(value) => setAutoSpeak(value === "on")}
+          disabled={isVsMode}
+        />
+        {isVsMode && <small>{t.vsAutoSpeakNote}</small>}
+      </SettingsRow>
+      {lv2Cards.length > 0 && (
+        <SettingsRow label={t.level2Cards}>
+          <SettingsChoice
+            value={level2On ? "on" : "off"}
+            options={onOff}
+            onChange={(value) => {
+              if ((value === "on") !== level2On) handleToggleLevel2();
+            }}
+          />
+        </SettingsRow>
+      )}
+      <SettingsRow label={`${t.flash}: ${t.voiceMode}`}>
+        <SettingsChoice
+          value={voiceMode ? "on" : "off"}
+          options={onOff}
+          onChange={(value) => {
+            if ((value === "on") !== voiceMode) toggleVoiceMode();
+          }}
+        />
+        {voiceMode && (
+          <SettingsChoice
+            value={articleMode}
+            options={[
+              { value: "easy", label: t.articleEasy },
+              { value: "hard", label: t.articleHard },
+            ]}
+            onChange={setArticleMode}
+          />
+        )}
+      </SettingsRow>
+      {!voiceMode && (
+        <SettingsRow label={`${t.flash}: ${t.choices}`}>
+          <SettingsChoice
+            value={choiceCount}
+            options={[2, 3, 4, 5].map((n) => ({ value: n, label: n }))}
+            onChange={setChoiceCount}
+          />
+        </SettingsRow>
+      )}
+    </SettingsSheet>
+  );
+
   return (
     <main className={styles.container}>
-      <AppHeader title={t.appTitle} accent="var(--accent-svo)" />
+      <AppHeader title={t.appTitle} accent="var(--accent-svo)" right={settings} />
 
       {/* Score & Status */}
       <div className={styles.statusRow}>
-        cards: {isSurvival ? activePool.length : cards.length}
+        {t.cards}: {isSurvival ? activePool.length : cards.length}
         {" / "}
         {isVsMode ? (
           <>
@@ -943,7 +1018,7 @@ export default function Page() {
           </>
         ) : (
           <>
-            score: {score} / streak: {streak}
+            {t.score}: {score} / {t.streak}: {streak}
           </>
         )}
         {mode === "karuta" && isSurvival && (
@@ -952,26 +1027,6 @@ export default function Page() {
       </div>
 
       <div className={styles.controls}>
-        <div className={styles.controlGroup}>
-          <button
-            onClick={toggleUiLang}
-            className={`${styles.button} ${styles.tapTarget}`}
-            title={t.uiLang}
-          >
-            {t.uiLang}: {getUiLangLabel()}
-          </button>
-
-          <div style={{ opacity: 0.7 }}>|</div>
-
-          <button
-            onClick={() => setContentLang(contentLang === "en" ? "zh" : "en")}
-            className={`${styles.button} ${styles.tapTarget}`}
-            title={t.contentLang}
-          >
-            {t.contentLang}: {getContentLangLabel()}
-          </button>
-        </div>
-
         <div className={styles.controlGroup}>
           <div>{t.mode}</div>
           <button
@@ -986,97 +1041,16 @@ export default function Page() {
           >
             {t.karuta}
           </button>
+          {mode === "karuta" && (
+            <button
+              onClick={() => setShowAdvancedControls((v) => !v)}
+              className={`${styles.button} ${styles.tapTarget}`}
+              aria-expanded={showAdvancedControls}
+            >
+              {showAdvancedControls ? t.closeMenu : t.menu}
+            </button>
+          )}
         </div>
-
-        <div className={styles.controlGroup}>
-          <button
-            onClick={() => setShowAdvancedControls((v) => !v)}
-            className={`${styles.button} ${styles.tapTarget}`}
-          >
-            {showAdvancedControls ? "メニューをとじる" : "メニュー"}
-          </button>
-        </div>
-
-        {/* Flash mode: choices (max 5) */}
-        {showAdvancedControls && mode === "flash" && !voiceMode && (
-          <div className={styles.controlGroup}>
-            <div>{t.choices}</div>
-            {[2, 3, 4, 5].map((n) => (
-              <button
-                key={n}
-                onClick={() => setChoiceCount(n)}
-                className={`${styles.choiceButton} ${choiceCount === n ? styles.choiceButtonActive : ""}`}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Flash mode: voice recognition toggle + easy/hard */}
-        {showAdvancedControls && mode === "flash" && (
-          <div className={styles.controlGroup}>
-            <div style={{ opacity: 0.7 }}>|</div>
-            <button
-              onClick={toggleVoiceMode}
-              className={`${styles.button} ${voiceMode ? styles.buttonActive : ""}`}
-            >
-              {t.voiceMode}: {voiceMode ? t.on : t.off}
-            </button>
-
-            {voiceMode && (
-              <>
-                <button
-                  onClick={() => setArticleMode("easy")}
-                  className={`${styles.button} ${articleMode === "easy" ? styles.buttonActive : ""}`}
-                >
-                  {t.articleEasy}
-                </button>
-                <button
-                  onClick={() => setArticleMode("hard")}
-                  className={`${styles.button} ${articleMode === "hard" ? styles.buttonActive : ""}`}
-                >
-                  {t.articleHard}
-                </button>
-              </>
-            )}
-          </div>
-
-        )}
-
-        {showAdvancedControls && (
-          <div className={styles.controlGroup}>
-            <div style={{ opacity: 0.7 }}>|</div>
-            <button
-              onClick={() => setAutoSpeak((v) => !v)}
-              className={`${styles.button} ${styles.tapTarget} ${effectiveAutoSpeak ? styles.buttonActive : ""}`}
-              disabled={isVsMode}
-              title={isVsMode ? "VS AI中は自動で読み上げます" : undefined}
-            >
-              {t.autoSpeak}: {effectiveAutoSpeak ? t.on : t.off}
-            </button>
-          </div>
-        )}
-
-        {showAdvancedControls && (
-          <div className={styles.controlGroup}>
-            <div style={{ opacity: 0.7 }}>|</div>
-            <SpeedControl />
-          </div>
-        )}
-
-        {/* レベル2カードのオン/オフ。lv2 が読み込めていない/0枚のときは出さない */}
-        {showAdvancedControls && lv2Cards.length > 0 && (
-          <div className={styles.controlGroup}>
-            <div style={{ opacity: 0.7 }}>|</div>
-            <button
-              onClick={handleToggleLevel2}
-              className={`${styles.button} ${styles.tapTarget} ${level2On ? styles.buttonActive : ""}`}
-            >
-              {t.level2Cards}: {level2On ? t.on : t.off}
-            </button>
-          </div>
-        )}
 
         {/* Karuta mode: deck selector + survival */}
         {mode === "karuta" && (

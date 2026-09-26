@@ -138,33 +138,6 @@
   box-shadow: 3px 3px 0 #1d2f45;
 }
 
-.choiceButton {
-  width: 44px;
-  height: 44px;
-  border: 2px solid #1d2f45;
-  border-radius: 50%;
-  background: #ffffff;
-  color: #1d2f45;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-family: inherit;
-  font-size: 14px;
-  transition: transform 0.12s, background 0.12s;
-  box-shadow: 3px 3px 0 #1d2f45;
-}
-
-.choiceButton:hover {
-  background: #ffe3e0;
-}
-
-.choiceButtonActive {
-  background: #ff6b6b;
-  color: #1d2f45;
-}
-
 /* Game Area */
 .gameArea {
   margin-top: 12px;
@@ -484,13 +457,6 @@
     box-shadow: 2px 2px 0 #1d2f45;
   }
 
-  .choiceButton {
-    width: 28px;
-    height: 28px;
-    font-size: 12px;
-    box-shadow: 2px 2px 0 #1d2f45;
-  }
-
   .select {
     padding: 4px 8px;
     font-size: 12px;
@@ -587,12 +553,6 @@
     padding: 4px 8px;
     font-size: 12px;
     box-shadow: 2px 2px 0 #1d2f45;
-  }
-
-  .choiceButton {
-    width: 24px;
-    height: 24px;
-    font-size: 11px;
   }
 
   .gameArea {

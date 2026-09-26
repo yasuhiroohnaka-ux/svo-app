@@ -8,6 +8,7 @@ import { loadCards, shuffle } from "../svo/data";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { speak, cancelSpeech, unlockSpeech } from "@/utils/speak";
 import AppHeader from "@/app/components/AppHeader";
+import SettingsSheet, { SettingsRow } from "@/app/components/SettingsSheet";
 import SpeedControl from "@/app/components/SpeedControl";
 import HanamaruMark from "@/app/components/HanamaruMark";
 
@@ -381,7 +382,19 @@ export default function Page() {
 
   // ---------------- 表示 ----------------
 
-  const header = <AppHeader title="Puzzle Grammar" accent="var(--accent-puzzle)" />;
+  const header = (
+    <AppHeader
+      title="Puzzle Grammar"
+      accent="var(--accent-puzzle)"
+      right={
+        <SettingsSheet>
+          <SettingsRow label="よみあげの はやさ">
+            <SpeedControl showLabel={false} />
+          </SettingsRow>
+        </SettingsSheet>
+      }
+    />
+  );
 
   // enabled な lv2 カードが 1 枚もない間はレベル2を選べない
   const lv2Ready = lv2Cards.length > 0;
@@ -410,7 +423,6 @@ export default function Page() {
       >
         {lv2Ready ? "レベル2" : "レベル2(じゅんびちゅう)"}
       </button>
-      <SpeedControl />
       <button type="button"
         className={`${styles.levelButton} ${level === "stories" ? styles.levelButtonActive : ""}`}
         onClick={() => switchLevel("stories")} aria-pressed={level === "stories"}>

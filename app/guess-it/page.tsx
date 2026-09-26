@@ -2,6 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import AppHeader from "@/app/components/AppHeader";
+import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
 import SpeedControl from "@/app/components/SpeedControl";
 import { cancelSpeech, speakQueue, unlockSpeech } from "@/utils/speak";
 import styles from "./page.module.css";
@@ -201,43 +202,50 @@ export default function GuessItPage() {
 
   return (
     <main className={styles.shell}>
-      <AppHeader title="ことばたんてい" accent="var(--accent-guess)" />
-      <div className={styles.topBar}>
-        <div className={styles.modeStrip} aria-label="settings">
-          <button
-            type="button"
-            className={`${styles.segment} ${displayMode === "easy" ? styles.segmentActive : ""}`}
-            onClick={() => setDisplayMode("easy")}
-          >
-            訳あり
-          </button>
-          <button
-            type="button"
-            className={`${styles.segment} ${displayMode === "challenge" ? styles.segmentActive : ""}`}
-            onClick={() => setDisplayMode("challenge")}
-          >
-            英語だけ
-          </button>
-          <button
-            type="button"
-            className={`${styles.segment} ${questionMode === "guided" ? styles.segmentActive : ""}`}
-            onClick={() => setQuestionMode((current) => (current === "guided" ? "mix" : "guided"))}
-          >
-            {questionMode === "guided" ? "ヒント多め" : "ランダム"}
-          </button>
-          <button
-            type="button"
-            className={`${styles.segment} ${voiceEnabled ? styles.segmentActive : ""}`}
-            onClick={() => {
-              setVoiceEnabled((current) => !current);
-              unlockSpeech();
-            }}
-          >
-            音声
-          </button>
-          <SpeedControl />
-        </div>
-      </div>
+      <AppHeader
+        title="ことばたんてい"
+        accent="var(--accent-guess)"
+        right={
+          <SettingsSheet>
+            <SettingsRow label="にほんごの やく">
+              <SettingsChoice
+                value={displayMode}
+                options={[
+                  { value: "easy", label: "訳あり" },
+                  { value: "challenge", label: "英語だけ" },
+                ]}
+                onChange={setDisplayMode}
+              />
+            </SettingsRow>
+            <SettingsRow label="しつもんカード">
+              <SettingsChoice
+                value={questionMode}
+                options={[
+                  { value: "guided", label: "ヒント多め" },
+                  { value: "mix", label: "ランダム" },
+                ]}
+                onChange={setQuestionMode}
+              />
+            </SettingsRow>
+            <SettingsRow label="音声">
+              <SettingsChoice
+                value={voiceEnabled ? "on" : "off"}
+                options={[
+                  { value: "on", label: "オン" },
+                  { value: "off", label: "オフ" },
+                ]}
+                onChange={(value) => {
+                  setVoiceEnabled(value === "on");
+                  unlockSpeech();
+                }}
+              />
+            </SettingsRow>
+            <SettingsRow label="よみあげの はやさ">
+              <SpeedControl showLabel={false} />
+            </SettingsRow>
+          </SettingsSheet>
+        }
+      />
 
       <section className={styles.stage}>
         <div className={styles.roulettePanel}>
