@@ -1,45 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Puzzle Grammar - English Learning Games
 
-## Getting Started
+こども向けの英語あそびを集めたサイトです。トップ(`/`)から各アプリへ入ります。
+Next.js(App Router)で作り、Cloudflare Workers に [vinext](https://github.com/cloudflare/vinext) でデプロイしています。
 
-First, run the development server:
+## アプリ一覧
+
+| パス | アプリ | 内容 |
+|------|--------|------|
+| `/puzzle-grammar` | Puzzle Grammar | 絵に合わせて「だれが・する・なにを」のピースをはめて文を作る |
+| `/svo` | SVOカルタ | 読み上げた文に合う絵を取る。フラッシュ / かるた / タイムトライアル / VS AI |
+| `/quiz-maker` | Quiz Maker | 絵を見て文を選ぶカードクイズ(セットごとのデッキ) |
+| `/guess-it` | ことばたんてい | Yes/No 質問でひみつのお題を当てる |
+| `/phonics` | oto-man | フォニックスの音を聞いてカードを選ぶ・ことばを作る |
+| `/phonics-maze` | フォニックスめいろ | 音のリズムどおりに迷路をたどる |
+| `/storyquiz` | えほんで えいご | 短いおはなしを聞いてクイズに答える |
+| `/sota` | So-ta The Alien | 英文を読んで絵に色をつける絵本 |
+| `/ymeyme-rhyme` | Ymeyme-Rhyme | 毎月の英語の詩を読み上げで聞く |
+
+## 開発
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev          # http://localhost:3000
+npm run check        # lint + 型チェック + テスト + コンテンツ検証(push 前に)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| コマンド | 内容 |
+|----------|------|
+| `npm test` | Vitest の単体テスト(`**/*.test.ts`) |
+| `npm run lint` | ESLint |
+| `npm run validate:content` | おはなし・So-ta・フォニックスの素材がそろっているか確認 |
+| `npm run build` | Next.js の本番ビルド |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## デプロイ(Cloudflare Workers)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build:cloudflare     # dist/ に Workers 用ビルドを出力
+npm run preview:cloudflare   # Workers のランタイムでローカル確認(wrangler dev)
+npm run deploy:cloudflare    # 本番へデプロイ
+```
 
-## Learn More
+設定は `vite.config.ts`(vinext + Cloudflare プラグイン)と `wrangler.jsonc`。
 
-To learn more about Next.js, take a look at the following resources:
+## ディレクトリ
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+app/
+  page.tsx               トップ(ポータル)
+  <app>/                 各アプリ。page.tsx が画面、layout.tsx がページタイトル
+  components/            共通部品(AppHeader, ResultDialog, Ranking, SpeedControl, HanamaruMark …)
+  lib/persistentStore.ts localStorage に進捗や設定を保存する共通ストア
+  content/               おはなし・パズル共通のコンテンツ
+utils/                   読み上げ(speak)・効果音(sound)・ランキングなど
+public/data/             カードデータ(JSON)
+public/images/           本番で使う画像
+design-drafts/           画像の下書き(public の外なので配信されない)
+docs/                    計画・素材メモ(docs/audit-and-roadmap-2026-09.md に改善ロードマップ)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## デザインのルール
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-## UI Check (SVO / Quiz Maker)
-
-1. Start dev server: `npm run dev`
-2. Open `http://localhost:3000/svo` and `http://localhost:3000/quiz-maker`
-3. Confirm:
-   - Main controls are easy to tap (minimum touch target intent: 44x44)
-   - Top settings show only basic controls first
-   - `詳細を表示` toggles advanced controls
+- 色・角丸・影・余白は `app/globals.css` の CSS 変数(`--ink`, `--accent-svo` など)を使う。アプリごとの違いはアクセント色だけにする。
+- 各アプリの画面は、最初に `<AppHeader title="…" accent="var(--accent-xxx)" />` を置く(トップへ戻るボタンとアプリ名)。
+- ゲームの結果は `alert()` ではなく `ResultDialog` で出す。
+- 進捗や設定の保存は `createPersistentStore` を使う(サーバー描画とずれない)。
+- タップできるものは 44×44px 以上にする。
