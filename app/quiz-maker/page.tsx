@@ -12,6 +12,7 @@ import AppHeader from "@/app/components/AppHeader";
 import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
 import ResultDialog from "@/app/components/ResultDialog";
 import RewardSummary from "@/app/components/RewardSummary";
+import { recordMistake } from "@/app/lib/mistakes";
 import { recordStars, starsFromTime, starsFromVs, type RecordResult } from "@/app/lib/rewards";
 import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
 import SpeedControl from "@/app/components/SpeedControl";
@@ -546,6 +547,7 @@ export default function Page() {
         if (ok) {
             acceptCorrectAnswer(selectedText);
         } else {
+            recordMistake("quiz", current.id);
             setStreak(0);
             setFeedback({ value: selectedText, isCorrect: false });
             playBuzz();
@@ -775,6 +777,7 @@ export default function Page() {
         if (ok) {
             acceptCorrectAnswer(spoken);
         } else {
+            recordMistake("quiz", current.id);
             setStreak(0);
             setFeedback({ value: spoken, isCorrect: false });
             playBuzz();
@@ -874,6 +877,7 @@ export default function Page() {
         if (ok) {
             acceptCorrectAnswer(selectedImage);
         } else {
+            recordMistake("quiz", current.id);
             setStreak(0);
             setFeedback({ value: selectedImage, isCorrect: false });
             playBuzz();

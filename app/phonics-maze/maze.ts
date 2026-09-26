@@ -1,5 +1,7 @@
 /* 迷路の盤面づくりと答え合わせ(音の再生以外)。画面から切り離してテストできるようにしている */
 
+import { createRng, shuffleWithRng } from "@/app/lib/random";
+
 export const SOUND_IDS = [
   "a",
   "b",
@@ -300,25 +302,6 @@ export const coordKey = (coord: Coord): string => `${coord.row}:${coord.col}`;
 export const isNeighbor = (a: Coord, b: Coord): boolean => Math.abs(a.row - b.row) + Math.abs(a.col - b.col) === 1;
 
 export const makeSeed = (): number => Math.floor(Date.now() + Math.random() * 100000);
-
-export const createRng = (seed: number): (() => number) => {
-  let state = seed >>> 0;
-  return () => {
-    state = (state * 1664525 + 1013904223) >>> 0;
-    return state / 0x100000000;
-  };
-};
-
-export const shuffleWithRng = <T,>(items: T[], rng: () => number): T[] => {
-  const shuffled = [...items];
-
-  for (let index = shuffled.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(rng() * (index + 1));
-    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-  }
-
-  return shuffled;
-};
 
 export const uniqueSounds = (sounds: SoundId[]): SoundId[] => sounds.filter((sound, index) => sounds.indexOf(sound) === index);
 

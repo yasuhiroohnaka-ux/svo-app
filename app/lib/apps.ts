@@ -125,10 +125,3 @@ export const APPS: AppInfo[] = [
 export function getApp(id: string): AppInfo | undefined {
   return APPS.find((app) => app.id === id);
 }
-
-/** 日付ごとに 1 つ選ぶ「きょうの おすすめ」。同じ日なら同じ部屋になる */
-export function pickDailyApp(dateStamp: string): AppInfo {
-  let hash = 0;
-  for (const char of dateStamp) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
-  return APPS[hash % APPS.length];
-}

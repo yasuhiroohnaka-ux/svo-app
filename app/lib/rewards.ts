@@ -12,13 +12,26 @@ import { createPersistentStore } from "./persistentStore";
 
 export type Stars = 1 | 2 | 3;
 
-export type RewardsState = {
-  /** `${appId}:${stageId}` → そのステージのベスト ⭐ */
-  stars: Record<string, Stars>;
-  treasures: string[];
+/** きょうのダンジョンの れんぞく記録 */
+export type DailyRecord = {
+  /** さいごに クリアした日 "YYYY-MM-DD" */
+  lastDate: string;
+  streak: number;
+  best: number;
 };
 
-const EMPTY: RewardsState = { stars: {}, treasures: [] };
+export type RewardsState = {
+  /** `${appId}:${stageId}` → そのステージのベスト ⭐。きょうのダンジョンは `daily:${日付}` */
+  stars: Record<string, Stars>;
+  treasures: string[];
+  daily: DailyRecord;
+};
+
+/** ⭐ を記録する場所。9 つの部屋と、きょうのダンジョン */
+export type RewardSource = AppId | "daily";
+
+const EMPTY_DAILY: DailyRecord = { lastDate: "", streak: 0, best: 0 };
+const EMPTY: RewardsState = { stars: {}, treasures: [], daily: EMPTY_DAILY };
 
 export function parseRewards(value: unknown): RewardsState {
   if (!value || typeof value !== "object" || Array.isArray(value)) return EMPTY;
@@ -30,7 +43,15 @@ export function parseRewards(value: unknown): RewardsState {
     }
   }
   const treasures = Array.isArray(raw.treasures) ? raw.treasures.filter((id): id is string => typeof id === "string") : [];
-  return { stars, treasures };
+  const daily =
+    raw.daily && typeof raw.daily === "object" && typeof raw.daily.lastDate === "string"
+      ? {
+          lastDate: raw.daily.lastDate,
+          streak: Number.isFinite(raw.daily.streak) ? Number(raw.daily.streak) : 0,
+          best: Number.isFinite(raw.daily.best) ? Number(raw.daily.best) : 0,
+        }
+      : EMPTY_DAILY;
+  return { stars, treasures, daily };
 }
 
 export const rewardsStore = createPersistentStore<RewardsState>({
@@ -84,6 +105,8 @@ export const TREASURES: Treasure[] = [
   { id: "stars-10", icon: "💎", name: "ちいさな ほうせき", hint: "⭐を ぜんぶで 10こ あつめよう", unlocked: (s) => totalStars(s) >= 10 },
   { id: "stars-30", icon: "👑", name: "ことばの かんむり", hint: "⭐を ぜんぶで 30こ あつめよう", unlocked: (s) => totalStars(s) >= 30 },
   { id: "stars-60", icon: "🐉", name: "ダンジョンの ドラゴン", hint: "⭐を ぜんぶで 60こ あつめよう", unlocked: (s) => totalStars(s) >= 60 },
+  { id: "daily-3", icon: "🔥", name: "ダンジョンの たいまつ", hint: "きょうのダンジョンを 3にち れんぞくで クリアしよう", unlocked: (s) => s.daily.best >= 3 },
+  { id: "daily-7", icon: "🚪", name: "ひみつの とびら", hint: "きょうのダンジョンを 7にち れんぞくで クリアしよう", unlocked: (s) => s.daily.best >= 7 },
   { id: "perfect-10", icon: "🌟", name: "きらきら スター", hint: "⭐⭐⭐ を 10かい とろう", unlocked: (s) => perfectCount(s) >= 10 },
   {
     id: "all-rooms",
@@ -110,7 +133,7 @@ export type RecordResult = {
 export const TREASURE_EVENT = "kotoba:treasure";
 
 /** 状態に ⭐ を反映した結果を返す(保存はしない。テスト用に分けている) */
-export function applyStars(state: RewardsState, appId: AppId, stageId: string, stars: Stars): { next: RewardsState; result: RecordResult } {
+export function applyStars(state: RewardsState, appId: RewardSource, stageId: string, stars: Stars): { next: RewardsState; result: RecordResult } {
   const key = `${appId}:${stageId}`;
   const previousBest = state.stars[key] ?? 0;
   const best = Math.max(previousBest, stars) as Stars;
@@ -121,13 +144,34 @@ export function applyStars(state: RewardsState, appId: AppId, stageId: string, s
 }
 
 /** ステージの ⭐ を記録する。新しいたからものがあれば知らせる */
-export function recordStars(appId: AppId, stageId: string, stars: Stars): RecordResult {
-  const { next, result } = applyStars(rewardsStore.get(), appId, stageId, stars);
-  if (result.gained > 0 || result.newTreasures.length > 0) rewardsStore.set(next);
+function announce(result: RecordResult) {
   if (result.newTreasures.length > 0 && typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent(TREASURE_EVENT, { detail: result.newTreasures.map((treasure) => treasure.id) }));
   }
+}
+
+export function recordStars(appId: RewardSource, stageId: string, stars: Stars): RecordResult {
+  const { next, result } = applyStars(rewardsStore.get(), appId, stageId, stars);
+  if (result.gained > 0 || result.newTreasures.length > 0) rewardsStore.set(next);
+  announce(result);
   return result;
+}
+
+/** れんぞく日数を更新する(同じ日は変えない、きのうの続きなら +1、あいたら 1 から) */
+export function nextDailyRecord(daily: DailyRecord, today: string, yesterday: string): DailyRecord {
+  if (daily.lastDate === today) return daily;
+  const streak = daily.lastDate === yesterday ? daily.streak + 1 : 1;
+  return { lastDate: today, streak, best: Math.max(daily.best, streak) };
+}
+
+/** きょうのダンジョンの クリアを記録する(⭐ と れんぞく日数) */
+export function recordDaily(today: string, yesterday: string, stars: Stars): RecordResult & { daily: DailyRecord } {
+  const current = rewardsStore.get();
+  const withDaily: RewardsState = { ...current, daily: nextDailyRecord(current.daily, today, yesterday) };
+  const { next, result } = applyStars(withDaily, "daily", today, stars);
+  rewardsStore.set(next);
+  announce(result);
+  return { ...result, daily: next.daily };
 }
 
 /** 正答率から ⭐ を決める(ミスなし=3、8割以上=2、それ以外=1) */

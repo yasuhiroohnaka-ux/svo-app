@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { APPS } from "./apps";
 import {
   appStars,
+  nextDailyRecord,
   applyStars,
   parseRewards,
   starsFromAccuracy,
@@ -14,7 +15,7 @@ import {
   type RewardsState,
 } from "./rewards";
 
-const empty: RewardsState = { stars: {}, treasures: [] };
+const empty: RewardsState = { stars: {}, treasures: [], daily: { lastDate: "", streak: 0, best: 0 } };
 
 describe("rewards", () => {
   it("keeps only the best stars per stage", () => {
@@ -57,7 +58,11 @@ describe("rewards", () => {
   });
 
   it("ignores broken saved data", () => {
-    expect(parseRewards({ stars: { "a:b": 5, "a:c": 2 }, treasures: ["x", 1] })).toEqual({ stars: { "a:c": 2 }, treasures: ["x"] });
+    expect(parseRewards({ stars: { "a:b": 5, "a:c": 2 }, treasures: ["x", 1] })).toEqual({
+      stars: { "a:c": 2 },
+      treasures: ["x"],
+      daily: { lastDate: "", streak: 0, best: 0 },
+    });
     expect(parseRewards("nope")).toEqual(empty);
   });
 
@@ -74,5 +79,21 @@ describe("rewards", () => {
     expect(starsFromVs(3, 2)).toBe(3);
     expect(starsFromVs(2, 2)).toBe(2);
     expect(starsFromVs(1, 4)).toBe(1);
+  });
+
+  it("counts daily streaks", () => {
+    let daily = nextDailyRecord(empty.daily, "2026-09-01", "2026-08-31");
+    expect(daily).toEqual({ lastDate: "2026-09-01", streak: 1, best: 1 });
+    daily = nextDailyRecord(daily, "2026-09-01", "2026-08-31");
+    expect(daily.streak).toBe(1);
+    daily = nextDailyRecord(daily, "2026-09-02", "2026-09-01");
+    expect(daily.streak).toBe(2);
+    daily = nextDailyRecord(daily, "2026-09-05", "2026-09-04");
+    expect(daily).toEqual({ lastDate: "2026-09-05", streak: 1, best: 2 });
+  });
+
+  it("unlocks the streak treasure from the best streak", () => {
+    const state = { ...empty, daily: { lastDate: "x", streak: 3, best: 3 } };
+    expect(applyStars(state, "daily", "d", 1).result.newTreasures.map((t) => t.id)).toContain("daily-3");
   });
 });

@@ -16,6 +16,7 @@ import PuzzlePiece, { pieceWidth, type Role } from "./PuzzlePiece";
 import { loadLv2Cards, type PuzzleCard } from "@/app/lib/lv2Cards";
 import ResultDialog from "@/app/components/ResultDialog";
 import RewardSummary from "@/app/components/RewardSummary";
+import { recordMistake } from "@/app/lib/mistakes";
 import { recordStars, starsFromMistakes, type RecordResult } from "@/app/lib/rewards";
 import { getStoryPuzzleCards, miniStories } from "@/app/content/miniStories";
 import styles from "./page.module.css";
@@ -192,14 +193,11 @@ export default function Page() {
       // 既に埋まっているスロットには置けない
       if (slots[slotRole]) return false;
 
-      // 役割違い(形が合わない) → 拒否
-      if (piece.role !== slotRole) {
+      // 役割違い(形が合わない)、または役割は合うがラベルが正解と違う → 拒否
+      if (piece.role !== slotRole || piece.label !== correctLabel(current, slotRole)) {
         reject(piece.key, slotRole);
-        return false;
-      }
-      // 役割は合うがラベルが正解と違う → 拒否
-      if (piece.label !== correctLabel(current, slotRole)) {
-        reject(piece.key, slotRole);
+        // レベル1の SVO カードは、きょうのダンジョンで ふくしゅうできるよう「にがて」に記録する
+        if (level === 1) recordMistake("svo", current.id);
         return false;
       }
 
@@ -215,7 +213,7 @@ export default function Page() {
       setSelectedKey(null);
       return true;
     },
-    [current, slots, reject],
+    [current, level, slots, reject],
   );
 
   // 3 スロットすべて埋まったら完成
