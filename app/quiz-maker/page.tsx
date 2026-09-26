@@ -12,6 +12,7 @@ import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
 import ResultDialog from "@/app/components/ResultDialog";
 import SpeedControl from "@/app/components/SpeedControl";
 import { useRanking } from "@/app/svo/useRanking";
+import { isVoiceAnswerCorrect } from "./voice";
 import type {
     BrowserSpeechRecognition,
     BrowserSpeechRecognitionResultEvent,
@@ -764,42 +765,8 @@ export default function Page() {
     function judgeVoice(spoken: string) {
         if (!current || answerLockRef.current) return;
 
-        // Target text depends on mode
-        let correctText = "";
-        if (mode === "flash") {
-            correctText = getTargetText(current).toLowerCase().replace(/[^a-z0-9 ]/g, "");
-        } else {
-            correctText = getFullText(current).toLowerCase().replace(/[^a-z0-9 ]/g, "");
-        }
-
-        const spokenClean = spoken.toLowerCase().replace(/[^a-z0-9 ]/g, "");
-        const stopWords = ["the", "a", "an", "is", "are", "am", "be", "was", "were"];
-        const filterWords = (text: string) =>
-            text.split(/\s+/).filter(w => w.length > 0 && !stopWords.includes(w));
-
-        const correctWords = filterWords(correctText);
-        const spokenWords = filterWords(spokenClean);
-
-        // Critical Check: Prepositions and Negations change meaning significantly.
-        // If these exist in target, they MUST exist in spoken result.
-        const criticalWords = ["on", "in", "under", "by", "at", "to", "from", "with", "next", "between", "not", "no", "never"];
-        const missingCritical = correctWords.some(w => criticalWords.includes(w) && !spokenWords.includes(w));
-
-        if (missingCritical) {
-            setStreak(0);
-            setFeedback({ value: spoken, isCorrect: false });
-            playBuzz();
-            return;
-        }
-
-        let matchCount = 0;
-        correctWords.forEach(w => {
-            if (spokenWords.includes(w)) matchCount++;
-        });
-
-        // Loose threshold: 50% match
-        const baseLength = correctWords.length > 0 ? correctWords.length : 1;
-        const ok = (matchCount / baseLength >= 0.5);
+        const expected = mode === "flash" ? getTargetText(current) : getFullText(current);
+        const ok = isVoiceAnswerCorrect(spoken, expected);
 
         if (ok) {
             acceptCorrectAnswer(spoken);
