@@ -8,6 +8,7 @@ import { loadCards, shuffle } from "../svo/data";
 import type { Card } from "../svo/types";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { speak, cancelSpeech, unlockSpeech } from "@/utils/speak";
+import AppHeader from "@/app/components/AppHeader";
 import SpeedControl from "@/app/components/SpeedControl";
 import HanamaruMark from "@/app/components/HanamaruMark";
 
@@ -481,19 +482,7 @@ export default function Page() {
 
   // ---------------- 表示 ----------------
 
-  const header = (
-    <header className={styles.headerBar}>
-      <h1 className={styles.title}>Puzzle Grammar</h1>
-      <nav className={styles.nav}>
-        <Link href="/" className={styles.navLink}>
-          トップ
-        </Link>
-        <Link href="/svo" className={styles.navLink}>
-          SVOカルタ
-        </Link>
-      </nav>
-    </header>
-  );
+  const header = <AppHeader title="Puzzle Grammar" accent="var(--accent-puzzle)" />;
 
   // enabled な lv2 カードが 1 枚もない間はレベル2を選べない
   const lv2Ready = lv2Cards.length > 0;

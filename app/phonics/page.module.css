@@ -23,15 +23,6 @@
     text-align: center;
 }
 
-.headerBar {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 20px;
-    width: min(1180px, 100%);
-    margin: 0 auto 18px;
-}
-
 .kicker {
     margin: 0 0 6px;
     color: #2b6f88;
@@ -39,22 +30,6 @@
     font-weight: 900;
     letter-spacing: 0;
     text-transform: uppercase;
-}
-
-.title {
-    margin: 0;
-    color: #213c61;
-    font-family: 'Press Start 2P', monospace;
-    font-size: clamp(1.7rem, 5vw, 3.4rem);
-    line-height: 1.15;
-    text-shadow: 4px 4px 0 #ffe27a;
-}
-
-.nav {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 8px;
 }
 
 .navLink {
@@ -67,14 +42,6 @@
     color: #17324d;
     text-decoration: none;
     font-weight: 900;
-}
-
-.homeLink {
-    justify-content: center;
-    min-width: 52px;
-    min-height: 52px;
-    padding: 8px;
-    font-size: 1.65rem;
 }
 
 .gameToolbar {
@@ -998,7 +965,6 @@
 }
 
 @media (max-width: 860px) {
-    .headerBar,
     .sectionHeader,
     .challengeTop {
         flex-direction: column;
@@ -1030,11 +996,6 @@
 @media (max-width: 560px) {
     .container {
         padding: 10px;
-    }
-
-    .headerBar {
-        gap: 12px;
-        margin-bottom: 12px;
     }
 
     .gameToolbar {

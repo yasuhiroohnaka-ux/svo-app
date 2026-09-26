@@ -15,6 +15,7 @@ import {
 } from "./PhonicsData";
 import BootDebugOverlay from "@/app/components/BootDebugOverlay";
 import HanamaruMark from "@/app/components/HanamaruMark";
+import AppHeader from "@/app/components/AppHeader";
 import SpeedControl from "@/app/components/SpeedControl";
 import { hasFatalFeatureGap, runFeatureCheck, type BootStep } from "@/utils/bootDiagnostics";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
@@ -707,31 +708,7 @@ export default function PhonicsPage() {
 
     return (
         <main className={styles.container}>
-            <header className={styles.headerBar}>
-                <div>
-                    <p className={styles.kicker}>きいて ならべる フォニックス</p>
-                    <h1 className={styles.title}>oto-man</h1>
-                </div>
-                <nav className={styles.nav}>
-                    {mode === "setup" ? (
-                        <>
-                            <Link className={styles.navLink} href="/">
-                                トップ
-                            </Link>
-                            <Link className={styles.navLink} href="/svo">
-                                SVOカルタ
-                            </Link>
-                            <Link className={styles.navLink} href="/quiz-maker">
-                                Quiz Maker
-                            </Link>
-                        </>
-                    ) : (
-                        <Link className={`${styles.navLink} ${styles.homeLink}`} href="/" aria-label="トップへ">
-                            🏠
-                        </Link>
-                    )}
-                </nav>
-            </header>
+            <AppHeader title="oto-man" accent="var(--accent-phonics)" />
 
             {mode !== "setup" && (
                 <section className={styles.gameToolbar} aria-label="あそびの ながれ">

@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { cancelSpeech, unlockSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { formatTime } from "@/utils/ranking";
 
 import { loadCards, pickRandomIndex, shuffle } from "./data";
 import { loadLv2Cards } from "@/app/lib/lv2Cards";
+import AppHeader from "@/app/components/AppHeader";
 import SpeedControl from "@/app/components/SpeedControl";
 import type { Card, ContentLang, Feedback, Mode, TrickSentence, UiLang } from "./types";
 import { useGameTimer } from "./useGameTimer";
@@ -837,18 +837,7 @@ export default function Page() {
 
   return (
     <main className={styles.container}>
-      <h1 className={styles.header}>{t.appTitle}</h1>
-      <div className={styles.controlGroup} style={{ marginBottom: 8 }}>
-        <Link href="/" className={`${styles.button} ${styles.tapTarget}`}>
-          トップ
-        </Link>
-        <Link href="/quiz-maker" className={`${styles.button} ${styles.tapTarget}`}>
-          Quiz Maker
-        </Link>
-        <Link href="/phonics" className={`${styles.button} ${styles.tapTarget}`}>
-          oto-man
-        </Link>
-      </div>
+      <AppHeader title={t.appTitle} accent="var(--accent-svo)" />
 
       {/* Score & Status */}
       <div className={styles.statusRow}>

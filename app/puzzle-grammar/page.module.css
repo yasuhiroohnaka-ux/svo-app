@@ -19,50 +19,6 @@
   background-size: 28px 28px;
 }
 
-/* ---- ヘッダー ---- */
-.headerBar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.title {
-  margin: 0;
-  color: #1d2f45;
-  font-size: clamp(1.5rem, 5vw, 2.2rem);
-  font-weight: 900;
-  letter-spacing: 0.03em;
-  text-shadow: 3px 3px 0 #ffe27a;
-}
-
-.nav {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.navLink {
-  display: inline-flex;
-  align-items: center;
-  min-height: 40px;
-  padding: 8px 14px;
-  border: 2px solid #1d2f45;
-  border-radius: 8px;
-  background: #ffffff;
-  color: #1d2f45;
-  text-decoration: none;
-  font-weight: 900;
-  box-shadow: 3px 3px 0 #1d2f45;
-}
-
-.navLink:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #1d2f45;
-}
-
 /* ---- レベル切り替え ---- */
 .levelRow {
   display: flex;

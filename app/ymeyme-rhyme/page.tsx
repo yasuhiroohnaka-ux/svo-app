@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import AppHeader from "@/app/components/AppHeader";
 import { useEffect, useState } from "react";
 import SpeedControl from "@/app/components/SpeedControl";
 import { cancelSpeech, speak, speakQueue, unlockSpeech } from "@/utils/speak";
@@ -88,17 +88,8 @@ export default function YmeymeRhymePage() {
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerRow}>
-          <h1 className={styles.title}>Ymeyme-Rhyme</h1>
-          <nav className={styles.nav}>
-            <Link href="/" className={styles.navLink}>
-              トップ
-            </Link>
-          </nav>
-        </div>
-        <p className={styles.subtitle}>イムイムライム 〜毎月の英語の詩〜</p>
-      </header>
+      <AppHeader title="Ymeyme-Rhyme" accent="var(--accent-rhyme)" />
+      <p className={styles.subtitle}>イムイムライム 〜毎月の英語の詩〜</p>
 
       {!selected && (
         <>

@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import AppHeader from "@/app/components/AppHeader";
 import SpeedControl from "@/app/components/SpeedControl";
 import { cancelSpeech, speakQueue, unlockSpeech } from "@/utils/speak";
 import styles from "./page.module.css";
@@ -673,16 +673,9 @@ export default function GuessItPage() {
 
   return (
     <main className={styles.shell}>
-      <header className={styles.topBar}>
-        <div>
-          <p className={styles.kicker}>Word Detective</p>
-          <h1 className={styles.title}>ことばたんてい</h1>
-        </div>
-
+      <AppHeader title="ことばたんてい" accent="var(--accent-guess)" />
+      <div className={styles.topBar}>
         <div className={styles.modeStrip} aria-label="settings">
-          <Link href="/" className={styles.segment}>
-            トップ
-          </Link>
           <button
             type="button"
             className={`${styles.segment} ${displayMode === "easy" ? styles.segmentActive : ""}`}
@@ -716,7 +709,7 @@ export default function GuessItPage() {
           </button>
           <SpeedControl />
         </div>
-      </header>
+      </div>
 
       <section className={styles.stage}>
         <div className={styles.roulettePanel}>

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+import AppHeader from "@/app/components/AppHeader";
 import { useMemo, useState } from "react";
 import { applySpeechSpeed } from "@/utils/speak";
 import styles from "./page.module.css";
@@ -637,15 +637,7 @@ export default function PhonicsMazePage() {
 
   return (
     <main className={styles.page} style={{ "--level-color": level.color } as React.CSSProperties}>
-      <header className={styles.header}>
-        <div>
-          <p className={styles.kicker}>Phonics Maze</p>
-          <h1>フォニックスめいろ</h1>
-        </div>
-        <Link className={styles.portalLink} href="/">
-          Portal
-        </Link>
-      </header>
+      <AppHeader title="フォニックスめいろ" accent="var(--accent-maze)" />
 
       <section className={styles.levelTabs} aria-label="めいろ">
         {MAZE_TEMPLATES.map((mazeLevel, index) => (

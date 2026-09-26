@@ -10,33 +10,6 @@
   font-family: "Nunito", "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, system-ui, sans-serif;
 }
 
-.header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-  width: min(1120px, 100%);
-  margin: 0 auto 16px;
-}
-
-.kicker {
-  margin: 0 0 4px;
-  color: var(--level-color);
-  font-size: 0.86rem;
-  font-weight: 1000;
-  letter-spacing: 0;
-  text-transform: uppercase;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: clamp(2rem, 6vw, 4rem);
-  line-height: 1.05;
-  color: #182c42;
-  text-shadow: 4px 4px 0 #ffe27a;
-}
-
-.portalLink,
 .levelTab,
 .levelTabActive,
 .textButton,
@@ -51,13 +24,6 @@
   touch-action: manipulation;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
-}
-
-.portalLink {
-  display: inline-flex;
-  align-items: center;
-  min-height: 46px;
-  padding: 10px 14px;
 }
 
 .levelTabs {
@@ -403,11 +369,6 @@
 @media (max-width: 720px) {
   .page {
     padding: 12px;
-  }
-
-  .header {
-    align-items: stretch;
-    flex-direction: column;
   }
 
   .levelTabs {

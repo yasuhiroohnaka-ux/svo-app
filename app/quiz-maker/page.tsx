@@ -7,6 +7,7 @@ import { speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { getRanking, saveRanking, clearRanking, formatTime, type RankEntry } from "@/utils/ranking";
 import BootDebugOverlay from "@/app/components/BootDebugOverlay";
+import AppHeader from "@/app/components/AppHeader";
 import SpeedControl from "@/app/components/SpeedControl";
 import type {
     BrowserSpeechRecognition,
@@ -922,12 +923,7 @@ export default function Page() {
 
     return (
         <main className={styles.container}>
-            <h1 className={styles.header}>{t.appTitle}</h1>
-            <div className={styles.controlGroup} style={{ marginBottom: 8 }}>
-                <Link href="/" className={`${styles.button} ${styles.tapTarget}`}>
-                    トップ
-                </Link>
-            </div>
+            <AppHeader title={t.appTitle} accent="var(--accent-quiz)" />
 
             {/* Score & Status */}
             <div className={styles.statusRow}>
