@@ -1,14 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { cancelSpeech, unlockSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
-import { formatTime } from "@/utils/ranking";
+import { clearRanking, formatTime } from "@/utils/ranking";
 
 import { loadCards, pickRandomIndex, shuffle } from "./data";
 import { loadLv2Cards } from "@/app/lib/lv2Cards";
+import AnswerMark from "@/app/components/AnswerMark";
+import AppHeader from "@/app/components/AppHeader";
+import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
+import ResultDialog from "@/app/components/ResultDialog";
+import RewardSummary from "@/app/components/RewardSummary";
+import PenaltyFlash from "@/app/components/PenaltyFlash";
+import { recordMistake } from "@/app/lib/mistakes";
+import { recordStars, starsFromTime, starsFromVs, type RecordResult } from "@/app/lib/rewards";
+import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
 import SpeedControl from "@/app/components/SpeedControl";
 import type { Card, ContentLang, Feedback, Mode, TrickSentence, UiLang } from "./types";
 import { useGameTimer } from "./useGameTimer";
@@ -68,6 +76,20 @@ const translations = {
     newRecord: "New Record!",
     yourTime: "Your time",
     level2Cards: "Level 2 cards",
+    settings: "Settings",
+    speechSpeed: "Reading speed",
+    menu: "Menu",
+    closeMenu: "Close menu",
+    vsAutoSpeakNote: "In VS AI the cards are always read aloud.",
+    rankIn: "Rank #{n}!",
+    cleared: "Cleared!",
+    outOfRank: "Not in the top 10 this time.",
+    playAgain: "Play again",
+    quit: "Quit",
+    cardsUnit: " cards",
+    youWin: "YOU WIN!",
+    youLose: "YOU LOSE...",
+    draw: "DRAW!",
   },
   ja: {
     loading: "じゅんびちゅう...",
@@ -117,6 +139,20 @@ const translations = {
     newRecord: "新記録！",
     yourTime: "あなたのタイム",
     level2Cards: "レベル2カード",
+    settings: "せってい",
+    speechSpeed: "よみあげの はやさ",
+    menu: "メニュー",
+    closeMenu: "メニューをとじる",
+    vsAutoSpeakNote: "VS AI のときは いつも よみあげます。",
+    rankIn: "{n}位に ランクイン!",
+    cleared: "クリア!",
+    outOfRank: "こんかいは 10位に とどかなかったよ。",
+    playAgain: "もういちど",
+    quit: "やめる",
+    cardsUnit: "まい",
+    youWin: "かち!",
+    youLose: "まけ...",
+    draw: "ひきわけ!",
   },
   zh: {
     loading: "加载中...",
@@ -166,6 +202,20 @@ const translations = {
     newRecord: "新纪录！",
     yourTime: "你的时间",
     level2Cards: "第2级卡片",
+    settings: "设置",
+    speechSpeed: "朗读速度",
+    menu: "菜单",
+    closeMenu: "关闭菜单",
+    vsAutoSpeakNote: "对战 AI 时总是自动朗读。",
+    rankIn: "第{n}名！",
+    cleared: "通关！",
+    outOfRank: "这次没有进入前10名。",
+    playAgain: "再玩一次",
+    quit: "退出",
+    cardsUnit: "张",
+    youWin: "你赢了！",
+    youLose: "你输了...",
+    draw: "平局！",
   }
 };
 
@@ -198,6 +248,18 @@ export default function Page() {
   const [deckSize, setDeckSize] = useState<number | "all">("all");
 
   const APP_KEY = "svo";
+
+  // 正解後 1 秒の演出中は次の判定を受け付けない(連打による二重加算・AI との同時得点を防ぐ)
+  const answerLockRef = useRef(false);
+  const correctTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clearPendingCorrect = useCallback(() => {
+    if (correctTimerRef.current) {
+      clearTimeout(correctTimerRef.current);
+      correctTimerRef.current = null;
+    }
+    answerLockRef.current = false;
+  }, []);
+  useEffect(() => clearPendingCorrect, [clearPendingCorrect]);
 
   const t = translations[uiLang];
 
@@ -289,28 +351,6 @@ export default function Page() {
     };
   }, []);
 
-  // Cycle UI Language: en -> ja -> zh -> en
-  const toggleUiLang = () => {
-    setUiLang((prev) => {
-      if (prev === "en") return "ja";
-      if (prev === "ja") return "zh";
-      return "en";
-    });
-  };
-
-  // Helper for UI lang label
-  const getUiLangLabel = () => {
-    if (uiLang === "en") return t.english;
-    if (uiLang === "ja") return t.japanese;
-    return t.chinese;
-  };
-
-  // Helper for Content lang label
-  const getContentLangLabel = () => {
-    if (contentLang === "en") return t.english;
-    return t.chinese;
-  };
-
   // Effect to reset index if out of bounds (e.g. after removing a card)
   useEffect(() => {
     if (index >= activePool.length && activePool.length > 0) {
@@ -388,8 +428,27 @@ export default function Page() {
     trickSentence,
   });
 
-  const { handleRankingRegister: registerRankingEntry, nameInputVisible, pendingEntry, playerName, promptForRankingEntry, rankingData, setPlayerName, setShowRanking, showRanking } =
-    useRanking({ appKey: APP_KEY });
+  const {
+    handleRankingRegister: registerRankingEntry,
+    openRanking,
+    pendingEntry,
+    pendingRank,
+    playerName,
+    promptForRankingEntry,
+    rankingCards,
+    rankingData,
+    resultVisible,
+    setPlayerName,
+    setShowRanking,
+    showRanking,
+  } = useRanking({ appKey: APP_KEY });
+  const [vsResult, setVsResult] = useState<{ player: number; ai: number; reward: RecordResult } | null>(null);
+  const [trialReward, setTrialReward] = useState<RecordResult | null>(null);
+  /** タイムトライアルの お手つき回数(1回ごとに PENALTY_SECONDS 秒たす) */
+  const [penaltyCount, setPenaltyCount] = useState(0);
+  const PENALTY_SECONDS = 2;
+  const trialTime = elapsedTime + penaltyCount * PENALTY_SECONDS;
+  const deckCardCount = deckSize === "all" ? cards.length : Math.min(Number(deckSize), cards.length);
 
   const { articleMode, clearSpokenText, isListening, setArticleMode, spokenText, startListening, toggleVoiceMode, voiceMode } =
     useSpeechRecognition({
@@ -445,20 +504,34 @@ export default function Page() {
     return shuffle([current, ...others]).map((card) => (contentLang === "zh" ? card.sentence_zh : card.sentence));
   }, [cards, current, mode, choiceCount, karutaChoiceCount, activePool, isSurvival, contentLang, survivalChoices]);
 
-  function handleVoiceCorrect(spoken: string) {
-    setFeedback({ value: spoken, isCorrect: true });
+  function acceptCorrectAnswer(value: string) {
+    if (answerLockRef.current) return;
+    answerLockRef.current = true;
+    cancelAiTurn();
+    clearSilenceTimeout();
+    setFeedback({ value, isCorrect: true });
     playChime();
-    setTimeout(() => handleCorrectAnswer(), 1000);
+    correctTimerRef.current = setTimeout(() => {
+      correctTimerRef.current = null;
+      answerLockRef.current = false;
+      handleCorrectAnswer();
+    }, 1000);
+  }
+
+  function handleVoiceCorrect(spoken: string) {
+    acceptCorrectAnswer(spoken);
   }
 
   function handleVoiceIncorrect(spoken: string) {
+    if (answerLockRef.current) return;
+    if (current) recordMistake("svo", current.id);
     setStreak(0);
     setFeedback({ value: spoken, isCorrect: false });
     playBuzz();
   }
 
   function judgeFlash(selectedSentence: string) {
-    if (!current) return;
+    if (!current || answerLockRef.current) return;
 
     unlockAudio();
     unlockSpeech();
@@ -467,10 +540,9 @@ export default function Page() {
     const ok = selectedSentence === correctText;
 
     if (ok) {
-      setFeedback({ value: selectedSentence, isCorrect: true });
-      playChime();
-      setTimeout(() => handleCorrectAnswer(), 1000);
+      acceptCorrectAnswer(selectedSentence);
     } else {
+      recordMistake("svo", current.id);
       setStreak(0);
       setFeedback({ value: selectedSentence, isCorrect: false });
       playBuzz();
@@ -479,6 +551,8 @@ export default function Page() {
 
   const resetGame = useCallback(() => {
     cancelSpeech();
+    setPenaltyCount(0);
+    clearPendingCorrect();
     clearSilenceTimeout();
     cancelAiTurn();
     resetGameTimer();
@@ -492,7 +566,7 @@ export default function Page() {
     setIndex(pickRandomIndex(Math.min(targetCount, shuffled.length)));
     setFeedback(null);
     clearSpokenText();
-  }, [cancelAiTurn, cards, clearSpokenText, clearSilenceTimeout, deckSize, resetGameTimer, setAiScore]);
+  }, [cancelAiTurn, cards, clearPendingCorrect, clearSpokenText, clearSilenceTimeout, deckSize, resetGameTimer, setAiScore]);
 
   const nextCard = useCallback(() => {
     if (activePool.length === 0) return;
@@ -533,24 +607,23 @@ export default function Page() {
             const finalPlayerScore = winner === "player" ? score + 1 : score;
             const finalAiScore = winner === "ai" ? aiScore + 1 : aiScore;
 
-            let message = "";
-            if (finalPlayerScore > finalAiScore) message = "YOU WIN!";
-            else if (finalPlayerScore < finalAiScore) message = "YOU LOSE!";
-            else message = "DRAW!";
-
             playChime();
-            alert(`${message}\nPlayer: ${finalPlayerScore} - AI: ${finalAiScore}`);
-            resetGame();
+            stopTimer();
+            setVsResult({
+                player: finalPlayerScore,
+                ai: finalAiScore,
+                reward: recordStars("svo", `vs-${aiLevel}`, starsFromVs(finalPlayerScore, finalAiScore)),
+            });
           } else {
             playChime();
             stopTimer();
 
-            const cardCount = deckSize === "all" ? cards.length : Number(deckSize);
+            setTrialReward(recordStars("svo", `tt-${deckCardCount}`, starsFromTime(trialTime, deckCardCount)));
             promptForRankingEntry({
               name: "",
-              time: elapsedTime,
+              time: trialTime,
               date: new Date().toISOString(),
-              cards: cardCount,
+              cards: deckCardCount,
             });
           }
         } else {
@@ -568,53 +641,72 @@ export default function Page() {
       nextCard();
     },
     [
+      aiLevel,
       aiScore,
       cancelAiTurn,
-      cards.length,
       clearSilenceTimeout,
       current,
-      deckSize,
-      elapsedTime,
+      deckCardCount,
+      trialTime,
       isSurvival,
       isVsMode,
       mode,
       nextCard,
       promptForRankingEntry,
       remainingCards,
-      resetGame,
       score,
       setAiScore,
       stopTimer,
     ],
   );
 
+  // handleCorrectAnswer はタイマー(elapsedTime)更新のたびに作り直される。
+  // 読み上げ・AI の予約がそのたびに張り直されて永遠に発火しなくならないよう、
+  // 予約側からは ref 経由で最新版を呼ぶ。
+  const handleCorrectAnswerRef = useRef(handleCorrectAnswer);
+  useEffect(() => {
+    handleCorrectAnswerRef.current = handleCorrectAnswer;
+  }, [handleCorrectAnswer]);
+
   const onSpeakComplete = useCallback(() => {
     if (isTrickActive && trickSentence) {
       scheduleSilenceTimeout(() => {
-        handleCorrectAnswer(true, "player");
+        if (answerLockRef.current) return;
+        handleCorrectAnswerRef.current(true, "player");
       }, 2000);
       return;
     }
 
     if (isVsMode && current) {
       scheduleAiTurn(() => {
-        handleCorrectAnswer(false, "ai");
+        if (answerLockRef.current) return;
+        handleCorrectAnswerRef.current(false, "ai");
       });
     }
-  }, [current, handleCorrectAnswer, isTrickActive, isVsMode, scheduleAiTurn, scheduleSilenceTimeout, trickSentence]);
+  }, [current, isTrickActive, isVsMode, scheduleAiTurn, scheduleSilenceTimeout, trickSentence]);
+
+  // VS AI は読み上げを聞いてから取りに来るので、VS 中は自動読み上げを常にオンにする
+  const effectiveAutoSpeak = autoSpeak || isVsMode;
 
   useEffect(() => {
-    if (!autoSpeak || !current || mode === "flash" || gameState !== "playing") return;
+    if (!effectiveAutoSpeak || !current || mode === "flash" || gameState !== "playing") return;
 
     const timer = setTimeout(() => {
       handleSpeak(onSpeakComplete);
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [autoSpeak, current, gameState, mode, handleSpeak, onSpeakComplete]);
+  }, [effectiveAutoSpeak, current, gameState, mode, handleSpeak, onSpeakComplete]);
+
+  const handleSkip = () => {
+    if (answerLockRef.current) return;
+    nextCard();
+  };
 
   const quitSpecialMode = () => {
     cancelSpeech();
+    setPenaltyCount(0);
+    clearPendingCorrect();
     clearSilenceTimeout();
     disableVsMode();
     stopTimer();
@@ -638,6 +730,8 @@ export default function Page() {
 
     // 進行中の副作用をすべて停止
     cancelSpeech();
+    setPenaltyCount(0);
+    clearPendingCorrect();
     clearSilenceTimeout();
     cancelAiTurn();
     disableVsMode();
@@ -669,7 +763,7 @@ export default function Page() {
   };
 
   function judgeKaruta(selectedImage: string) {
-    if (!current) return;
+    if (!current || answerLockRef.current) return;
 
     unlockAudio();
     unlockSpeech();
@@ -677,10 +771,11 @@ export default function Page() {
 
     const ok = selectedImage === current.image;
     if (ok) {
-      setFeedback({ value: selectedImage, isCorrect: true });
-      playChime();
-      setTimeout(() => handleCorrectAnswer(), 1000);
+      acceptCorrectAnswer(selectedImage);
     } else {
+      recordMistake("svo", current.id);
+      // タイムトライアル中の お手つきは +2 秒(あてずっぽうの れんだで 速くならないように)
+      if (isSurvival && !isVsMode && gameState === "playing") setPenaltyCount((count) => count + 1);
       setStreak(0);
       setFeedback({ value: selectedImage, isCorrect: false });
       playBuzz();
@@ -688,6 +783,7 @@ export default function Page() {
   }
 
   const startRound = () => {
+    setPenaltyCount(0);
     unlockAudio();
     unlockSpeech();
     startGame();
@@ -705,6 +801,7 @@ export default function Page() {
 
   const handleToggleSurvivalMode = () => {
     if (isVsMode) return;
+    clearPendingCorrect();
 
     const nextValue = !isSurvival;
     setIsSurvival(nextValue);
@@ -727,6 +824,8 @@ export default function Page() {
   };
 
   const handleToggleVsMode = () => {
+    setPenaltyCount(0);
+    clearPendingCorrect();
     if (isVsMode) {
       disableVsMode();
       setIsSurvival(false);
@@ -747,6 +846,65 @@ export default function Page() {
     clearSpokenText();
     resetGameTimer();
   };
+
+  // 結果・ランキングのダイアログ。カードが尽きた後(current なし)でも出す
+  const dialogs = (
+    <>
+      {resultVisible && pendingEntry && (
+        <TimeTrialResultDialog
+          labels={t}
+          time={pendingEntry.time}
+          rank={pendingRank}
+          playerName={playerName}
+          onNameChange={setPlayerName}
+          onSubmit={handleRankingRegister}
+          reward={trialReward}
+        />
+      )}
+
+      {showRanking && (
+        <RankingDialog
+          labels={t}
+          cards={rankingCards}
+          entries={rankingData}
+          highlightDate={pendingEntry?.date}
+          onClose={() => setShowRanking(false)}
+          onClear={() => {
+            clearRanking(APP_KEY);
+            openRanking(rankingCards);
+          }}
+        />
+      )}
+
+      {vsResult && (
+        <ResultDialog
+          title={vsResult.player > vsResult.ai ? t.youWin : vsResult.player < vsResult.ai ? t.youLose : t.draw}
+          mark={vsResult.player > vsResult.ai ? true : vsResult.player < vsResult.ai ? "🤖" : "🤝"}
+          highlight={`${vsResult.player} - ${vsResult.ai}`}
+          actions={[
+            {
+              label: t.playAgain,
+              onClick: () => {
+                setVsResult(null);
+                resetGame();
+              },
+            },
+            {
+              label: t.quit,
+              variant: "secondary",
+              onClick: () => {
+                setVsResult(null);
+                quitSpecialMode();
+              },
+            },
+          ]}
+        >
+          <p style={{ margin: 0 }}>Player {vsResult.player} / AI {vsResult.ai}</p>
+          <RewardSummary result={vsResult.reward} />
+        </ResultDialog>
+      )}
+    </>
+  );
 
   if (initError) {
     return (
@@ -778,48 +936,109 @@ export default function Page() {
         <div style={{ marginTop: "1rem", color: "#666", fontSize: "0.9rem" }}>
           Status: {step}
         </div>
-        <div id="boot-probe" style={{ marginTop: "0.5rem", color: "#666", fontSize: "0.8rem" }}>
-          BOOT_OK: ...
-          {" / "}
-          HYDRATED_OK: ...
-        </div>
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(){var w=window;var el=document.getElementById('boot-probe');if(!el)return;var render=function(){el.textContent='BOOT_OK: '+(w.BOOT_OK===true)+' / HYDRATED_OK: '+(w.HYDRATED_OK===true);};render();setTimeout(render,1500);})();",
-          }}
-        />
       </div>
     );
   }
 
   if (!current) {
+    const showingResult = resultVisible || showRanking || vsResult !== null;
     return (
       <main className={styles.container}>
-        <h1 className={styles.header}>{t.appTitle || "SVO Karuta"}</h1>
-        <p style={{ marginTop: 12 }}>{t.loading}</p>
+        <AppHeader title={t.appTitle} accent="var(--accent-svo)" />
+        {!showingResult && <p style={{ marginTop: 12 }}>{t.loading}</p>}
+        {dialogs}
       </main>
     );
   }
 
+  const onOff = [
+    { value: "on" as const, label: t.on },
+    { value: "off" as const, label: t.off },
+  ];
+  const settings = (
+    <SettingsSheet title={t.settings} label={t.settings}>
+      <SettingsRow label={t.uiLang}>
+        <SettingsChoice
+          value={uiLang}
+          options={[
+            { value: "ja", label: t.japanese },
+            { value: "en", label: t.english },
+            { value: "zh", label: t.chinese },
+          ]}
+          onChange={setUiLang}
+        />
+      </SettingsRow>
+      <SettingsRow label={t.contentLang}>
+        <SettingsChoice
+          value={contentLang}
+          options={[
+            { value: "en", label: t.english },
+            { value: "zh", label: t.chinese },
+          ]}
+          onChange={setContentLang}
+        />
+      </SettingsRow>
+      <SettingsRow label={t.speechSpeed}>
+        <SpeedControl showLabel={false} />
+      </SettingsRow>
+      <SettingsRow label={t.autoSpeak}>
+        <SettingsChoice
+          value={effectiveAutoSpeak ? "on" : "off"}
+          options={onOff}
+          onChange={(value) => setAutoSpeak(value === "on")}
+          disabled={isVsMode}
+        />
+        {isVsMode && <small>{t.vsAutoSpeakNote}</small>}
+      </SettingsRow>
+      {lv2Cards.length > 0 && (
+        <SettingsRow label={t.level2Cards}>
+          <SettingsChoice
+            value={level2On ? "on" : "off"}
+            options={onOff}
+            onChange={(value) => {
+              if ((value === "on") !== level2On) handleToggleLevel2();
+            }}
+          />
+        </SettingsRow>
+      )}
+      <SettingsRow label={`${t.flash}: ${t.voiceMode}`}>
+        <SettingsChoice
+          value={voiceMode ? "on" : "off"}
+          options={onOff}
+          onChange={(value) => {
+            if ((value === "on") !== voiceMode) toggleVoiceMode();
+          }}
+        />
+        {voiceMode && (
+          <SettingsChoice
+            value={articleMode}
+            options={[
+              { value: "easy", label: t.articleEasy },
+              { value: "hard", label: t.articleHard },
+            ]}
+            onChange={setArticleMode}
+          />
+        )}
+      </SettingsRow>
+      {!voiceMode && (
+        <SettingsRow label={`${t.flash}: ${t.choices}`}>
+          <SettingsChoice
+            value={choiceCount}
+            options={[2, 3, 4, 5].map((n) => ({ value: n, label: n }))}
+            onChange={setChoiceCount}
+          />
+        </SettingsRow>
+      )}
+    </SettingsSheet>
+  );
+
   return (
     <main className={styles.container}>
-      <h1 className={styles.header}>{t.appTitle}</h1>
-      <div className={styles.controlGroup} style={{ marginBottom: 8 }}>
-        <Link href="/" className={`${styles.button} ${styles.tapTarget}`}>
-          トップ
-        </Link>
-        <Link href="/quiz-maker" className={`${styles.button} ${styles.tapTarget}`}>
-          Quiz Maker
-        </Link>
-        <Link href="/phonics" className={`${styles.button} ${styles.tapTarget}`}>
-          oto-man
-        </Link>
-      </div>
+      <AppHeader title={t.appTitle} accent="var(--accent-svo)" right={settings} />
 
       {/* Score & Status */}
       <div className={styles.statusRow}>
-        cards: {isSurvival ? activePool.length : cards.length}
+        {t.cards}: {isSurvival ? activePool.length : cards.length}
         {" / "}
         {isVsMode ? (
           <>
@@ -827,35 +1046,18 @@ export default function Page() {
           </>
         ) : (
           <>
-            score: {score} / streak: {streak}
+            {t.score}: {score} / {t.streak}: {streak}
           </>
         )}
         {mode === "karuta" && isSurvival && (
-          <span className={styles.timer}>{formatTime(elapsedTime)}</span>
+          <span className={styles.timer}>
+            {formatTime(trialTime)}
+            <PenaltyFlash count={penaltyCount} seconds={PENALTY_SECONDS} />
+          </span>
         )}
       </div>
 
       <div className={styles.controls}>
-        <div className={styles.controlGroup}>
-          <button
-            onClick={toggleUiLang}
-            className={`${styles.button} ${styles.tapTarget}`}
-            title={t.uiLang}
-          >
-            {t.uiLang}: {getUiLangLabel()}
-          </button>
-
-          <div style={{ opacity: 0.7 }}>|</div>
-
-          <button
-            onClick={() => setContentLang(contentLang === "en" ? "zh" : "en")}
-            className={`${styles.button} ${styles.tapTarget}`}
-            title={t.contentLang}
-          >
-            {t.contentLang}: {getContentLangLabel()}
-          </button>
-        </div>
-
         <div className={styles.controlGroup}>
           <div>{t.mode}</div>
           <button
@@ -870,95 +1072,16 @@ export default function Page() {
           >
             {t.karuta}
           </button>
+          {mode === "karuta" && (
+            <button
+              onClick={() => setShowAdvancedControls((v) => !v)}
+              className={`${styles.button} ${styles.tapTarget}`}
+              aria-expanded={showAdvancedControls}
+            >
+              {showAdvancedControls ? t.closeMenu : t.menu}
+            </button>
+          )}
         </div>
-
-        <div className={styles.controlGroup}>
-          <button
-            onClick={() => setShowAdvancedControls((v) => !v)}
-            className={`${styles.button} ${styles.tapTarget}`}
-          >
-            {showAdvancedControls ? "メニューをとじる" : "メニュー"}
-          </button>
-        </div>
-
-        {/* Flash mode: choices (max 5) */}
-        {showAdvancedControls && mode === "flash" && !voiceMode && (
-          <div className={styles.controlGroup}>
-            <div>{t.choices}</div>
-            {[2, 3, 4, 5].map((n) => (
-              <button
-                key={n}
-                onClick={() => setChoiceCount(n)}
-                className={`${styles.choiceButton} ${choiceCount === n ? styles.choiceButtonActive : ""}`}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Flash mode: voice recognition toggle + easy/hard */}
-        {showAdvancedControls && mode === "flash" && (
-          <div className={styles.controlGroup}>
-            <div style={{ opacity: 0.7 }}>|</div>
-            <button
-              onClick={toggleVoiceMode}
-              className={`${styles.button} ${voiceMode ? styles.buttonActive : ""}`}
-            >
-              {t.voiceMode}: {voiceMode ? t.on : t.off}
-            </button>
-
-            {voiceMode && (
-              <>
-                <button
-                  onClick={() => setArticleMode("easy")}
-                  className={`${styles.button} ${articleMode === "easy" ? styles.buttonActive : ""}`}
-                >
-                  {t.articleEasy}
-                </button>
-                <button
-                  onClick={() => setArticleMode("hard")}
-                  className={`${styles.button} ${articleMode === "hard" ? styles.buttonActive : ""}`}
-                >
-                  {t.articleHard}
-                </button>
-              </>
-            )}
-          </div>
-
-        )}
-
-        {showAdvancedControls && (
-          <div className={styles.controlGroup}>
-            <div style={{ opacity: 0.7 }}>|</div>
-            <button
-              onClick={() => setAutoSpeak((v) => !v)}
-              className={`${styles.button} ${styles.tapTarget} ${autoSpeak ? styles.buttonActive : ""}`}
-            >
-              {t.autoSpeak}: {autoSpeak ? t.on : t.off}
-            </button>
-          </div>
-        )}
-
-        {showAdvancedControls && (
-          <div className={styles.controlGroup}>
-            <div style={{ opacity: 0.7 }}>|</div>
-            <SpeedControl />
-          </div>
-        )}
-
-        {/* レベル2カードのオン/オフ。lv2 が読み込めていない/0枚のときは出さない */}
-        {showAdvancedControls && lv2Cards.length > 0 && (
-          <div className={styles.controlGroup}>
-            <div style={{ opacity: 0.7 }}>|</div>
-            <button
-              onClick={handleToggleLevel2}
-              className={`${styles.button} ${styles.tapTarget} ${level2On ? styles.buttonActive : ""}`}
-            >
-              {t.level2Cards}: {level2On ? t.on : t.off}
-            </button>
-          </div>
-        )}
 
         {/* Karuta mode: deck selector + survival */}
         {mode === "karuta" && (
@@ -1025,6 +1148,12 @@ export default function Page() {
                   >
                     {t.survivalMode}: {isSurvival ? t.on : t.off}
                   </button>
+                  <button
+                    onClick={() => openRanking(deckCardCount)}
+                    className={`${styles.button} ${styles.tapTarget}`}
+                  >
+                    🏆 {t.ranking}
+                  </button>
                 </div>
 
                 <div className={styles.controlGroup}>
@@ -1071,7 +1200,7 @@ export default function Page() {
       <div className={styles.gameArea}>
         {mode === "flash" ? (
           <div className={styles.flashGrid}>
-            {/* 蟾ｦ: 逕ｻ蜒・*/}
+            {/* 左: 画像 */}
             <div>
               <div style={{ marginBottom: 10, opacity: 0.8 }}>
                 {t.flashInstruction} ({contentLang === "en" ? t.english : t.chinese})
@@ -1087,7 +1216,7 @@ export default function Page() {
               >
                 <Image
                   src={current.image}
-                  alt="card"
+                  alt="もんだいの え"
                   className={styles.flashImage}
                   width={544}
                   height={387}
@@ -1138,7 +1267,7 @@ export default function Page() {
                     >
                       {t.speak}
                     </button>
-                    <button onClick={nextCard} className={`${styles.button} ${styles.tapTarget}`}>
+                    <button onClick={handleSkip} className={`${styles.button} ${styles.tapTarget}`}>
                       {t.skip}
                     </button>
                   </div>
@@ -1154,12 +1283,15 @@ export default function Page() {
                         onClick={() => judgeFlash(String(s))}
                         className={styles.sentenceButton}
                         style={{
+                          position: "relative",
+                          paddingRight: 44,
                           border: feedback?.value === String(s)
-                            ? `2px solid ${feedback.isCorrect ? "green" : "red"}`
-                            : "1px solid #222",
+                              ? `3px solid ${feedback.isCorrect ? "var(--ok)" : "var(--ng)"}`
+                              : "1px solid #222",
                         }}
                       >
                         {String(s)}
+                        {feedback?.value === String(s) && <AnswerMark correct={feedback.isCorrect} placement="end" />}
                       </button>
                     ))}
                   </div>
@@ -1189,7 +1321,7 @@ export default function Page() {
                   {t.speak}
                 </button>
                 <button
-                  onClick={nextCard}
+                  onClick={handleSkip}
                   className={`${styles.button} ${styles.tapTarget}`}
                 >
                   {t.skip}
@@ -1208,19 +1340,21 @@ export default function Page() {
                   onClick={() => judgeKaruta(String(img))}
                   className={styles.karutaCard}
                   style={{
+                    position: "relative",
                     border: feedback?.value === String(img)
-                      ? `2px solid ${feedback.isCorrect ? "green" : "red"}`
-                      : "1px solid #222",
+                        ? `3px solid ${feedback.isCorrect ? "var(--ok)" : "var(--ng)"}`
+                        : "1px solid #222",
                   }}
                 >
                   <Image
                     src={String(img)}
-                    alt={`choice-${i}`}
+                    alt={`えのカード ${i + 1}`}
                     className={styles.karutaImage}
                     width={544}
                     height={387}
                     sizes="(max-width: 480px) 45vw, (max-width: 1024px) 20vw, 200px"
                   />
+                  {feedback?.value === String(img) && <AnswerMark correct={feedback.isCorrect} />}
                 </button>
               ))}
             </div>
@@ -1248,69 +1382,7 @@ export default function Page() {
           </div>
         )}
       </div>
-      {/* Name Input Modal */}
-      {nameInputVisible && (
-        <div className={styles.rankingOverlay}>
-          <div className={styles.rankingModal}>
-            <div className={styles.rankingHeader}>{t.rankingTitle}</div>
-            <div style={{ marginBottom: 12 }}>{t.newRecord}</div>
-            <div style={{ marginBottom: 20, fontSize: 32, fontWeight: "bold", color: "#ffca28" }}>{formatTime(pendingEntry?.time || 0)}</div>
-            <div style={{ marginBottom: 8 }}>{t.enterName}</div>
-            <input
-              type="text"
-              className={styles.rankingInput}
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
-              placeholder="Name"
-              maxLength={10}
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleRankingRegister();
-              }}
-            />
-            <button className={styles.rankingButton} onClick={handleRankingRegister}>
-              OK
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Ranking List Modal */}
-      {showRanking && (
-        <div className={styles.rankingOverlay}>
-          <div className={styles.rankingModal}>
-            <div className={styles.rankingHeader}>{t.ranking}</div>
-            <table className={styles.rankingTable}>
-              <thead>
-                <tr>
-                  <th>{t.rank}</th>
-                  <th>{t.name}</th>
-                  <th>{t.time}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rankingData.length === 0 ? (
-                  <tr><td colSpan={3}>{t.noRecords}</td></tr>
-                ) : (
-                  rankingData.map((d, i) => (
-                    <tr key={i} className={pendingEntry && d.date === pendingEntry.date ? styles.rankingRowNew : ""}>
-                      <td>{i + 1}</td>
-                      <td>{d.name}</td>
-                      <td>{formatTime(d.time)}</td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-            <button
-              className={styles.rankingCloseButton}
-              onClick={() => setShowRanking(false)}
-            >
-              {t.close}
-            </button>
-          </div>
-        </div>
-      )}
+      {dialogs}
 
       <footer className={styles.copyright}>
         (c) 2026 Yasuhiro Ohnaka - All rights reserved

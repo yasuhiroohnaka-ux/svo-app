@@ -64,7 +64,6 @@
   outline-offset: 4px;
 }
 
-.eyebrow,
 .kicker {
   color: var(--rust);
   font-size: 11px;
@@ -894,10 +893,6 @@
   .pageShell,
   .bookShell {
     padding-top: 12px;
-  }
-
-  .eyebrow {
-    display: none;
   }
 
   .shelfHero {

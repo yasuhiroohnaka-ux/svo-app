@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import AppHeader from "@/app/components/AppHeader";
 import { getSotaImagePath, sotaCoverImagePath, sotaSpreads } from "../lib/book";
 import { useSotaProgress } from "../lib/progress";
 import styles from "../sota.module.css";
@@ -14,12 +15,7 @@ export default function SotaShelf() {
 
   return (
     <main className={styles.pageShell}>
-      <div className={styles.topBar}>
-        <Link className={styles.backLink} href="/">
-          ← もどる
-        </Link>
-        <span className={styles.eyebrow}>A READ-AND-FIND STORY</span>
-      </div>
+      <AppHeader title="So-ta The Alien" accent="var(--accent-sota)" />
 
       <section className={styles.shelfHero}>
         <div className={styles.coverFrame}>
@@ -34,9 +30,9 @@ export default function SotaShelf() {
         </div>
         <div className={styles.heroCopy}>
           <p className={styles.kicker}>よんで、えを みつける</p>
-          <h1 className={styles.bookTitle}>
+          <h2 className={styles.bookTitle}>
             So-ta The Alien<span>(ソータザエイリアン)</span>
-          </h1>
+          </h2>
           <p className={styles.heroLead}>
             えいぶんを よんで、ぴったりの えを みつけよう。
             <br />

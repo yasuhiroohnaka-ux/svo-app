@@ -4,9 +4,11 @@ import Link from "next/link";
 import { useMemo, use } from "react";
 import { getNextPart, getPartById } from "../../lib/data";
 import { usePartProgress } from "../../lib/progress";
+import RewardSummary from "@/app/components/RewardSummary";
+import { getTreasure, starsFromAccuracy, type Stars, type Treasure } from "@/app/lib/rewards";
 import styles from "../../storyquiz.module.css";
 
-type SearchParams = Promise<{ c?: string; t?: string }>;
+type SearchParams = Promise<{ c?: string; t?: string; s?: string; pb?: string; nt?: string }>;
 
 function toSafeCount(value: string | undefined) {
   return Math.max(0, Number(value ?? "0") || 0);
@@ -88,7 +90,20 @@ export default function ResultPage({
             </ul>
           </div>
 
-          <div className={styles.resultBadge}>⭐ Story Clear!</div>
+          {score.total > 0 && (
+            <RewardSummary
+              result={{
+                stars: Math.min(3, Math.max(1, Number(sp.s) || starsFromAccuracy(score.correct, score.total))) as Stars,
+                previousBest: Number(sp.pb) || 0,
+                gained: Math.max(0, (Number(sp.s) || 0) - (Number(sp.pb) || 0)),
+                newTreasures: (sp.nt ?? "")
+                  .split(",")
+                  .map(getTreasure)
+                  .filter((treasure): treasure is Treasure => Boolean(treasure)),
+              }}
+            />
+          )}
+          <div className={styles.resultBadge}>Story Clear!</div>
           <p className={styles.resultScoreSmall}>
             えらべたクイズ {score.correct} / {score.total}
           </p>

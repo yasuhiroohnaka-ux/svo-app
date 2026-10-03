@@ -11,7 +11,7 @@
     "verb_zh": "吃",
     "object_zh": "鱼",
     "sentence_zh": "香蕉吃鱼。",
-    "imageFile": "page_0.png"
+    "imageFile": "page_0.webp"
   },
   {
     "cardId": 1,
@@ -25,7 +25,7 @@
     "verb_zh": "吃",
     "object_zh": "蛇",
     "sentence_zh": "胡萝卜吃蛇。",
-    "imageFile": "page_1.png"
+    "imageFile": "page_1.webp"
   },
   {
     "cardId": 2,
@@ -39,7 +39,7 @@
     "verb_zh": "洗",
     "object_zh": "盘子",
     "sentence_zh": "女孩洗盘子。",
-    "imageFile": "page_2.png"
+    "imageFile": "page_2.webp"
   },
   {
     "cardId": 3,
@@ -53,7 +53,7 @@
     "verb_zh": "洗",
     "object_zh": "车",
     "sentence_zh": "男孩洗车。",
-    "imageFile": "page_3.png"
+    "imageFile": "page_3.webp"
   },
   {
     "cardId": 4,
@@ -67,7 +67,7 @@
     "verb_zh": "洗",
     "object_zh": "狗",
     "sentence_zh": "男孩洗狗。",
-    "imageFile": "page_4.png"
+    "imageFile": "page_4.webp"
   },
   {
     "cardId": 5,
@@ -81,7 +81,7 @@
     "verb_zh": "洗",
     "object_zh": "鱼",
     "sentence_zh": "男孩洗鱼。",
-    "imageFile": "page_5.png"
+    "imageFile": "page_5.webp"
   },
   {
     "cardId": 6,
@@ -95,7 +95,7 @@
     "verb_zh": "洗",
     "object_zh": "苹果",
     "sentence_zh": "男孩洗苹果。",
-    "imageFile": "page_6.png"
+    "imageFile": "page_6.webp"
   },
   {
     "cardId": 7,
@@ -109,7 +109,7 @@
     "verb_zh": "洗",
     "object_zh": "男孩",
     "sentence_zh": "车洗男孩。",
-    "imageFile": "page_7.png"
+    "imageFile": "page_7.webp"
   },
   {
     "cardId": 8,
@@ -123,7 +123,7 @@
     "verb_zh": "洗",
     "object_zh": "女孩",
     "sentence_zh": "杯子洗女孩。",
-    "imageFile": "page_8.png"
+    "imageFile": "page_8.webp"
   },
   {
     "cardId": 9,
@@ -137,7 +137,7 @@
     "verb_zh": "洗",
     "object_zh": "女孩",
     "sentence_zh": "盘子洗女孩。",
-    "imageFile": "page_9.png"
+    "imageFile": "page_9.webp"
   },
   {
     "cardId": 10,
@@ -151,7 +151,7 @@
     "verb_zh": "洗",
     "object_zh": "男孩",
     "sentence_zh": "狗洗男孩。",
-    "imageFile": "page_10.png"
+    "imageFile": "page_10.webp"
   },
   {
     "cardId": 11,
@@ -165,7 +165,7 @@
     "verb_zh": "洗",
     "object_zh": "男孩",
     "sentence_zh": "鱼洗男孩。",
-    "imageFile": "page_11.png"
+    "imageFile": "page_11.webp"
   },
   {
     "cardId": 12,
@@ -179,7 +179,7 @@
     "verb_zh": "洗",
     "object_zh": "苹果",
     "sentence_zh": "鱼洗苹果。",
-    "imageFile": "page_12.png"
+    "imageFile": "page_12.webp"
   },
   {
     "cardId": 13,
@@ -193,7 +193,7 @@
     "verb_zh": "洗",
     "object_zh": "杯子",
     "sentence_zh": "女孩洗杯子。",
-    "imageFile": "page_13.png"
+    "imageFile": "page_13.webp"
   },
   {
     "cardId": 14,
@@ -207,7 +207,7 @@
     "verb_zh": "洗",
     "object_zh": "勺子",
     "sentence_zh": "女孩洗勺子。",
-    "imageFile": "page_14.png"
+    "imageFile": "page_14.webp"
   },
   {
     "cardId": 15,
@@ -221,7 +221,7 @@
     "verb_zh": "洗",
     "object_zh": "女孩",
     "sentence_zh": "勺子洗女孩。",
-    "imageFile": "page_15.png"
+    "imageFile": "page_15.webp"
   },
   {
     "cardId": 16,
@@ -235,7 +235,7 @@
     "verb_zh": "洗",
     "object_zh": "男孩",
     "sentence_zh": "苹果洗男孩。",
-    "imageFile": "page_16.png"
+    "imageFile": "page_16.webp"
   },
   {
     "cardId": 17,
@@ -249,7 +249,7 @@
     "verb_zh": "洗",
     "object_zh": "鱼",
     "sentence_zh": "苹果洗鱼。",
-    "imageFile": "page_17.png"
+    "imageFile": "page_17.webp"
   },
   {
     "cardId": 18,
@@ -263,7 +263,7 @@
     "verb_zh": "有",
     "object_zh": "鱼",
     "sentence_zh": "鱼有鱼。",
-    "imageFile": "page_18.png"
+    "imageFile": "page_18.webp"
   },
   {
     "cardId": 19,
@@ -277,7 +277,7 @@
     "verb_zh": "有",
     "object_zh": "苹果",
     "sentence_zh": "鱼有苹果。",
-    "imageFile": "page_19.png"
+    "imageFile": "page_19.webp"
   },
   {
     "cardId": 20,
@@ -291,7 +291,7 @@
     "verb_zh": "有",
     "object_zh": "鱼",
     "sentence_zh": "苹果有鱼。",
-    "imageFile": "page_20.png"
+    "imageFile": "page_20.webp"
   },
   {
     "cardId": 21,
@@ -305,7 +305,7 @@
     "verb_zh": "有",
     "object_zh": "苹果",
     "sentence_zh": "苹果有苹果。",
-    "imageFile": "page_21.png"
+    "imageFile": "page_21.webp"
   },
   {
     "cardId": 22,
@@ -319,7 +319,7 @@
     "verb_zh": "吃",
     "object_zh": "鱼",
     "sentence_zh": "鱼吃鱼。",
-    "imageFile": "page_22.png"
+    "imageFile": "page_22.webp"
   },
   {
     "cardId": 23,
@@ -333,7 +333,7 @@
     "verb_zh": "吃",
     "object_zh": "柠檬",
     "sentence_zh": "鱼吃柠檬。",
-    "imageFile": "page_23.png"
+    "imageFile": "page_23.webp"
   },
   {
     "cardId": 24,
@@ -347,7 +347,7 @@
     "verb_zh": "吃",
     "object_zh": "笔",
     "sentence_zh": "鱼吃笔。",
-    "imageFile": "page_24.png"
+    "imageFile": "page_24.webp"
   },
   {
     "cardId": 25,
@@ -361,7 +361,7 @@
     "verb_zh": "吃",
     "object_zh": "苹果",
     "sentence_zh": "鱼吃苹果。",
-    "imageFile": "page_25.png"
+    "imageFile": "page_25.webp"
   },
   {
     "cardId": 26,
@@ -375,7 +375,7 @@
     "verb_zh": "吃",
     "object_zh": "鱼",
     "sentence_zh": "柠檬吃鱼。",
-    "imageFile": "page_26.png"
+    "imageFile": "page_26.webp"
   },
   {
     "cardId": 27,
@@ -389,7 +389,7 @@
     "verb_zh": "吃",
     "object_zh": "蛇",
     "sentence_zh": "蘑菇吃蛇。",
-    "imageFile": "page_27.png"
+    "imageFile": "page_27.webp"
   },
   {
     "cardId": 28,
@@ -403,7 +403,7 @@
     "verb_zh": "吃",
     "object_zh": "鱼",
     "sentence_zh": "笔吃鱼。",
-    "imageFile": "page_28.png"
+    "imageFile": "page_28.webp"
   },
   {
     "cardId": 29,
@@ -417,7 +417,7 @@
     "verb_zh": "吃",
     "object_zh": "胡萝卜",
     "sentence_zh": "蛇吃胡萝卜。",
-    "imageFile": "page_29.png"
+    "imageFile": "page_29.webp"
   },
   {
     "cardId": 30,
@@ -431,7 +431,7 @@
     "verb_zh": "吃",
     "object_zh": "蘑菇",
     "sentence_zh": "蛇吃蘑菇。",
-    "imageFile": "page_30.png"
+    "imageFile": "page_30.webp"
   },
   {
     "cardId": 31,
@@ -445,7 +445,7 @@
     "verb_zh": "吃",
     "object_zh": "番茄",
     "sentence_zh": "蛇吃番茄。",
-    "imageFile": "page_31.png"
+    "imageFile": "page_31.webp"
   },
   {
     "cardId": 32,
@@ -459,7 +459,7 @@
     "verb_zh": "吃",
     "object_zh": "蛇",
     "sentence_zh": "番茄吃蛇。",
-    "imageFile": "page_32.png"
+    "imageFile": "page_32.webp"
   },
   {
     "cardId": 33,
@@ -473,7 +473,7 @@
     "verb_zh": "吃",
     "object_zh": "鱼",
     "sentence_zh": "苹果吃鱼。",
-    "imageFile": "page_33.png"
+    "imageFile": "page_33.webp"
   },
   {
     "cardId": 34,
@@ -487,7 +487,7 @@
     "verb_zh": "吃",
     "object_zh": "苹果",
     "sentence_zh": "苹果吃苹果。",
-    "imageFile": "page_34.png"
+    "imageFile": "page_34.webp"
   },
   {
     "cardId": 35,
@@ -501,7 +501,7 @@
     "verb_zh": "接住",
     "object_zh": "球",
     "sentence_zh": "婴儿接住球。",
-    "imageFile": "page_35.png"
+    "imageFile": "page_35.webp"
   },
   {
     "cardId": 36,
@@ -515,7 +515,7 @@
     "verb_zh": "接住",
     "object_zh": "婴儿",
     "sentence_zh": "球接住婴儿。",
-    "imageFile": "page_36.png"
+    "imageFile": "page_36.webp"
   },
   {
     "cardId": 37,
@@ -529,7 +529,7 @@
     "verb_zh": "接住",
     "object_zh": "柠檬",
     "sentence_zh": "婴儿接住柠檬。",
-    "imageFile": "page_37.png"
+    "imageFile": "page_37.webp"
   },
   {
     "cardId": 38,
@@ -543,7 +543,7 @@
     "verb_zh": "接住",
     "object_zh": "婴儿",
     "sentence_zh": "柠檬接住婴儿。",
-    "imageFile": "page_38.png"
+    "imageFile": "page_38.webp"
   },
   {
     "cardId": 39,
@@ -557,7 +557,7 @@
     "verb_zh": "接住",
     "object_zh": "苹果",
     "sentence_zh": "婴儿接住苹果。",
-    "imageFile": "page_39.png"
+    "imageFile": "page_39.webp"
   },
   {
     "cardId": 40,
@@ -571,7 +571,7 @@
     "verb_zh": "接住",
     "object_zh": "婴儿",
     "sentence_zh": "苹果接住婴儿。",
-    "imageFile": "page_40.png"
+    "imageFile": "page_40.webp"
   },
   {
     "cardId": 41,
@@ -585,7 +585,7 @@
     "verb_zh": "接住",
     "object_zh": "球和笔",
     "sentence_zh": "婴儿接住球和笔。",
-    "imageFile": "page_41.png"
+    "imageFile": "page_41.webp"
   },
   {
     "cardId": 42,
@@ -599,7 +599,7 @@
     "verb_zh": "接住",
     "object_zh": "西红柿和香蕉",
     "sentence_zh": "婴儿接住西红柿和香蕉。",
-    "imageFile": "page_42.png"
+    "imageFile": "page_42.webp"
   },
   {
     "cardId": 43,
@@ -613,7 +613,7 @@
     "verb_zh": "接住",
     "object_zh": "糖果和甜甜圈",
     "sentence_zh": "男孩接住糖果和甜甜圈。",
-    "imageFile": "page_43.png"
+    "imageFile": "page_43.webp"
   },
   {
     "cardId": 44,
@@ -627,6 +627,6 @@
     "verb_zh": "接住",
     "object_zh": "柠檬和甜瓜",
     "sentence_zh": "男孩接住柠檬和甜瓜。",
-    "imageFile": "page_44.png"
+    "imageFile": "page_44.webp"
   }
 ]

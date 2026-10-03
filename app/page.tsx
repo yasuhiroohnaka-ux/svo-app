@@ -1,141 +1,78 @@
 import Link from "next/link";
-import type { Metadata } from "next";
+
+import QuickStart from "@/app/components/portal/QuickStart";
+import RewardCounter from "@/app/components/portal/RewardCounter";
+import RoomStatus from "@/app/components/portal/RoomStatus";
+import { APPS, FLOORS } from "@/app/lib/apps";
+
 import styles from "./portal.module.css";
-
-export const metadata: Metadata = {
-  title: "Puzzle Grammar - English Learning Games",
-  description: "Fun English learning games for kids. Practice grammar with SVO puzzles and quiz cards!",
-};
-
-const apps = [
-  {
-    href: "/puzzle-grammar",
-    className: styles.cardPuzzle,
-    icon: "🧩",
-    title: "Puzzle\nGrammar",
-    desc: "絵に合わせてピースをつなぎ、英語の文を作ろう。短いお話の文でも遊べます。",
-    tags: ["SVO", "PUZZLE"],
-    soon: false,
-  },
-  {
-    href: "/svo",
-    className: styles.cardSvo,
-    icon: "🎴",
-    title: "SVO\nKaruta",
-    desc: "読み上げられた英語の文に合う絵をすばやく取る、かるた形式のゲームです。",
-    tags: ["SVO", "FLASH", "KARUTA"],
-    soon: false,
-  },
-  {
-    href: "/quiz-maker",
-    className: styles.cardQuiz,
-    icon: "🃏",
-    title: "Quiz\nMaker",
-    desc: "絵を見て英語の文を選ぶ、カード型クイズゲームです。",
-    tags: ["FLASH", "KARUTA", "VOICE"],
-    soon: false,
-  },
-  {
-    href: "/guess-it",
-    className: styles.cardGuess,
-    icon: "🔍",
-    title: "Word\nDetective",
-    desc: "Yes/No質問をタップして、ひみつのお題を当てる英語ゲームです。",
-    tags: ["YES/NO", "VOICE", "AI"],
-    soon: false,
-  },
-  {
-    href: "/phonics",
-    className: styles.cardPhonics,
-    icon: "🔊",
-    title: "oto-man",
-    desc: "おとを聞いて、カードをえらんだり、ことばを作ったりして遊べます。",
-    tags: ["おと", "ことば", "カード"],
-    soon: false,
-  },
-  {
-    href: "/phonics-maze",
-    className: styles.cardMaze,
-    icon: "MZ",
-    title: "Phonics\nMaze",
-    desc: "フォニックスの音をたどってゴールへ。通ったリズムをぜんぶ聞いてから正解チェックします。",
-    tags: ["PHONICS", "MAZE", "VOICE"],
-    soon: false,
-  },
-  {
-    href: "/storyquiz",
-    className: styles.cardStory,
-    icon: "📖",
-    title: "Story\nQuiz",
-    desc: "バナナやさかなの短いお話から、童話まで。絵と音声を手がかりに「よめた！」を楽しもう。",
-    tags: ["STORY", "VOICE", "QUIZ"],
-    soon: false,
-  },
-  {
-    href: "/sota",
-    className: styles.cardSota,
-    icon: "👽",
-    title: "So-ta The Alien(ソータザエイリアン)",
-    desc: "えいぶんを よんで、えに いろを つけよう。16この ばめんで、カラーえほんの できあがり！",
-    tags: ["STORY", "VOICE", "PICTURE"],
-    soon: false,
-  },
-  {
-    href: "/ymeyme-rhyme",
-    className: styles.cardRhyme,
-    icon: "📜",
-    title: "Ymeyme\nRhyme",
-    desc: "毎月の英語の詩を読み上げで聞けます。作者・時代・語りつがれかたの解説つき。",
-    tags: ["POEM", "VOICE", "RHYME"],
-    soon: false,
-  },
-];
 
 export default function PortalPage() {
   return (
     <main className={styles.portal}>
       <header className={styles.header}>
-        <div className={styles.stars}>☀️ ☁️ ☀️</div>
-        <h1 className={styles.logo}>
-          PUZZLE
-          <br />
-          GRAMMAR
-        </h1>
-        <p className={styles.subtitle}>English Learning Games</p>
+        <div className={styles.gate}>
+          <span className={styles.torch} aria-hidden="true">
+            🔥
+          </span>
+          <h1 className={styles.logo}>
+            <span className={styles.logoJa}>ことばダンジョン</span>
+            <span className={styles.logoEn}>KOTOBA DUNGEON</span>
+          </h1>
+          <span className={styles.torch} aria-hidden="true">
+            🔥
+          </span>
+        </div>
+        <p className={styles.tagline}>えいごの ことばを あつめる ぼうけん</p>
+        <RewardCounter />
       </header>
 
-      <div className={styles.grid}>
-        {apps.map((app) =>
-          app.soon ? (
-            <div key={app.href} className={`${styles.card} ${app.className}`}>
-              <span className={styles.cardIcon}>{app.icon}</span>
-              <div className={styles.cardTitle}>{app.title}</div>
-              <p className={styles.cardDesc}>{app.desc}</p>
+      <QuickStart />
+
+      {FLOORS.map((floor) => {
+        const rooms = APPS.filter((app) => app.floor === floor.id);
+        return (
+          <section key={floor.id} className={styles.floor} aria-labelledby={`floor-${floor.id}`}>
+            <div className={styles.floorHeader}>
+              <span className={styles.floorBadge}>{floor.badge}</span>
               <div>
-                {app.tags.map((tag) => (
-                  <span key={tag} className={styles.cardTag}>
-                    {tag}
-                  </span>
-                ))}
+                <h2 id={`floor-${floor.id}`} className={styles.floorName}>
+                  {floor.name}
+                </h2>
+                <p className={styles.floorDesc}>{floor.desc}</p>
               </div>
             </div>
-          ) : (
-            <Link key={app.href} href={app.href} className={`${styles.card} ${app.className}`}>
-              <span className={styles.cardIcon}>{app.icon}</span>
-              <div className={styles.cardTitle}>{app.title}</div>
-              <p className={styles.cardDesc}>{app.desc}</p>
-              <div>
-                {app.tags.map((tag) => (
-                  <span key={tag} className={styles.cardTag}>
-                    {tag}
+
+            <div className={styles.grid}>
+              {rooms.map((app) => (
+                <Link
+                  key={app.id}
+                  href={app.href}
+                  className={styles.card}
+                  style={{ "--card-accent": app.accent } as React.CSSProperties}
+                >
+                  <span className={styles.cardIcon} aria-hidden="true">
+                    {app.icon}
                   </span>
-                ))}
-              </div>
-              <span className={styles.cardArrow}>-&gt;</span>
-            </Link>
-          ),
-        )}
-      </div>
+                  <span className={styles.cardTitle}>{app.title}</span>
+                  <span className={styles.cardDesc}>{app.desc}</span>
+                  <span className={styles.cardTags}>
+                    {app.tags.map((tag) => (
+                      <span key={tag} className={styles.cardTag}>
+                        {tag}
+                      </span>
+                    ))}
+                  </span>
+                  <RoomStatus appId={app.id} />
+                  <span className={styles.cardArrow} aria-hidden="true">
+                    ▶
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        );
+      })}
 
       <footer className={styles.footer}>(c) 2026 Yasuhiro Ohnaka - All rights reserved</footer>
     </main>

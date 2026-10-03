@@ -1,0 +1,55 @@
+.toast {
+  position: fixed;
+  right: var(--space-4);
+  bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+  z-index: 1100;
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  max-width: calc(100vw - 32px);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-w) solid var(--ink);
+  border-radius: var(--radius-md);
+  background: #fff4c7;
+  color: var(--ink);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-body);
+  font-weight: 900;
+  animation: slideIn 0.35s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.chest {
+  font-size: 40px;
+  animation: wiggle 0.8s ease-in-out 2;
+}
+
+.title {
+  font-size: 0.85rem;
+  color: #b7791f;
+}
+
+.item {
+  font-size: 1.1rem;
+}
+
+.link {
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
+
+@keyframes wiggle {
+  25% {
+    transform: rotate(-12deg);
+  }
+
+  75% {
+    transform: rotate(12deg);
+  }
+}

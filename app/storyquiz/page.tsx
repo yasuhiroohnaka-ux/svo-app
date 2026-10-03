@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import AppHeader from "@/app/components/AppHeader";
 import Image from "next/image";
 import { useState } from "react";
 import { getIssues } from "./lib/data";
@@ -40,18 +41,10 @@ export default function StoryQuizHome() {
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerLeft}>
-          <div className={styles.kicker}>STORY QUIZ</div>
-          <h1 className={styles.title}>えほんで えいご</h1>
-          <p className={styles.lead}>
-            短い英語ストーリーを聞いて、日本語クイズに答えよう。
-          </p>
-        </div>
-        <Link href="/" className={styles.backLink}>
-          ← ポータルへ
-        </Link>
-      </header>
+      <AppHeader title="えほんで えいご" accent="var(--accent-story)" />
+      <p className={styles.lead} style={{ textAlign: "center" }}>
+        短い英語ストーリーを聞いて、日本語クイズに答えよう。
+      </p>
 
       <nav className={styles.issueTabs} aria-label="Story Quiz issues">
         {issues.map((issue) => (

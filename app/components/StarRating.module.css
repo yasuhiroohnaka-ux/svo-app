@@ -1,0 +1,41 @@
+.stars {
+  display: inline-flex;
+  gap: 0.12em;
+  line-height: 1;
+}
+
+.sm {
+  font-size: 16px;
+}
+
+.md {
+  font-size: 32px;
+}
+
+.lg {
+  font-size: 48px;
+}
+
+.on,
+.off {
+  display: inline-block;
+}
+
+.on {
+  color: #ffc21a;
+  text-shadow:
+    2px 2px 0 var(--ink),
+    0 0 10px rgba(255, 194, 26, 0.6);
+  animation: starPop 0.35s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+}
+
+.off {
+  color: rgba(29, 47, 69, 0.18);
+}
+
+@keyframes starPop {
+  from {
+    transform: scale(0.2) rotate(-40deg);
+    opacity: 0;
+  }
+}

@@ -2,7 +2,53 @@
    module; this file provides the shared reset and defaults.
    The reset mirrors the parts of Tailwind Preflight the app pages
    were built against (Tailwind itself is no longer used).
-   Fonts (Nunito, Press Start 2P) are loaded in app/layout.tsx. */
+   Fonts (Nunito, Press Start 2P) are loaded in app/layout.tsx.
+   Shared components (app/components) use the tokens below; app pages
+   can use them too via var(--token). */
+
+:root {
+  /* ---- Design tokens (portal family) ----
+     Ink-outlined cards with hard offset shadows on a light paper
+     background. Each app differs only by its accent color. */
+  --ink: #1d2f45;
+  --ink-soft: #52627a;
+  --paper: #ffffff;
+  --cream: #fff8ef;
+  --highlight: #ffe27a;
+  --ok: #2e9d5b;
+  --ok-soft: #e3f6ea;
+  --ng: #d9534f;
+  --ng-soft: #fdeceb;
+
+  --accent-puzzle: #a78bfa;
+  --accent-svo: #ff6b6b;
+  --accent-quiz: #4ecdc4;
+  --accent-guess: #ffe066;
+  --accent-phonics: #e67e22;
+  --accent-maze: #58d6c7;
+  --accent-story: #ff9f43;
+  --accent-sota: #9bb7a5;
+  --accent-rhyme: #f78fb3;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --border-w: 2px;
+  --shadow-sm: 3px 3px 0 var(--ink);
+  --shadow-md: 5px 5px 0 var(--ink);
+  --shadow-soft: 4px 4px 0 rgba(29, 47, 69, 0.18);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --tap: 44px;
+  --font-body: 'Nunito', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, system-ui, sans-serif;
+  --font-pixel: 'Press Start 2P', monospace;
+}
 
 *,
 *::before,
@@ -86,8 +132,25 @@ body {
   margin: 0;
   background: #ffffff;
   color: #171717;
-  font-family: 'Nunito', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, system-ui, sans-serif;
+  font-family: var(--font-body);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Keyboard focus is always visible (mouse/touch focus stays quiet). */
+:focus-visible {
+  outline: 3px solid #2f7bf6;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

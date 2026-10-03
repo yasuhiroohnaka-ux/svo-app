@@ -22,7 +22,7 @@ So-ta has 16 scenes plus a color cover. Choice pictures begin in grayscale and r
 - Other color pages were generated from the original line art. p12's king emblem and p32's rabbit-eared masked character were corrected after visual review. Both p30 panels retain blue eyes for sadness.
 - Recorded generation prompts are in `docs/content-prompts/`. The final mini-story prompts end in `-flat.txt`; corrections end in `-fix.txt`. p06's initial prompt was not retained verbatim.
 - Original external source directory: `OneDrive/デスクトップ/ウサミミマンシリーズ/So-ta The Alien/source/drafts/`. Those source files were read/copied; not edited.
-- PNG files are retained as artwork inputs. `scripts/prepare-content-images.cjs` encodes the shipped WebP files at up to 1200 pixels wide and quality 90. The new art uses those small files directly, avoiding an additional responsive image selection/optimization pass. Regenerate WebP after changing a PNG.
+- PNG files are retained as artwork inputs in `design-drafts/originals/` (moved there on 2026-09-26; they are no longer deployed). `scripts/prepare-content-images.cjs` encodes every shipped WebP file from those originals (up to 1200 pixels wide; quality 90 for mini-stories and So-ta color, 85 elsewhere). Regenerate WebP after changing an original.
 
 ## Verification
 

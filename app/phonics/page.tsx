@@ -15,6 +15,11 @@ import {
 } from "./PhonicsData";
 import BootDebugOverlay from "@/app/components/BootDebugOverlay";
 import HanamaruMark from "@/app/components/HanamaruMark";
+import StarRating from "@/app/components/StarRating";
+import { recordStars, starsFromMistakes, type Stars } from "@/app/lib/rewards";
+import AppHeader from "@/app/components/AppHeader";
+import { usePersistentStore } from "@/app/lib/persistentStore";
+import { autoAdvanceStore, correctWordsStore } from "./progress";
 import SpeedControl from "@/app/components/SpeedControl";
 import { hasFatalFeatureGap, runFeatureCheck, type BootStep } from "@/utils/bootDiagnostics";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
@@ -22,12 +27,9 @@ import { applySpeechSpeed, unlockSpeech } from "@/utils/speak";
 
 type ViewMode = "setup" | "poster" | "challenge" | "soundQuiz";
 type FeedbackKind = "idle" | "correct" | "tryAgain" | "empty";
-type CorrectWordsByLevel = Record<string, string[]>;
 
 const LOW_WORD_COUNT_HINT = "ことばが少ないときは、ほかのレベルも 見てみよう。";
 const WORD_AUDIO_GUIDE = "きいて、まねして、こえにだしてみよう。";
-const CORRECT_WORDS_STORAGE_PREFIX = "phonics.correctWords.";
-const AUTO_ADVANCE_STORAGE_KEY = "phonics.autoAdvance";
 const LEVEL_4_NEW_SOUND_IDS = ["s", "f", "h"];
 
 const getPhonicById = (id: string): Phonic | undefined => PHONICS_DATA.find((phonic) => phonic.id === id);
@@ -39,43 +41,6 @@ const getPreferredWordPool = (levelId: string, words: LessonWord[]): LessonWord[
 
     const level4NewWords = words.filter(hasLevel4NewSound);
     return level4NewWords.length > 0 ? level4NewWords : words;
-};
-
-const getLocalDateStamp = (): string => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const date = String(now.getDate()).padStart(2, "0");
-    return `${year}-${month}-${date}`;
-};
-
-const getCorrectWordsStorageKey = (): string => `${CORRECT_WORDS_STORAGE_PREFIX}${getLocalDateStamp()}`;
-
-const parseCorrectWordsByLevel = (value: string | null): CorrectWordsByLevel => {
-    if (!value) return {};
-
-    try {
-        const parsed = JSON.parse(value) as unknown;
-        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
-
-        return Object.fromEntries(
-            Object.entries(parsed)
-                .filter((entry): entry is [string, unknown[]] => Array.isArray(entry[1]))
-                .map(([levelId, wordIds]) => [levelId, wordIds.filter((wordId): wordId is string => typeof wordId === "string")]),
-        );
-    } catch {
-        return {};
-    }
-};
-
-const readCorrectWordsByLevelFromStorage = (): CorrectWordsByLevel => {
-    if (typeof window === "undefined") return {};
-
-    try {
-        return parseCorrectWordsByLevel(window.localStorage.getItem(getCorrectWordsStorageKey()));
-    } catch {
-        return {};
-    }
 };
 
 const pickRandomWord = (words: LessonWord[], usedWordIds: string[]): LessonWord | null => {
@@ -131,6 +96,7 @@ export default function PhonicsPage() {
     const [usedWordIds, setUsedWordIds] = useState<string[]>([]);
     const [answerSlots, setAnswerSlots] = useState<(string | null)[]>([]);
     const [hintLevel, setHintLevel] = useState(0);
+    const [wordStars, setWordStars] = useState<Stars | null>(null);
     const [feedback, setFeedback] = useState("まずは ことばを きいてみよう。");
     const [feedbackKind, setFeedbackKind] = useState<FeedbackKind>("idle");
     const [notice, setNotice] = useState(WORD_AUDIO_GUIDE);
@@ -140,17 +106,8 @@ export default function PhonicsPage() {
     const [soundQuizFeedback, setSoundQuizFeedback] = useState("きいて、どのカードか さがそう。");
     const [soundQuizFeedbackKind, setSoundQuizFeedbackKind] = useState<FeedbackKind>("idle");
     const [teacherPanelOpen, setTeacherPanelOpen] = useState(false);
-    const [autoAdvance, setAutoAdvance] = useState(() => {
-        if (typeof window === "undefined") return true;
-        try {
-            return window.localStorage.getItem(AUTO_ADVANCE_STORAGE_KEY) !== "false";
-        } catch {
-            return true;
-        }
-    });
-    const [correctWordsByLevel, setCorrectWordsByLevel] = useState<CorrectWordsByLevel>(() =>
-        readCorrectWordsByLevelFromStorage(),
-    );
+    const autoAdvance = usePersistentStore(autoAdvanceStore);
+    const correctWordsByLevel = usePersistentStore(correctWordsStore);
     const teacherHoldTimerRef = useRef<number | null>(null);
     const wordAdvanceTimerRef = useRef<number | null>(null);
     const soundAdvanceTimerRef = useRef<number | null>(null);
@@ -210,29 +167,21 @@ export default function PhonicsPage() {
         }
     };
 
-    const writeCorrectWordsByLevel = (nextCorrectWords: CorrectWordsByLevel): void => {
-        safeSetLocalStorage(getCorrectWordsStorageKey(), JSON.stringify(nextCorrectWords));
-    };
-
     const markWordCorrectToday = (levelId: string, wordId: string): void => {
-        setCorrectWordsByLevel((current) => {
-            const currentLevelWords = current[levelId] ?? [];
-            if (currentLevelWords.includes(wordId)) return current;
+        const current = correctWordsStore.get();
+        const currentLevelWords = current[levelId] ?? [];
+        if (currentLevelWords.includes(wordId)) return;
 
-            const nextCorrectWords = {
-                ...current,
-                [levelId]: [...currentLevelWords, wordId],
-            };
-            writeCorrectWordsByLevel(nextCorrectWords);
-            return nextCorrectWords;
+        correctWordsStore.set({
+            ...current,
+            [levelId]: [...currentLevelWords, wordId],
         });
     };
 
     const resetTodayCorrectWordsForLevel = (): void => {
         const nextCorrectWords = { ...correctWordsByLevel };
         delete nextCorrectWords[selectedLevel.id];
-        writeCorrectWordsByLevel(nextCorrectWords);
-        setCorrectWordsByLevel(nextCorrectWords);
+        correctWordsStore.set(nextCorrectWords);
         setUsedWordIds([]);
 
         const nextWord = pickRandomWord(getPreferredWordPool(selectedLevel.id, levelWords), []);
@@ -272,6 +221,7 @@ export default function PhonicsPage() {
     const resetAnswerState = (word: LessonWord | null) => {
         setAnswerSlots(makeEmptySlots(word));
         setHintLevel(0);
+        setWordStars(null);
         wrongAttemptsRef.current = 0;
         setFeedback("まずは ことばを きいてみよう。");
         setFeedbackKind("idle");
@@ -568,6 +518,8 @@ export default function PhonicsPage() {
         const isCorrect = currentWord.phonics.every((id, index) => slots[index] === id);
         if (isCorrect) {
             markWordCorrectToday(selectedLevel.id, currentWord.id);
+            // ヒントも まちがいも なしで できたら ⭐3
+            setWordStars(recordStars("phonics", currentWord.id, starsFromMistakes(wrongAttemptsRef.current + hintLevel, 1)).stars);
             setFeedback("できた！");
             setFeedbackKind("correct");
             playChime();
@@ -610,8 +562,7 @@ export default function PhonicsPage() {
     };
 
     const setAutoAdvancePreference = (enabled: boolean) => {
-        setAutoAdvance(enabled);
-        safeSetLocalStorage(AUTO_ADVANCE_STORAGE_KEY, String(enabled));
+        autoAdvanceStore.set(enabled);
         if (!enabled) {
             if (wordAdvanceTimerRef.current) clearTimeout(wordAdvanceTimerRef.current);
             if (soundAdvanceTimerRef.current) clearTimeout(soundAdvanceTimerRef.current);
@@ -707,31 +658,7 @@ export default function PhonicsPage() {
 
     return (
         <main className={styles.container}>
-            <header className={styles.headerBar}>
-                <div>
-                    <p className={styles.kicker}>きいて ならべる フォニックス</p>
-                    <h1 className={styles.title}>oto-man</h1>
-                </div>
-                <nav className={styles.nav}>
-                    {mode === "setup" ? (
-                        <>
-                            <Link className={styles.navLink} href="/">
-                                トップ
-                            </Link>
-                            <Link className={styles.navLink} href="/svo">
-                                SVOカルタ
-                            </Link>
-                            <Link className={styles.navLink} href="/quiz-maker">
-                                Quiz Maker
-                            </Link>
-                        </>
-                    ) : (
-                        <Link className={`${styles.navLink} ${styles.homeLink}`} href="/" aria-label="トップへ">
-                            🏠
-                        </Link>
-                    )}
-                </nav>
-            </header>
+            <AppHeader title="oto-man" accent="var(--accent-phonics)" />
 
             {mode !== "setup" && (
                 <section className={styles.gameToolbar} aria-label="あそびの ながれ">
@@ -982,6 +909,7 @@ export default function PhonicsPage() {
                                         )}
                                     </div>
                                     <p className={`${styles.feedback} ${styles[feedbackKind]}`}>{feedback}</p>
+                                    {feedbackKind === "correct" && wordStars && <StarRating stars={wordStars} />}
                                     {feedbackKind === "tryAgain" && (
                                         <button
                                             className={styles.retryButton}

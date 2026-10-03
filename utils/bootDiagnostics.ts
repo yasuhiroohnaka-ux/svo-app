@@ -35,14 +35,14 @@ export function runFeatureCheck(): FeatureCheckResult {
     };
   }
 
-  const w = window as Window & { webkitAudioContext?: unknown };
+  const w = window as Window & { AudioContext?: unknown; webkitAudioContext?: unknown };
   return {
     Promise: typeof Promise !== "undefined",
     fetch: typeof w.fetch === "function",
     URLSearchParams: typeof URLSearchParams !== "undefined",
     localStorage: hasLocalStorageAccess(),
     speechSynthesis: typeof w.speechSynthesis !== "undefined",
-    AudioContext: typeof (w as any).AudioContext === "function" || typeof (w as any).webkitAudioContext === "function",
+    AudioContext: typeof w.AudioContext === "function" || typeof w.webkitAudioContext === "function",
     bootFlag: w.__BOOT_OK__ === true,
   };
 }

@@ -12,46 +12,9 @@
 }
 
 /* ---- header ---- */
-.header {
-    text-align: center;
-}
-
-.headerRow {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    position: relative;
-}
-
-.title {
-    font-size: 28px;
-    font-weight: 900;
-    letter-spacing: 1px;
-    color: #b3541e;
-    margin: 0;
-}
-
-.nav {
-    position: absolute;
-    right: 0;
-}
-
-.navLink {
-    display: inline-block;
-    padding: 8px 14px;
-    min-height: 44px;
-    line-height: 28px;
-    border-radius: 999px;
-    background: #fff;
-    border: 2px solid #e0c9a6;
-    color: #8a5a2b;
-    font-weight: 700;
-    text-decoration: none;
-}
-
 .subtitle {
-    margin: 6px 0 0;
+    margin: 0;
+    text-align: center;
     font-size: 14px;
     font-weight: 700;
     color: #8a6a4f;
@@ -337,10 +300,6 @@
 }
 
 @media (max-width: 480px) {
-    .title {
-        font-size: 22px;
-    }
-
     .poemGrid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     }

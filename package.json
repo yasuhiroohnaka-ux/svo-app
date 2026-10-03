@@ -10,11 +10,14 @@
     "dev:cloudflare": "vinext dev --port 3001",
     "build:cloudflare": "vinext build",
     "preview:cloudflare": "wrangler dev --config dist/server/wrangler.json",
-    "deploy:cloudflare": "vinext-cloudflare deploy --config dist/server/wrangler.json"
+    "deploy:cloudflare": "vinext-cloudflare deploy --config dist/server/wrangler.json",
+    "test": "vitest run",
+    "validate:content": "node scripts/validate-story-content.mjs && node scripts/validate-phonics-assets.mjs",
+    "check": "npm run lint && tsc --noEmit && npm test && npm run validate:content"
   },
   "dependencies": {
     "@vinext/cloudflare": "^1.0.0-beta.6",
-    "next": "16.1.6",
+    "next": "^16.3.6",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-server-dom-webpack": "^19.2.8",
@@ -22,15 +25,16 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "^1.54.2",
-    "@types/node": "^20",
+    "@types/node": "^22.20.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.1.1",
     "@vitejs/plugin-rsc": "^0.5.34",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
+    "eslint-config-next": "^16.3.6",
     "typescript": "^5",
     "vite": "^8.2.2",
+    "vitest": "^5.0.2",
     "wrangler": "^4.127.1"
   },
   "type": "module"

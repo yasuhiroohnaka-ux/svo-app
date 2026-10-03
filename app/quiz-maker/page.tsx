@@ -1,12 +1,29 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useMemo, useState, useRef, useCallback } from "react";
-import { speak, speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
+import { speakQueue, unlockSpeech, cancelSpeech } from "@/utils/speak";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
-import { getRanking, saveRanking, clearRanking, formatTime, type RankEntry } from "@/utils/ranking";
+import { clearRanking, formatTime } from "@/utils/ranking";
 import BootDebugOverlay from "@/app/components/BootDebugOverlay";
+import AnswerMark from "@/app/components/AnswerMark";
+import AppHeader from "@/app/components/AppHeader";
+import { RankingDialog, TimeTrialResultDialog } from "@/app/components/Ranking";
+import ResultDialog from "@/app/components/ResultDialog";
+import RewardSummary from "@/app/components/RewardSummary";
+import PenaltyFlash from "@/app/components/PenaltyFlash";
+import { recordMistake } from "@/app/lib/mistakes";
+import { recordStars, starsFromTime, starsFromVs, type RecordResult } from "@/app/lib/rewards";
+import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
 import SpeedControl from "@/app/components/SpeedControl";
+import { useRanking } from "@/app/svo/useRanking";
+import { isVoiceAnswerCorrect } from "./voice";
+import type {
+    BrowserSpeechRecognition,
+    BrowserSpeechRecognitionResultEvent,
+    BrowserSpeechRecognitionWindow,
+} from "@/app/svo/useSpeechRecognition";
 import { hasFatalFeatureGap, runFeatureCheck, type BootStep } from "@/utils/bootDiagnostics";
 
 import styles from "./page.module.css";
@@ -19,9 +36,24 @@ type Card = {
     target?: string;
     target_zh?: string;
     image: string;
+    /** "sketch" = 鉛筆の下描き(線が うすいので かるたでは コントラストを 強める) */
+    style?: string;
 };
 
 type ContentLang = "en" | "zh";
+type AiLevel = "easy" | "normal" | "hard";
+
+type RawCard = {
+    id?: unknown;
+    deck?: unknown;
+    image?: unknown;
+    sentence?: unknown;
+    sentences?: unknown;
+    sentences_zh?: unknown;
+    target?: unknown;
+    target_zh?: unknown;
+    style?: unknown;
+};
 
 type Mode = "flash" | "karuta";
 type UiLang = "en" | "ja" | "zh";
@@ -83,6 +115,17 @@ const translations = {
         youWin: "YOU WIN!",
         youLose: "YOU LOSE!",
         draw: "DRAW!",
+        rankIn: "Rank #{n}!",
+        cleared: "Cleared!",
+        outOfRank: "Not in the top 10 this time.",
+        playAgain: "Play again",
+        quit: "Quit",
+        cardsUnit: " cards",
+        settings: "Settings",
+        speechSpeed: "Reading speed",
+        menu: "Menu",
+        closeMenu: "Close menu",
+        vsAutoSpeakNote: "In VS AI the cards are always read aloud.",
     },
     ja: {
         loading: "準備中...",
@@ -140,6 +183,17 @@ const translations = {
         youWin: "あなたの勝ち！",
         youLose: "あなたの負け...",
         draw: "引き分け",
+        rankIn: "{n}位に ランクイン!",
+        cleared: "クリア!",
+        outOfRank: "こんかいは 10位に とどかなかったよ。",
+        playAgain: "もういちど",
+        quit: "やめる",
+        cardsUnit: "まい",
+        settings: "せってい",
+        speechSpeed: "よみあげの はやさ",
+        menu: "メニュー",
+        closeMenu: "メニューをとじる",
+        vsAutoSpeakNote: "VS AI のときは いつも よみあげます。",
     },
     zh: {
         loading: "准备中...",
@@ -197,6 +251,17 @@ const translations = {
         youWin: "你赢了！",
         youLose: "你输了...",
         draw: "平局",
+        rankIn: "第{n}名！",
+        cleared: "通关！",
+        outOfRank: "这次没有进入前10名。",
+        playAgain: "再玩一次",
+        quit: "退出",
+        cardsUnit: "张",
+        settings: "设置",
+        speechSpeed: "朗读速度",
+        menu: "菜单",
+        closeMenu: "关闭菜单",
+        vsAutoSpeakNote: "对战 AI 时总是自动朗读。",
     }
 };
 
@@ -257,7 +322,7 @@ export default function Page() {
 
     // VS Mode State (Simplified: removed complexity for now, can re-enable)
     const [isVsMode, setIsVsMode] = useState(false);
-    const [aiLevel, setAiLevel] = useState<"easy" | "normal" | "hard">("normal");
+    const [aiLevel, setAiLevel] = useState<AiLevel>("normal");
     const [aiScore, setAiScore] = useState(0);
 
     // Game Flow State
@@ -266,7 +331,7 @@ export default function Page() {
     const [countdown, setCountdown] = useState<number>(3);
 
     const aiTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-    const recognitionRef = useRef<any>(null);
+    const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
     const [voiceMode, setVoiceMode] = useState<boolean>(false);
     const [isListening, setIsListening] = useState<boolean>(false);
     const [spokenText, setSpokenText] = useState<string>("");
@@ -277,15 +342,41 @@ export default function Page() {
     const [elapsedTime, setElapsedTime] = useState<number>(0);
     const timerStartRef = useRef<number>(0);
 
-    // Ranking state
-    const [showRanking, setShowRanking] = useState(false);
-    const [rankingData, setRankingData] = useState<RankEntry[]>([]);
-    const [pendingEntry, setPendingEntry] = useState<RankEntry | null>(null);
-    const [playerName, setPlayerName] = useState("");
-    const [nameInputVisible, setNameInputVisible] = useState(false);
-    const [isNewRecord, setIsNewRecord] = useState(false);
-
     const APP_KEY = "quiz";
+
+    // Ranking state
+    const {
+        handleRankingRegister: registerRankingEntry,
+        openRanking,
+        pendingEntry,
+        pendingRank,
+        playerName,
+        promptForRankingEntry,
+        rankingCards,
+        rankingData,
+        resultVisible,
+        setPlayerName,
+        setShowRanking,
+        showRanking,
+    } = useRanking({ appKey: APP_KEY });
+    const [vsResult, setVsResult] = useState<{ player: number; ai: number; reward: RecordResult } | null>(null);
+    const [trialReward, setTrialReward] = useState<RecordResult | null>(null);
+    /** タイムトライアルの お手つき回数(1回ごとに PENALTY_SECONDS 秒たす) */
+    const [penaltyCount, setPenaltyCount] = useState(0);
+    const PENALTY_SECONDS = 2;
+    const trialTime = elapsedTime + penaltyCount * PENALTY_SECONDS;
+
+    // 正解後 1 秒の演出中は次の判定を受け付けない(連打による二重加算・AI との同時得点を防ぐ)
+    const answerLockRef = useRef(false);
+    const correctTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const clearPendingCorrect = useCallback(() => {
+        if (correctTimerRef.current) {
+            clearTimeout(correctTimerRef.current);
+            correctTimerRef.current = null;
+        }
+        answerLockRef.current = false;
+    }, []);
+    useEffect(() => clearPendingCorrect, [clearPendingCorrect]);
 
     const t = translations[uiLang];
 
@@ -304,6 +395,8 @@ export default function Page() {
         if (selectedDeck === "all") return cards;
         return cards.filter((card) => (card.deck || "set1") === selectedDeck);
     }, [cards, selectedDeck]);
+    const sketchImages = useMemo(() => new Set(cards.filter((card) => card.style === "sketch").map((card) => card.image)), [cards]);
+    const deckCardCount = deckSize === "all" ? deckCards.length : Math.min(Number(deckSize), deckCards.length);
 
     useEffect(() => {
         if (cards.length === 0) return;
@@ -344,14 +437,15 @@ export default function Page() {
 
                 // Validate and normalize
                 const arr = Array.isArray(data) ? data : [];
-                const normalized: Card[] = arr.map((x: any, i: number) => ({
-                    id: x.id,
+                const normalized: Card[] = (arr as RawCard[]).map((x, i) => ({
+                    id: String(x.id),
                     deck: typeof x.deck === "string" ? x.deck : `set${Math.floor(i / 16) + 1}`,
-                    image: x.image,
-                    sentences: Array.isArray(x.sentences) ? x.sentences : [x.sentence || ""],
+                    image: typeof x.image === "string" ? x.image : "",
+                    sentences: Array.isArray(x.sentences) ? x.sentences : [typeof x.sentence === "string" ? x.sentence : ""],
                     sentences_zh: Array.isArray(x.sentences_zh) ? x.sentences_zh : undefined,
                     target: typeof x.target === "string" ? x.target : undefined,
                     target_zh: typeof x.target_zh === "string" ? x.target_zh : undefined,
+                    style: typeof x.style === "string" ? x.style : undefined,
                 })).filter(c => c.image && c.sentences.length > 0);
 
                 if (normalized.length === 0) {
@@ -364,9 +458,9 @@ export default function Page() {
                 setScore(0);
                 setStreak(0);
                 setBootStep("ready");
-            } catch (e: any) {
+            } catch (e) {
                 console.error(e);
-                setError(e.message || "Unknown error occurred during loading.");
+                setError((e instanceof Error && e.message) || "Unknown error occurred during loading.");
                 setCards([]);
                 setBootStep("error");
             }
@@ -394,22 +488,6 @@ export default function Page() {
         return s[2] || s[0];
     };
     const getFullText = (c: Card) => getSentences(c).join(" ");
-
-    const toggleUiLang = () => {
-        setUiLang((prev) => {
-            if (prev === "en") return "ja";
-            if (prev === "ja") return "zh";
-            return "en";
-        });
-    };
-
-    const getUiLangLabel = () => {
-        if (uiLang === "en") return t.english;
-        if (uiLang === "ja") return t.japanese;
-        return t.chinese;
-    };
-
-    const toggleContentLang = () => setContentLang(prev => prev === "en" ? "zh" : "en");
 
     useEffect(() => {
         if (index >= activePool.length && activePool.length > 0) {
@@ -446,8 +524,29 @@ export default function Page() {
         setSpokenText("");
     }
 
+    function acceptCorrectAnswer(value: string) {
+        if (answerLockRef.current) return;
+        answerLockRef.current = true;
+        if (aiTimeoutRef.current) {
+            clearTimeout(aiTimeoutRef.current);
+            aiTimeoutRef.current = null;
+        }
+        setFeedback({ value, isCorrect: true });
+        playChime();
+        correctTimerRef.current = setTimeout(() => {
+            correctTimerRef.current = null;
+            answerLockRef.current = false;
+            handleCorrectAnswer();
+        }, 1000);
+    }
+
+    function handleSkip() {
+        if (answerLockRef.current) return;
+        nextCard();
+    }
+
     function judgeFlash(selectedText: string) {
-        if (!current) return;
+        if (!current || answerLockRef.current) return;
         unlockAudio();
         unlockSpeech();
 
@@ -456,10 +555,9 @@ export default function Page() {
         const ok = selectedText === correctText;
 
         if (ok) {
-            setFeedback({ value: selectedText, isCorrect: true });
-            playChime();
-            setTimeout(() => handleCorrectAnswer(), 1000);
+            acceptCorrectAnswer(selectedText);
         } else {
+            recordMistake("quiz", current.id);
             setStreak(0);
             setFeedback({ value: selectedText, isCorrect: false });
             playBuzz();
@@ -518,6 +616,7 @@ export default function Page() {
                 // Fast reaction after reading S1
                 const delay = 400 + Math.random() * 800; // 0.4s - 1.2s delay
                 aiTimeoutRef.current = setTimeout(() => {
+                    if (answerLockRef.current) return;
                     handleCorrectAnswer(false, "ai");
                 }, delay);
             }
@@ -529,6 +628,7 @@ export default function Page() {
                 if (aiLevel === "normal") delay = 3500 + Math.random() * 2000;
 
                 aiTimeoutRef.current = setTimeout(() => {
+                    if (answerLockRef.current) return;
                     handleCorrectAnswer(false, "ai");
                 }, delay);
             }
@@ -560,13 +660,16 @@ export default function Page() {
         }
     }, [current, mode, contentLang, isSurvival]);
 
+    // VS AI は読み上げを聞いてから取りに来るので、VS 中は自動読み上げを常にオンにする
+    const effectiveAutoSpeak = autoSpeak || isVsMode;
+
     useEffect(() => {
-        if (!autoSpeak || !current || gameState !== "playing") return;
+        if (!effectiveAutoSpeak || !current || gameState !== "playing") return;
         const timer = setTimeout(() => {
             handleSpeak(undefined, checkAiTrigger);
         }, 500);
         return () => clearTimeout(timer);
-    }, [current, autoSpeak, mode, handleSpeak, checkAiTrigger, gameState]);
+    }, [current, effectiveAutoSpeak, mode, handleSpeak, checkAiTrigger, gameState]);
 
     useEffect(() => {
         if (gameState !== "countdown") return;
@@ -592,6 +695,7 @@ export default function Page() {
     }, []);
 
     const startGame = () => {
+        setPenaltyCount(0);
         unlockAudio();
         unlockSpeech();
         setCountdown(3);
@@ -634,28 +738,30 @@ export default function Page() {
     };
 
     const toggleVsMode = () => {
-        setIsVsMode((prev) => {
-            const next = !prev;
-            if (next) {
-                // Determine deck size (if 'all' or specific)
-                const targetCount = deckSize === "all" ? deckCards.length : Number(deckSize);
-                const shuffled = shuffle(deckCards);
-                setRemainingCards(shuffled.slice(0, targetCount));
-                setScore(0);
-                setAiScore(0);
-                setStreak(0);
-                setIndex(0);
-                setGameState("idle");
-                setIsSurvival(true); // VS implies Survival (limited deck)
-            } else {
-                // Turning OFF VS Mode
-                resetGame();
-            }
-            return next;
-        });
+        setPenaltyCount(0);
+        const next = !isVsMode;
+        setIsVsMode(next);
+        if (next) {
+            clearPendingCorrect();
+            // Determine deck size (if 'all' or specific)
+            const targetCount = deckSize === "all" ? deckCards.length : Number(deckSize);
+            const shuffled = shuffle(deckCards);
+            setRemainingCards(shuffled.slice(0, targetCount));
+            setScore(0);
+            setAiScore(0);
+            setStreak(0);
+            setIndex(0);
+            setGameState("idle");
+            setIsSurvival(true); // VS implies Survival (limited deck)
+        } else {
+            // Turning OFF VS Mode
+            resetGame();
+        }
     };
 
     const resetGame = () => {
+        setPenaltyCount(0);
+        clearPendingCorrect();
         const targetCount = deckSize === "all" ? deckCards.length : Number(deckSize);
         setRemainingCards(shuffle(deckCards).slice(0, targetCount));
         setScore(0);
@@ -668,11 +774,7 @@ export default function Page() {
 
     const handleRankingRegister = () => {
         if (!pendingEntry) return;
-        const entry = { ...pendingEntry, name: playerName || "Anonymous" };
-        saveRanking(APP_KEY, entry);
-        setNameInputVisible(false);
-        setRankingData(getRanking(APP_KEY));
-        setShowRanking(true);
+        registerRankingEntry();
         resetGame();
     };
 
@@ -680,50 +782,15 @@ export default function Page() {
 
     // Simplified Voice Recognition (Loose check)
     function judgeVoice(spoken: string) {
-        if (!current) return;
+        if (!current || answerLockRef.current) return;
 
-        // Target text depends on mode
-        let correctText = "";
-        if (mode === "flash") {
-            correctText = getTargetText(current).toLowerCase().replace(/[^a-z0-9 ]/g, "");
-        } else {
-            correctText = getFullText(current).toLowerCase().replace(/[^a-z0-9 ]/g, "");
-        }
-
-        const spokenClean = spoken.toLowerCase().replace(/[^a-z0-9 ]/g, "");
-        const stopWords = ["the", "a", "an", "is", "are", "am", "be", "was", "were"];
-        const filterWords = (text: string) =>
-            text.split(/\s+/).filter(w => w.length > 0 && !stopWords.includes(w));
-
-        const correctWords = filterWords(correctText);
-        const spokenWords = filterWords(spokenClean);
-
-        // Critical Check: Prepositions and Negations change meaning significantly.
-        // If these exist in target, they MUST exist in spoken result.
-        const criticalWords = ["on", "in", "under", "by", "at", "to", "from", "with", "next", "between", "not", "no", "never"];
-        const missingCritical = correctWords.some(w => criticalWords.includes(w) && !spokenWords.includes(w));
-
-        if (missingCritical) {
-            setStreak(0);
-            setFeedback({ value: spoken, isCorrect: false });
-            playBuzz();
-            return;
-        }
-
-        let matchCount = 0;
-        correctWords.forEach(w => {
-            if (spokenWords.includes(w)) matchCount++;
-        });
-
-        // Loose threshold: 50% match
-        const baseLength = correctWords.length > 0 ? correctWords.length : 1;
-        const ok = (matchCount / baseLength >= 0.5);
+        const expected = mode === "flash" ? getTargetText(current) : getFullText(current);
+        const ok = isVoiceAnswerCorrect(spoken, expected);
 
         if (ok) {
-            setFeedback({ value: spoken, isCorrect: true });
-            playChime();
-            setTimeout(() => handleCorrectAnswer(), 1000);
+            acceptCorrectAnswer(spoken);
         } else {
+            recordMistake("quiz", current.id);
             setStreak(0);
             setFeedback({ value: spoken, isCorrect: false });
             playBuzz();
@@ -731,7 +798,8 @@ export default function Page() {
     }
 
     const startListening = useCallback(() => {
-        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        const speechWindow = window as BrowserSpeechRecognitionWindow;
+        const SpeechRecognition = speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
         if (!SpeechRecognition) return;
         if (recognitionRef.current) recognitionRef.current.abort();
 
@@ -741,7 +809,7 @@ export default function Page() {
         recognition.maxAlternatives = 1;
 
         recognition.onstart = () => { setIsListening(true); setSpokenText(""); };
-        recognition.onresult = (event: any) => {
+        recognition.onresult = (event: BrowserSpeechRecognitionResultEvent) => {
             const transcript = event.results[0][0].transcript;
             setSpokenText(transcript);
             setIsListening(false);
@@ -780,10 +848,13 @@ export default function Page() {
                 if (isVsMode) {
                     const finalPlayerScore = winner === "player" ? score + 1 : score;
                     const finalAiScore = winner === "ai" ? aiScore + 1 : aiScore;
-                    let msg = finalPlayerScore > finalAiScore ? t.youWin : finalPlayerScore < finalAiScore ? t.youLose : t.draw;
                     playChime();
-                    alert(`${msg}\nPlayer: ${finalPlayerScore} - AI: ${finalAiScore}`);
-                    resetGame();
+                    if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+                    setVsResult({
+                        player: finalPlayerScore,
+                        ai: finalAiScore,
+                        reward: recordStars("quiz", `vs-${selectedDeck}-${aiLevel}`, starsFromVs(finalPlayerScore, finalAiScore)),
+                    });
                 } else {
                     // Time Trial Clear
                     playChime();
@@ -792,14 +863,13 @@ export default function Page() {
                     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
 
                     // Show Ranking Input
-                    const cardCount = deckSize === "all" ? deckCards.length : Number(deckSize);
-                    setPendingEntry({
+                    setTrialReward(recordStars("quiz", `tt-${selectedDeck}-${deckCardCount}`, starsFromTime(trialTime, deckCardCount)));
+                    promptForRankingEntry({
                         name: "",
-                        time: elapsedTime,
+                        time: trialTime,
                         date: new Date().toISOString(),
-                        cards: cardCount
+                        cards: deckCardCount,
                     });
-                    setNameInputVisible(true);
                 }
             } else {
                 setIndex(Math.floor(Math.random() * newPool.length));
@@ -812,16 +882,17 @@ export default function Page() {
     }
 
     function judgeKaruta(selectedImage: string) {
-        if (!current) return;
+        if (!current || answerLockRef.current) return;
         unlockAudio();
         unlockSpeech();
 
         const ok = selectedImage === current.image;
         if (ok) {
-            setFeedback({ value: selectedImage, isCorrect: true });
-            playChime();
-            setTimeout(() => handleCorrectAnswer(), 1000);
+            acceptCorrectAnswer(selectedImage);
         } else {
+            recordMistake("quiz", current.id);
+            // タイムトライアル中の お手つきは +2 秒(あてずっぽうの れんだで 速くならないように)
+            if (isSurvival && !isVsMode && gameState === "playing") setPenaltyCount((count) => count + 1);
             setStreak(0);
             setFeedback({ value: selectedImage, isCorrect: false });
             playBuzz();
@@ -834,9 +905,9 @@ export default function Page() {
                 <h1 style={{ margin: 0 }}>Lightweight Mode</h1>
                 <p style={{ margin: 0 }}>Some features are not available on this device. Starting in lightweight mode.</p>
                 <p style={{ margin: 0, color: "#666" }}>Please open this app on a newer browser for full features.</p>
-                <button onClick={() => (window.location.href = "/")} style={{ minWidth: 44, minHeight: 44, padding: "10px 20px", borderRadius: 20, border: "none", background: "#333", color: "white", cursor: "pointer" }}>
+                <Link href="/" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: 44, minHeight: 44, padding: "10px 20px", borderRadius: 20, background: "#333", color: "white" }}>
                     Back to Portal
-                </button>
+                </Link>
                 <BootDebugOverlay enabled={debugEnabled} step={bootStep} storageError={null} />
             </main>
         );
@@ -869,9 +940,71 @@ export default function Page() {
         );
     }
 
+    const onOff = [
+        { value: "on" as const, label: t.on },
+        { value: "off" as const, label: t.off },
+    ];
+    const settings = (
+        <SettingsSheet title={t.settings} label={t.settings}>
+            <SettingsRow label={t.uiLang}>
+                <SettingsChoice
+                    value={uiLang}
+                    options={[
+                        { value: "ja", label: t.japanese },
+                        { value: "en", label: t.english },
+                        { value: "zh", label: t.chinese },
+                    ]}
+                    onChange={setUiLang}
+                />
+            </SettingsRow>
+            <SettingsRow label={t.contentLang}>
+                <SettingsChoice
+                    value={contentLang}
+                    options={[
+                        { value: "en", label: t.contentEn },
+                        { value: "zh", label: t.contentZh },
+                    ]}
+                    onChange={setContentLang}
+                />
+            </SettingsRow>
+            <SettingsRow label={t.speechSpeed}>
+                <SpeedControl showLabel={false} />
+            </SettingsRow>
+            <SettingsRow label={t.autoSpeak}>
+                <SettingsChoice
+                    value={effectiveAutoSpeak ? "on" : "off"}
+                    options={onOff}
+                    onChange={(value) => setAutoSpeak(value === "on")}
+                    disabled={isVsMode}
+                />
+                {isVsMode && <small>{t.vsAutoSpeakNote}</small>}
+            </SettingsRow>
+            <SettingsRow label={`${t.flash}: ${t.voiceMode}`}>
+                <SettingsChoice
+                    value={voiceMode ? "on" : "off"}
+                    options={onOff}
+                    onChange={(value) => {
+                        const next = value === "on";
+                        setVoiceMode(next);
+                        setShowText(!next); // 声で答えるときは文を隠す
+                    }}
+                />
+            </SettingsRow>
+            {!voiceMode && (
+                <SettingsRow label={`${t.flash}: ${t.choices}`}>
+                    <SettingsChoice
+                        value={choiceCount}
+                        options={[2, 3, 4, 5].map((n) => ({ value: n, label: n }))}
+                        onChange={setChoiceCount}
+                    />
+                </SettingsRow>
+            )}
+        </SettingsSheet>
+    );
+
     return (
         <main className={styles.container}>
-            <h1 className={styles.header}>{t.appTitle}</h1>
+            <AppHeader title={t.appTitle} accent="var(--accent-quiz)" right={settings} />
 
             {/* Score & Status */}
             <div className={styles.statusRow}>
@@ -888,24 +1021,13 @@ export default function Page() {
                 )}
                 {isSurvival && (
                     <div className={styles.timer}>
-                        {t.timer}: {formatTime(elapsedTime)}
+                        {t.timer}: {formatTime(trialTime)}
+                        <PenaltyFlash count={penaltyCount} seconds={PENALTY_SECONDS} />
                     </div>
                 )}
             </div>
 
             <div className={styles.controls}>
-                <div className={styles.controlGroup}>
-                    <button onClick={toggleUiLang} className={`${styles.button} ${styles.tapTarget}`} title={t.uiLang}>
-                        {t.uiLang}: {getUiLangLabel()}
-                    </button>
-                    <button
-                        onClick={toggleContentLang}
-                        className={`${styles.button} ${styles.tapTarget} ${contentLang === "zh" ? styles.buttonActive : ""}`}
-                        title={t.contentLang}
-                    >
-                        {t.contentLang}: {contentLang === "en" ? t.contentEn : t.contentZh}
-                    </button>
-                </div>
                 <div className={styles.controlGroup}>
                     <span style={{ fontSize: 14 }}>{t.deck}:</span>
                     <select
@@ -933,49 +1055,14 @@ export default function Page() {
                     <button onClick={() => setMode("karuta")} className={`${styles.button} ${styles.tapTarget} ${mode === "karuta" ? styles.buttonActive : ""}`}>
                         {t.karuta}
                     </button>
-                    {showAdvancedControls && mode === "flash" && (
-                        <button
-                            onClick={() => {
-                                const next = !voiceMode;
-                                setVoiceMode(next);
-                                setShowText(!next); // Hide text if voice ON
-                            }}
-                            className={`${styles.button} ${styles.tapTarget} ${voiceMode ? styles.buttonActive : ""}`}
-                            title={t.voiceMode}
-                        >
-                            🎤
-                        </button>
-                    )}
-                </div>
-
-                <div className={styles.controlGroup}>
                     <button
                         onClick={() => setShowAdvancedControls((v) => !v)}
                         className={`${styles.button} ${styles.tapTarget}`}
+                        aria-expanded={showAdvancedControls}
                     >
-                        {showAdvancedControls ? "詳細を隠す" : "詳細を表示"}
+                        {showAdvancedControls ? t.closeMenu : t.menu}
                     </button>
                 </div>
-
-                {showAdvancedControls && (
-                    <div className={styles.controlGroup}>
-                        <div style={{ opacity: 0.7 }}>|</div>
-                        <button
-                            onClick={() => setAutoSpeak((v) => !v)}
-                            className={`${styles.button} ${styles.tapTarget} ${autoSpeak ? styles.buttonActive : ""}`}
-                        >
-                            {t.autoSpeak}: {autoSpeak ? t.on : t.off}
-                        </button>
-                    </div>
-                )}
-
-                {showAdvancedControls && (
-                    <div className={styles.controlGroup}>
-                        <div style={{ opacity: 0.7 }}>|</div>
-                        <SpeedControl />
-                    </div>
-                )}
-
 
                 <div className={styles.controlGroup}>
                     {gameState === "idle" && (
@@ -998,7 +1085,7 @@ export default function Page() {
                             className={`${styles.button} ${styles.tapTarget} ${styles.buttonActive}`}
                             style={{ background: "#42a5f5", borderColor: "#1e88e5" }}
                         >
-                            笆ｶ RESUME
+                            ▶ RESUME
                         </button>
                     )}
                 </div>
@@ -1027,6 +1114,7 @@ export default function Page() {
                                 onClick={() => {
                                     if (isVsMode) return;
                                     setIsSurvival(v => !v);
+                                    setPenaltyCount(0);
                                     setRemainingCards(deckCards);
                                     setScore(0);
                                     setGameState("idle");
@@ -1034,6 +1122,12 @@ export default function Page() {
                                 className={`${styles.button} ${styles.tapTarget} ${isSurvival ? styles.buttonSurvival : ""}`}
                             >
                                 {t.survivalMode}: {isSurvival ? t.on : t.off}
+                            </button>
+                            <button
+                                onClick={() => openRanking(deckCardCount)}
+                                className={`${styles.button} ${styles.tapTarget}`}
+                            >
+                                🏆 {t.ranking}
                             </button>
                         </div>
 
@@ -1049,7 +1143,7 @@ export default function Page() {
                             {isVsMode && (
                                 <select
                                     value={aiLevel}
-                                    onChange={(e) => setAiLevel(e.target.value as any)}
+                                    onChange={(e) => setAiLevel(e.target.value as AiLevel)}
                                     className={styles.select}
                                     style={{ marginLeft: 4 }}
                                 >
@@ -1100,7 +1194,7 @@ export default function Page() {
                                     >
                                         <Image
                                             src={current.image}
-                                            alt="card"
+                                            alt="もんだいの え"
                                             className={styles.flashImage}
                                             width={545}
                                             height={771}
@@ -1140,7 +1234,7 @@ export default function Page() {
                                             )}
                                             <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
                                             <button onClick={() => handleSpeak()} className={`${styles.button} ${styles.tapTarget}`}>🔊 {t.speak}</button>
-                                            <button onClick={nextCard} className={`${styles.button} ${styles.tapTarget}`}>{t.skip}</button>
+                                            <button onClick={handleSkip} className={`${styles.button} ${styles.tapTarget}`}>{t.skip}</button>
                                             </div>
                                         </div>
                                     ) : (
@@ -1153,10 +1247,15 @@ export default function Page() {
                                                         onClick={() => judgeFlash(String(s))}
                                                         className={styles.sentenceButton}
                                                         style={{
-                                                            border: feedback?.value === String(s) ? `2px solid ${feedback.isCorrect ? "green" : "red"}` : "1px solid #222",
+                                                            position: "relative",
+                                                            paddingRight: 44,
+                                                            border: feedback?.value === String(s)
+                                                                ? `3px solid ${feedback.isCorrect ? "var(--ok)" : "var(--ng)"}`
+                                                                : "1px solid #222",
                                                         }}
                                                     >
                                                         {String(s)}
+                                                        {feedback?.value === String(s) && <AnswerMark correct={feedback.isCorrect} placement="end" />}
                                                     </button>
                                                 ))}
                                             </div>
@@ -1185,7 +1284,7 @@ export default function Page() {
                                         <button onClick={() => handleSpeak()} className={`${styles.button} ${styles.tapTarget}`} title={t.speak}>
                                             🔊 {t.speak}
                                         </button>
-                                        <button onClick={nextCard} className={`${styles.button} ${styles.tapTarget}`}>
+                                        <button onClick={handleSkip} className={`${styles.button} ${styles.tapTarget}`}>
                                             {t.skip}
                                         </button>
                                     </div>
@@ -1203,17 +1302,21 @@ export default function Page() {
                                             onClick={() => judgeKaruta(String(img))}
                                             className={styles.karutaCard}
                                             style={{
-                                                border: feedback?.value === String(img) ? `2px solid ${feedback.isCorrect ? "green" : "red"}` : "1px solid #222",
+                                                position: "relative",
+                                                border: feedback?.value === String(img)
+                                                    ? `3px solid ${feedback.isCorrect ? "var(--ok)" : "var(--ng)"}`
+                                                    : "1px solid #222",
                                             }}
                                         >
                                             <Image
                                                 src={String(img)}
-                                                alt={`choice-${i}`}
-                                                className={styles.karutaImage}
+                                                alt={`えのカード ${i + 1}`}
+                                                className={`${styles.karutaImage} ${sketchImages.has(String(img)) ? styles.karutaImageSketch : ""}`}
                                                 width={545}
                                                 height={771}
                                                 sizes="(max-width: 480px) 30vw, (max-width: 1024px) 20vw, 180px"
                                             />
+                                            {feedback?.value === String(img) && <AnswerMark correct={feedback.isCorrect} />}
                                         </button>
                                     ))}
                                 </div>
@@ -1240,76 +1343,58 @@ export default function Page() {
                 )}
             </div>
 
-            {/* Ranking Name Input Modal */}
-            {nameInputVisible && (
-                <div className={styles.rankingOverlay}>
-                    <div className={styles.rankingModal}>
-                        <h2>{t.newRecord}</h2>
-                        <p>{t.yourTime}: {pendingEntry && formatTime(pendingEntry.time)}</p>
-                        <p>{t.enterName}</p>
-                        <input
-                            type="text"
-                            value={playerName}
-                            onChange={(e) => setPlayerName(e.target.value)}
-                            className={styles.nameInput}
-                            autoFocus
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") handleRankingRegister();
-                            }}
-                        />
-                        <div className={styles.modalButtons}>
-                            <button onClick={handleRankingRegister} className={styles.button}>OK</button>
-                        </div>
-                    </div>
-                </div>
+            {resultVisible && pendingEntry && (
+                <TimeTrialResultDialog
+                    labels={t}
+                    time={pendingEntry.time}
+                    rank={pendingRank}
+                    playerName={playerName}
+                    onNameChange={setPlayerName}
+                    onSubmit={handleRankingRegister}
+                    reward={trialReward}
+                />
             )}
 
-            {/* Ranking Display Modal */}
             {showRanking && (
-                <div className={styles.rankingOverlay}>
-                    <div className={styles.rankingModal}>
-                        <h2>{t.rankingTitle}</h2>
-                        <table className={styles.rankingTable}>
-                            <thead>
-                                <tr>
-                                    <th>{t.rank}</th>
-                                    <th>{t.name}</th>
-                                    <th>{t.time}</th>
-                                    <th>{t.date}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {rankingData.map((entry, i) => (
-                                    <tr key={i} className={isNewRecord && entry.date === pendingEntry?.date ? styles.newRecordRow : ""}>
-                                        <td>{i + 1}</td>
-                                        <td>{entry.name}</td>
-                                        <td>{formatTime(entry.time)}</td>
-                                        <td>{new Date(entry.date).toLocaleDateString()}</td>
-                                    </tr>
-                                ))}
-                                {rankingData.length === 0 && (
-                                    <tr>
-                                        <td colSpan={4} style={{ textAlign: "center" }}>{t.noRecords}</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                        <div className={styles.modalButtons}>
-                            <button onClick={() => {
-                                const confirmed = window.confirm("Clear ranking?");
-                                if (confirmed) {
-                                    clearRanking(APP_KEY);
-                                    setRankingData([]);
-                                }
-                            }} className={styles.button} style={{ background: "#ff8787" }}>
-                                {t.clearRanking}
-                            </button>
-                            <button onClick={() => setShowRanking(false)} className={styles.button}>
-                                {t.close}
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <RankingDialog
+                    labels={t}
+                    cards={rankingCards}
+                    entries={rankingData}
+                    highlightDate={pendingEntry?.date}
+                    onClose={() => setShowRanking(false)}
+                    onClear={() => {
+                        clearRanking(APP_KEY);
+                        openRanking(rankingCards);
+                    }}
+                />
+            )}
+
+            {vsResult && (
+                <ResultDialog
+                    title={vsResult.player > vsResult.ai ? t.youWin : vsResult.player < vsResult.ai ? t.youLose : t.draw}
+                    mark={vsResult.player > vsResult.ai ? true : vsResult.player < vsResult.ai ? "🤖" : "🤝"}
+                    highlight={`${vsResult.player} - ${vsResult.ai}`}
+                    actions={[
+                        {
+                            label: t.playAgain,
+                            onClick: () => {
+                                setVsResult(null);
+                                resetGame();
+                            },
+                        },
+                        {
+                            label: t.quit,
+                            variant: "secondary",
+                            onClick: () => {
+                                setVsResult(null);
+                                toggleVsMode();
+                            },
+                        },
+                    ]}
+                >
+                    <p style={{ margin: 0 }}>Player {vsResult.player} / AI {vsResult.ai}</p>
+                    <RewardSummary result={vsResult.reward} />
+                </ResultDialog>
             )}
 
             <footer className={styles.copyright}>

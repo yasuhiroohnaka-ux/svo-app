@@ -45,11 +45,15 @@ const ROLE_COLORS: Record<Role, { fill: string; stroke: string; text: string }> 
   object: { fill: "#c8e6c9", stroke: "#43a047", text: "#1b5e20" },
 };
 
+const PLAIN_COLORS = { fill: "#e9e3ff", stroke: "#7c5cd6", text: "#3b2a7a" };
+
 type PieceShapeProps = {
   role: Role;
   label: string;
   /** true のときは点線のゴースト輪郭(スロット用) */
   ghost?: boolean;
+  /** true のときは役割が分からないよう、形と色をそろえる(かたちヒントなしモード) */
+  plain?: boolean;
   className?: string;
 };
 
@@ -57,10 +61,11 @@ type PieceShapeProps = {
  * ピース/ゴーストの中身(SVG)だけを描く。
  * ラッパー要素(button / div)は呼び出し側で用意する。
  */
-export default function PuzzlePiece({ role, label, ghost = false, className }: PieceShapeProps) {
+export default function PuzzlePiece({ role, label, ghost = false, plain = false, className }: PieceShapeProps) {
   const w = pieceWidth(label);
-  const path = piecePath(role, w);
-  const colors = ROLE_COLORS[role];
+  // plain: 両辺ソケットの形・紫系の色に そろえて、形や色から役割を当てられないようにする
+  const path = piecePath(plain ? "verb" : role, w);
+  const colors = plain ? PLAIN_COLORS : ROLE_COLORS[role];
   const viewBox = `${-MARGIN} 0 ${w + MARGIN * 2} ${H}`;
 
   return (

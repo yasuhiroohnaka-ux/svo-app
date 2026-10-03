@@ -5,126 +5,42 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { loadCards, shuffle } from "../svo/data";
-import type { Card } from "../svo/types";
 import { playBuzz, playChime, unlockAudio } from "@/utils/sound";
 import { speak, cancelSpeech, unlockSpeech } from "@/utils/speak";
+import AppHeader from "@/app/components/AppHeader";
+import SettingsSheet, { SettingsChoice, SettingsRow } from "@/app/components/SettingsSheet";
 import SpeedControl from "@/app/components/SpeedControl";
 import HanamaruMark from "@/app/components/HanamaruMark";
 
 import PuzzlePiece, { pieceWidth, type Role } from "./PuzzlePiece";
-import { loadLv2Cards, type Pattern, type PuzzleCard } from "@/app/lib/lv2Cards";
+import { loadLv2Cards, type PuzzleCard } from "@/app/lib/lv2Cards";
+import ResultDialog from "@/app/components/ResultDialog";
+import RewardSummary from "@/app/components/RewardSummary";
+import { recordMistake } from "@/app/lib/mistakes";
+import { createPersistentStore, usePersistentStore } from "@/app/lib/persistentStore";
+import { recordStars, starsFromMistakes, type RecordResult } from "@/app/lib/rewards";
 import { getStoryPuzzleCards, miniStories } from "@/app/content/miniStories";
 import styles from "./page.module.css";
-
-const ROLES: Role[] = ["subject", "verb", "object"];
-
-const ROLE_LABEL: Record<Role, string> = {
-  subject: "だれが",
-  verb: "する",
-  object: "なにを",
-};
-
-type Level = 1 | 2 | "stories";
-
-/**
- * 第3スロットのラベル。SVC のときだけ「なにを」→「どんな」になる。
- * ピース形状・色は object のものをそのまま流用する。
- */
-function roleLabel(role: Role, pattern: Pattern): string {
-  if (role === "object" && pattern === "svc") return "どんな";
-  return ROLE_LABEL[role];
-}
-
-/** レベル2の文法トラップ用: 動詞の数(単数形↔複数形)の反転マップ */
-const NUMBER_FLIP: Record<string, string> = {
-  eats: "eat",
-  eat: "eats",
-  washes: "wash",
-  wash: "washes",
-  has: "have",
-  have: "has",
-  catches: "catch",
-  catch: "catches",
-  is: "are",
-  are: "is",
-  draws: "draw",
-  draw: "draws",
-};
-
-/** ゲームで扱う 1 ピース分のデータ */
-type Piece = {
-  /** DnD などで使う一意キー */
-  key: string;
-  role: Role;
-  label: string;
-};
-
-/** どのカードのどの役割が正解かを取り出す */
-function correctLabel(card: Card, role: Role): string {
-  if (role === "subject") return card.subject;
-  if (role === "verb") return card.verb;
-  return card.object;
-}
-
-/**
- * 役割ごとのダミーラベルを 1 つ選ぶ。
- *  - レベル2の動詞: 正解動詞の「数の反転形」を必ず使う(eats↔eat, is↔are など)。
- *    反転が未定義の動詞のみ従来どおり他カードから選ぶ。
- *  - SVC の第3スロット(補語): デッキ内の svc カード群の補語から正解と異なるものを選ぶ。
- *  - それ以外(レベル1すべて・主語・svo の目的語)は従来どおり:
- *    デッキ内の他カードの同じ役割の語から正解と異なるものを選ぶ。
- */
-function pickDummy(card: PuzzleCard, allCards: PuzzleCard[], role: Role, level: Level): string {
-  const answer = correctLabel(card, role);
-  const reviewedDummy = card.distractors?.[role];
-  if (reviewedDummy && reviewedDummy !== answer) return reviewedDummy;
-
-  // レベル2の動詞は「数の反転形」を最優先(文法トラップ)
-  if (level !== 1 && role === "verb") {
-    const flipped = NUMBER_FLIP[answer];
-    if (flipped) return flipped;
-  }
-
-  // SVC の補語ダミーは svc カード群の補語から選ぶ
-  if (role === "object" && card.pattern === "svc") {
-    const complements = shuffle(
-      allCards
-        .filter((c) => c.pattern === "svc")
-        .map((c) => c.object)
-        .filter((label) => label !== answer),
-    );
-    if (complements.length > 0) return complements[0];
-    // 候補がない場合は下の従来ロジックにフォールバック
-  }
-
-  // 従来ロジック: 他カードの同じ役割で、正解と違うラベルを 1 つ拾う
-  const candidates = shuffle(
-    allCards
-      .map((c) => correctLabel(c, role))
-      .filter((label) => label !== answer),
-  );
-  // 重複ラベルを避けつつ最初の 1 つを採用(動詞は 3 種なので必ず 1 つは出せる)
-  return candidates.find((label) => label !== answer) ?? answer;
-}
-
-/**
- * 現在カードの正解 3 ピース + ダミー 3 ピースを作ってシャッフルして返す。
- * ダミーの選び方は pickDummy を参照。
- */
-function buildTray(card: PuzzleCard, allCards: PuzzleCard[], level: Level): Piece[] {
-  const pieces: Piece[] = [];
-
-  for (const role of ROLES) {
-    // 正解ピース
-    pieces.push({ key: `correct-${role}`, role, label: correctLabel(card, role) });
-    // ダミーピース
-    pieces.push({ key: `dummy-${role}`, role, label: pickDummy(card, allCards, role, level) });
-  }
-
-  return shuffle(pieces);
-}
+import {
+  ROLES,
+  type Level,
+  roleLabel,
+  type Piece,
+  correctLabel,
+  buildTray,
+} from "./tray";
 
 type LoadState = "loading" | "ready" | "error";
+
+/** レベル1・2は 10まいずつの ステージに わける(おはなしの ぶんは ぜんぶで 1ステージ) */
+const ROUND_SIZE = 10;
+
+/** かたちヒントなし(むずかしい)モード。ピースの形と色が ぜんぶ同じになる */
+const hardModeStore = createPersistentStore<boolean>({
+  key: "puzzle.hardMode",
+  fallback: false,
+  parse: (value) => value === true,
+});
 
 export default function Page() {
   /** レベル1デッキ(既存35枚。pattern: "svo" 扱い) */
@@ -149,6 +65,10 @@ export default function Page() {
   const [placedKeys, setPlacedKeys] = useState<Set<string>>(new Set());
 
   const [completed, setCompleted] = useState(false);
+  /** いまの ステージで まちがえた回数(スキップも 1回に かぞえる) */
+  const [mistakes, setMistakes] = useState(0);
+  const [roundReward, setRoundReward] = useState<RecordResult | null>(null);
+  const hardMode = usePersistentStore(hardModeStore);
   const [allCleared, setAllCleared] = useState(false);
 
   // タップ操作: 選択中ピース key
@@ -196,6 +116,8 @@ export default function Page() {
       setScore(0);
       setStreak(0);
       setAllCleared(false);
+    setMistakes(0);
+    setRoundReward(null);
       setLoadState("ready");
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : String(err));
@@ -232,6 +154,7 @@ export default function Page() {
   const reject = useCallback((pieceKey: string, slotRole: Role | null) => {
     playBuzz();
     setStreak(0);
+    setMistakes((count) => count + 1);
     setRejectKey(pieceKey);
     if (slotRole) setFlashSlot(slotRole);
     if (rejectTimer.current) clearTimeout(rejectTimer.current);
@@ -242,15 +165,53 @@ export default function Page() {
   }, []);
 
   /** 次のカードへ進む(全部終わっていればクリア画面) */
-  const goNext = useCallback(() => {
-    clearAdvanceTimer();
-    cancelSpeech();
-    if (index + 1 >= cards.length) {
-      setAllCleared(true);
-      return;
-    }
-    setIndex((i) => i + 1);
-  }, [cards.length, clearAdvanceTimer, index]);
+  const roundSize = level === "stories" ? Math.max(1, cards.length) : ROUND_SIZE;
+  const roundIndex = Math.floor(index / roundSize);
+  const roundStart = roundIndex * roundSize;
+  const roundEnd = Math.min(cards.length, roundStart + roundSize);
+  const roundCount = Math.max(1, Math.ceil(cards.length / roundSize));
+
+  /** 次のカードへ。ステージの さいごなら ⭐ を きろくして 結果を出す */
+  const goNext = useCallback(
+    (extraMistakes = 0) => {
+      clearAdvanceTimer();
+      cancelSpeech();
+      if (index + 1 >= roundEnd) {
+        // むずかしいモードの ⭐ は ふつうとは べつに あつめられる
+        const stage = `${level === "stories" ? `stories-${storyId}` : `lv${level}-${roundIndex + 1}`}${hardMode ? "-hard" : ""}`;
+        setRoundReward(recordStars("puzzle", stage, starsFromMistakes(mistakes + extraMistakes, 2)));
+        return;
+      }
+      setIndex((i) => i + 1);
+    },
+    [clearAdvanceTimer, hardMode, index, level, mistakes, roundEnd, roundIndex, storyId],
+  );
+
+  const startRoundAt = useCallback((start: number) => {
+    setRoundReward(null);
+    setMistakes(0);
+    setIndex(start);
+  }, []);
+
+  /**
+   * かたちヒントの あり/なしを 切りかえる。⭐ は モードごとに べつの ステージなので、
+   * とちゅうで 切りかえたら いまの ステージを さいしょから やりなおす
+   * (ふつうモードで ほとんど とき、さいごだけ むずかしいモードで ⭐ を とれないように)。
+   */
+  const changeHardMode = useCallback(
+    (next: boolean) => {
+      if (next === hardMode) return;
+      hardModeStore.set(next);
+      clearAdvanceTimer();
+      cancelSpeech();
+      setSlots({});
+      setPlacedKeys(new Set());
+      setCompleted(false);
+      setSelectedKey(null);
+      startRoundAt(roundStart);
+    },
+    [clearAdvanceTimer, hardMode, roundStart, startRoundAt],
+  );
 
   /**
    * ピースをスロットに置こうとしたときの判定。
@@ -262,14 +223,11 @@ export default function Page() {
       // 既に埋まっているスロットには置けない
       if (slots[slotRole]) return false;
 
-      // 役割違い(形が合わない) → 拒否
-      if (piece.role !== slotRole) {
+      // 役割違い(形が合わない)、または役割は合うがラベルが正解と違う → 拒否
+      if (piece.role !== slotRole || piece.label !== correctLabel(current, slotRole)) {
         reject(piece.key, slotRole);
-        return false;
-      }
-      // 役割は合うがラベルが正解と違う → 拒否
-      if (piece.label !== correctLabel(current, slotRole)) {
-        reject(piece.key, slotRole);
+        // レベル1の SVO カードは、きょうのダンジョンで ふくしゅうできるよう「にがて」に記録する
+        if (level === 1) recordMistake("svo", current.id);
         return false;
       }
 
@@ -285,7 +243,7 @@ export default function Page() {
       setSelectedKey(null);
       return true;
     },
-    [current, slots, reject],
+    [current, level, slots, reject],
   );
 
   // 3 スロットすべて埋まったら完成
@@ -421,10 +379,13 @@ export default function Page() {
 
   // -------- コントロール --------
   const skip = useCallback(() => {
+    // 3つ はまって 次のカードへ 進む えんしゅつ中は、スキップしても まちがいに しない
+    if (completed || roundReward) return;
     unlockOnce();
     clearAdvanceTimer();
-    goNext();
-  }, [clearAdvanceTimer, goNext, unlockOnce]);
+    setMistakes((count) => count + 1);
+    goNext(1);
+  }, [clearAdvanceTimer, completed, goNext, roundReward, unlockOnce]);
 
   const restart = useCallback(() => {
     unlockOnce();
@@ -435,6 +396,8 @@ export default function Page() {
     setScore(0);
     setStreak(0);
     setAllCleared(false);
+    setMistakes(0);
+    setRoundReward(null);
   }, [clearAdvanceTimer, unlockOnce]);
 
   /**
@@ -457,6 +420,8 @@ export default function Page() {
       setScore(0);
       setStreak(0);
       setAllCleared(false);
+    setMistakes(0);
+    setRoundReward(null);
     },
     [level, storyId, baseCards, lv2Cards, clearAdvanceTimer, unlockOnce],
   );
@@ -471,6 +436,8 @@ export default function Page() {
     setScore(0);
     setStreak(0);
     setAllCleared(false);
+    setMistakes(0);
+    setRoundReward(null);
   }
 
   // 表示待ちのトレイピース(まだ置かれていないもの)
@@ -482,17 +449,27 @@ export default function Page() {
   // ---------------- 表示 ----------------
 
   const header = (
-    <header className={styles.headerBar}>
-      <h1 className={styles.title}>Puzzle Grammar</h1>
-      <nav className={styles.nav}>
-        <Link href="/" className={styles.navLink}>
-          トップ
-        </Link>
-        <Link href="/svo" className={styles.navLink}>
-          SVOカルタ
-        </Link>
-      </nav>
-    </header>
+    <AppHeader
+      title="Puzzle Grammar"
+      accent="var(--accent-puzzle)"
+      right={
+        <SettingsSheet>
+          <SettingsRow label="かたちの ヒント">
+            <SettingsChoice
+              value={hardMode ? "off" : "on"}
+              options={[
+                { value: "on", label: "あり" },
+                { value: "off", label: "なし(むずかしい)" },
+              ]}
+              onChange={(value) => changeHardMode(value === "off")}
+            />
+          </SettingsRow>
+          <SettingsRow label="よみあげの はやさ">
+            <SpeedControl showLabel={false} />
+          </SettingsRow>
+        </SettingsSheet>
+      }
+    />
   );
 
   // enabled な lv2 カードが 1 枚もない間はレベル2を選べない
@@ -522,7 +499,6 @@ export default function Page() {
       >
         {lv2Ready ? "レベル2" : "レベル2(じゅんびちゅう)"}
       </button>
-      <SpeedControl />
       <button type="button"
         className={`${styles.levelButton} ${level === "stories" ? styles.levelButtonActive : ""}`}
         onClick={() => switchLevel("stories")} aria-pressed={level === "stories"}>
@@ -611,10 +587,19 @@ export default function Page() {
       <div className={styles.statusRow}>
         {level !== "stories" && <span>スコア: {score}</span>}
         {level !== "stories" && <span>れんぞく: {streak}</span>}
-        <span>カード: {index + 1} / {cards.length}</span>
+        {roundCount > 1 && (
+          <span>
+            ステージ: {roundIndex + 1} / {roundCount}
+          </span>
+        )}
+        <span>
+          カード: {index - roundStart + 1} / {roundEnd - roundStart}
+        </span>
       </div>
 
-      <p className={styles.instruction}>えに あう ぶんを つくろう!</p>
+      <p className={styles.instruction}>
+        えに あう ぶんを つくろう!{hardMode && " 🔥 かたちヒントなし"}
+      </p>
 
       {/* 絵 */}
       <div className={styles.pictureWrap}>
@@ -722,14 +707,14 @@ export default function Page() {
               onPointerUp={(e) => onPiecePointerUp(e, piece)}
               onPointerCancel={(e) => onPiecePointerUp(e, piece)}
             >
-              <PuzzlePiece role={piece.role} label={piece.label} />
+              <PuzzlePiece role={piece.role} label={piece.label} plain={hardMode} />
             </div>
           );
         })}
       </div>
 
       <div className={styles.controls}>
-        <button type="button" className={styles.secondaryButton} onClick={skip}>
+        <button type="button" className={styles.secondaryButton} onClick={skip} disabled={completed}>
           スキップ
         </button>
       </div>
@@ -737,6 +722,26 @@ export default function Page() {
       <p className={styles.hint}>
         ピースを ドラッグして スロットに いれてね。タップで えらんでも いいよ。
       </p>
+      {roundReward && (
+        <ResultDialog
+          title={roundEnd < cards.length ? `ステージ ${roundIndex + 1} クリア!` : "ぜんぶ クリア!"}
+          actions={[
+            roundEnd < cards.length
+              ? { label: "つぎの ステージ", onClick: () => startRoundAt(roundEnd) }
+              : {
+                  label: "おわり",
+                  onClick: () => {
+                    setRoundReward(null);
+                    setAllCleared(true);
+                  },
+                },
+            { label: "もういちど", variant: "secondary", onClick: () => startRoundAt(roundStart) },
+          ]}
+        >
+          <p style={{ margin: 0 }}>まちがい {mistakes}かい</p>
+          <RewardSummary result={roundReward} />
+        </ResultDialog>
+      )}
     </main>
   );
 }
