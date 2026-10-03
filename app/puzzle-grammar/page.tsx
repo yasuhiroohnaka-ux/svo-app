@@ -194,6 +194,26 @@ export default function Page() {
   }, []);
 
   /**
+   * かたちヒントの あり/なしを 切りかえる。⭐ は モードごとに べつの ステージなので、
+   * とちゅうで 切りかえたら いまの ステージを さいしょから やりなおす
+   * (ふつうモードで ほとんど とき、さいごだけ むずかしいモードで ⭐ を とれないように)。
+   */
+  const changeHardMode = useCallback(
+    (next: boolean) => {
+      if (next === hardMode) return;
+      hardModeStore.set(next);
+      clearAdvanceTimer();
+      cancelSpeech();
+      setSlots({});
+      setPlacedKeys(new Set());
+      setCompleted(false);
+      setSelectedKey(null);
+      startRoundAt(roundStart);
+    },
+    [clearAdvanceTimer, hardMode, roundStart, startRoundAt],
+  );
+
+  /**
    * ピースをスロットに置こうとしたときの判定。
    * @returns 受理されたら true
    */
@@ -359,11 +379,13 @@ export default function Page() {
 
   // -------- コントロール --------
   const skip = useCallback(() => {
+    // 3つ はまって 次のカードへ 進む えんしゅつ中は、スキップしても まちがいに しない
+    if (completed || roundReward) return;
     unlockOnce();
     clearAdvanceTimer();
     setMistakes((count) => count + 1);
     goNext(1);
-  }, [clearAdvanceTimer, goNext, unlockOnce]);
+  }, [clearAdvanceTimer, completed, goNext, roundReward, unlockOnce]);
 
   const restart = useCallback(() => {
     unlockOnce();
@@ -439,7 +461,7 @@ export default function Page() {
                 { value: "on", label: "あり" },
                 { value: "off", label: "なし(むずかしい)" },
               ]}
-              onChange={(value) => hardModeStore.set(value === "off")}
+              onChange={(value) => changeHardMode(value === "off")}
             />
           </SettingsRow>
           <SettingsRow label="よみあげの はやさ">
@@ -692,7 +714,7 @@ export default function Page() {
       </div>
 
       <div className={styles.controls}>
-        <button type="button" className={styles.secondaryButton} onClick={skip}>
+        <button type="button" className={styles.secondaryButton} onClick={skip} disabled={completed}>
           スキップ
         </button>
       </div>
